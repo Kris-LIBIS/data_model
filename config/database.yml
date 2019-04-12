@@ -1,0 +1,22 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 3
+
+  username: teneo
+  password: teneo
+
+  migrations_paths:
+    - "db/migrate"
+
+development:
+  <<: *default
+  database: teneo_data_model_dev
+
+test:
+  <<: *default
+  database: teneo_data_model_test
+
+production:
+  <<: *default
+  database: teneo_data_model

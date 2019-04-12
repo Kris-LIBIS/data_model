@@ -1,9 +1,7 @@
-RSpec.describe DataModel do
+RSpec.describe Teneo::DataModel do
+
   it "has a version number" do
-    expect(DataModel::VERSION).not_to be nil
+    expect(Teneo::DataModel::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
-  end
 end

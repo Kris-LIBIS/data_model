@@ -1,0 +1,6 @@
+en:
+  errors:
+    unique?: "must be unique"
+    array_of?: "must be an array of %{type_class}"
+    is_nil?: "should be nil"
+    not_nil?: "must not be nil"

@@ -6,6 +6,7 @@ module Teneo
     autoload :Organization, 'teneo/data_model/organization'
     autoload :Membership, 'teneo/data_model/membership'
     autoload :Format, 'teneo/data_model/format'
+    autoload :AccessRight, 'teneo/data_model/access_right'
 
     def self.root
       File.expand_path('../..', __dir__)

@@ -98,16 +98,16 @@ class DbSetup < ActiveRecord::Migration[5.2]
     end
 
     create_table :retention_policies do |t|
-      t.string :name, null: false
-      t.string :code, null: false
+      t.string :name, null: false, index: {unique: true}
+      t.string :ext_id, null: false
       t.string :description
 
       t.column :lock_version, :integer, null: false, default: 0
     end
 
     create_table :access_rights do |t|
-      t.string :name, null: false
-      t.string :code, null: false
+      t.string :name, null: false, index: {unique: true}
+      t.string :ext_id, null: false
       t.string :description
 
       t.column :lock_version, :integer, null: false, default: 0

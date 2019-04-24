@@ -5,26 +5,55 @@ require 'trailblazer/operation'
 module Teneo::DataModel::Concept
 
   class Operation < ::Trailblazer::Operation
+    V21 = (Trailblazer::VERSION =~ /^2\.1/)
+
     # include Model
     # extend Trailblazer::Operation::Contract::DSL
 
-    # class ToHash < Operation
-    #
-    # end
-    #
-    # class LoadFromYaml < Operation
-    #   step :load_yaml!
-    #   step :create_model!
-    # end
-
-    V21 = (Trailblazer::VERSION =~ /^2\.1/)
-
-    def self.[](params, options = {})
+    def self.build_params(params = {}, options = {})
       p = V21 ? {params: params} : params
-      p = params ? p : {}
-      V21 ? self.call(p.merge(options)) : self.call(p, options)
+      V21 ? [p.merge(options)] : [p, options]
     end
 
+    def self.result_param(param)
+      V21 ? param.to_sym : param.to_s
+    end
+
+    def result_param(param)
+      self.class.result_param(param)
+    end
+
+    def parent_module
+      self.class.parent_module
+    end
+
+    def get_model_class
+      self.class.get_model_class
+    end
+
+    def get_create_contract
+      self.class.get_create_contract
+    end
+
+    def get_update_contract
+      self.class.get_update_contract
+    end
+
+    def self.parent_module
+      Object.const_get(self.name.split('::').reverse.drop(1).reverse.join('::'))
+    end
+
+    def self.get_model_class
+      parent_module.const_get('MODEL_CLASS')
+    end
+
+    def self.get_create_contract
+      parent_module.const_get('CREATE_CONTRACT')
+    end
+
+    def self.get_update_contract
+      parent_module.const_get('UPDATE_CONTRACT')
+    end
   end
 
 end

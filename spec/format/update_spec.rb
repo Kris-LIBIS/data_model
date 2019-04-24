@@ -10,7 +10,7 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
   }
 
   let(:minimal_format) {
-    (Teneo::DataModel::Concept::Format::Operation::Create.(params: minimal_params))[:model]
+    Teneo::DataModel::Concept::Format::Operation::Create.(*build_params(minimal_params))[model_param]
   }
 
   context 'valid' do
@@ -26,13 +26,13 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- with full description' do
       format = minimal_format
-      result = subject.class.(params: full_params, id: format.id)
+      result = subject.class.(*build_params(full_params.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_success
-      expect(result[:model]).to be_persisted
-      expect(result[:model].id).to eql format.id
+      expect(result[model_param]).to be_persisted
+      expect(result[model_param].id).to eql format.id
       full_params.each do |key, value|
-        expect(result[:model][key]).to eq value
+        expect(result[model_param][key]).to eq value
       end
     end
 
@@ -42,12 +42,12 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- no name change' do
       format = minimal_format
-      result = subject.class.(params: name_change, id: format.id)
+      result = subject.class.(*build_params(name_change.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_success
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       minimal_params.each do |key, value|
-        expect(result[:model][key]).to eq value
+        expect(result[model_param][key]).to eq value
       end
     end
 
@@ -57,20 +57,20 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- only description' do
       format = minimal_format
-      result = subject.class.(params: only_description, id: format.id)
+      result = subject.class.(*build_params(only_description.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_success
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       minimal_params.each do |key, value|
-        expect(result[:model][key]).to eq value
+        expect(result[model_param][key]).to eq value
       end
       only_description.each do |key, value|
-        expect(result[:model][key]).to eq value
+        expect(result[model_param][key]).to eq value
       end
     end
 
     let(:full_format) {
-      (Teneo::DataModel::Concept::Format::Operation::Create.(params: full_params))[:model]
+      Teneo::DataModel::Concept::Format::Operation::Create.(*build_params(full_params))[model_param]
     }
 
     let(:remove_description) {
@@ -79,12 +79,12 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- remove description' do
       format = full_format
-      result = subject.class.(params: remove_description, id: format.id)
+      result = subject.class.(*build_params(remove_description.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_success
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       full_params.merge(remove_description).each do |key, value|
-        expect(result[:model][key]).to eq value
+        expect(result[model_param][key]).to eq value
       end
     end
 
@@ -94,12 +94,12 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- remove puids' do
       format = full_format
-      result = subject.class.(params: remove_puids, id: format.id)
+      result = subject.class.(*build_params(remove_puids.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_success
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       full_params.merge(remove_puids).each do |key, value|
-        expect(result[:model][key]).to eq value
+        expect(result[model_param][key]).to eq value
       end
     end
 
@@ -112,19 +112,19 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
     }
 
     let(:other_format) {
-      (Teneo::DataModel::Concept::Format::Operation::Create.(params: other_params))[:model]
+      Teneo::DataModel::Concept::Format::Operation::Create.(*build_params(other_params))[model_param]
     }
 
     it '-- duplicate name' do
       minimal_format
       format = other_format
-      result = subject.class.(params: other_params.merge(name: minimal_params[:name]), id: format.id)
+      result = subject.class.(*build_params(other_params.merge(name: minimal_params[:name], id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_failure
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       expect(result['contract.default'].errors.messages).to eq name: ['must be unique']
       other_params.each do |key, value|
-        expect(result[:model][key]).to eq value
+        expect(result[model_param][key]).to eq value
       end
     end
 
@@ -136,10 +136,10 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- wrong category' do
       format = minimal_format
-      result = subject.class.(params: wrong_category, id: format.id)
+      result = subject.class.(*build_params(wrong_category.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_failure
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       expect(result['contract.default'].errors.messages).to eq category: ['must be one of: IMAGE, AUDIO, VIDEO, TEXT, TABULAR, PRESENTATION, ARCHIVE, EMAIL, OTHER']
     end
 
@@ -151,10 +151,10 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- empty description' do
       format = minimal_format
-      result = subject.class.(params: emtpy_description, id: format.id)
+      result = subject.class.(*build_params(emtpy_description.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_failure
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       expect(result['contract.default'].errors.messages).to eq description: ['size cannot be less than 1']
     end
 
@@ -166,10 +166,10 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- no mimetypes' do
       format = minimal_format
-      result = subject.class.(params: no_mime_types, id: format.id)
+      result = subject.class.(*build_params(no_mime_types.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_failure
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       expect(result['contract.default'].errors.messages).to eq mime_types: ['must be filled', 'size cannot be less than 1', 'must be an array of String']
     end
 
@@ -181,10 +181,10 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- empty mimetypes' do
       format = minimal_format
-      result = subject.class.(params: empty_mime_types, id: format.id)
+      result = subject.class.(*build_params(empty_mime_types.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_failure
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       expect(result['contract.default'].errors.messages).to eq mime_types: ['must be filled', 'size cannot be less than 1', 'must be an array of String']
     end
 
@@ -196,10 +196,10 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- wrong mimetypes' do
       format = minimal_format
-      result = subject.class.(params: wrong_mime_types, id: format.id)
+      result = subject.class.(*build_params(wrong_mime_types.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_failure
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       expect(result['contract.default'].errors.messages).to eq mime_types: ['must be an array', 'size cannot be less than 1', 'must be an array of String']
     end
 
@@ -211,10 +211,10 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Update do
 
     it '-- bad mimetypes' do
       format = minimal_format
-      result = subject.class.(params: bad_mime_types, id: format.id)
+      result = subject.class.(*build_params(bad_mime_types.merge(id: format.id)))
       # ap result['contract.default'].errors.messages
       expect(result).to be_failure
-      expect(result[:model]).to be_persisted
+      expect(result[model_param]).to be_persisted
       expect(result['contract.default'].errors.messages).to eq mime_types: ['must be an array of String']
     end
 

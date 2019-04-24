@@ -10,19 +10,19 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Show do
   }
 
   let(:minimal_format) {
-    (Teneo::DataModel::Concept::Format::Operation::Create.(params: minimal_params))[:model]
+    Teneo::DataModel::Concept::Format::Operation::Create.(*build_params(minimal_params))[model_param]
   }
 
   context 'valid' do
 
     it '-- get format' do
       format = minimal_format
-      result = subject.class.(id: format.id)
+      result = subject.class.(*build_params(id: format.id))
       expect(result).to be_success
-      expect(result[:model]).to be_persisted
-      expect(result[:model].id).to eql format.id
+      expect(result[model_param]).to be_persisted
+      expect(result[model_param].id).to eql format.id
       minimal_params.each do |key, value|
-        expect(result[:model][key]).to eq value
+        expect(result[model_param][key]).to eq value
       end
     end
 
@@ -32,10 +32,12 @@ RSpec.describe Teneo::DataModel::Concept::Format::Operation::Show do
 
     it '-- wrong ID' do
       format = minimal_format
-      result = subject.class.(id: format.id * 100)
+      id = format.id * 100
+      result = subject.class.(*build_params(id: id))
       expect(result).to be_failure
-      expect(result[:model]).to be_nil
-      expect(result[:errors]).to include?('TBD')
+      expect(result[model_param]).to be_nil
+      # noinspection RubyResolve
+      expect(result[:errors]).to include("Instance of Teneo::DataModel::Format with id '#{id}' not found.")
     end
 
   end

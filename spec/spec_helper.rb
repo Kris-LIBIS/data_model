@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require "bundler/setup"
 require "teneo/data_model"
+require 'trailblazer'
 
 RSpec.configure do |config|
 
@@ -17,12 +18,10 @@ RSpec.configure do |config|
   end
 end
 
-VER='2.0'
-def build_params(params = nil, options = {})
-  p = VER=='2.1' ? {params: params} : params
-  p = params ? p : {}
-  VER=='2.1' ? [p.merge(options)] : [p, options]
+def build_params(*args)
+  Teneo::DataModel::Concept::Operation.build_params(*args)
 end
+
 def model_param
-  VER=='2.1' ? :model : 'model'
+  Teneo::DataModel::Concept::Operation.result_param(:model)
 end

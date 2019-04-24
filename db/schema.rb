@@ -18,9 +18,10 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "access_rights", force: :cascade do |t|
     t.string "name", null: false
-    t.string "code", null: false
+    t.string "ext_id", null: false
     t.string "description"
     t.integer "lock_version", default: 0, null: false
+    t.index ["name"], name: "index_access_rights_on_name", unique: true
   end
 
   create_table "conversion_jobs", force: :cascade do |t|
@@ -187,9 +188,10 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "retention_policies", force: :cascade do |t|
     t.string "name", null: false
-    t.string "code", null: false
+    t.string "ext_id", null: false
     t.string "description"
     t.integer "lock_version", default: 0, null: false
+    t.index ["name"], name: "index_retention_policies_on_name", unique: true
   end
 
   create_table "status_logs", force: :cascade do |t|

@@ -13,6 +13,7 @@ RSpec.configure do |config|
   end
 end
 
+=begin
 module ActiveModel::Validations
   # Extension to enhance `should have` on AR Model instances.  Calls
   # model.valid? in order to prepare the object's errors object.
@@ -32,3 +33,4 @@ module ActiveModel::Validations
   end
   alias :error_on :errors_on
 end
+=end

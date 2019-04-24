@@ -35,8 +35,10 @@ module Teneo::DataModel::Concept
           value.is_a?(Array) && value.all? {|x| x.is_a?(type_class)}
         end
 
-        def unique?(column, value)
-          value.nil? || form.model.class.where.not(id: form.model.id).find_by(Hash[column, value]).nil?
+        def unique?(column, _value)
+          return true if form.model.nil?
+          hash = (column.is_a?(Array) ? column : [column]).inject({}) { |hash,key| hash[key] = form.send(key) ; hash}
+          form.model.class.where.not(id: form.model.id).find_by(hash).nil?
         end
 
         def exists?(column, value)

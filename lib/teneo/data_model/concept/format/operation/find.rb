@@ -12,9 +12,9 @@ module Teneo::DataModel::Concept::Format::Operation
 
     failure :not_found!#, Output(:failure) => End(:not_found)
 
-    def not_found!(ctx, id:, **)
+    def not_found!(ctx, params:, **)
       ctx[:errors] ||= []
-      ctx[:errors] << "Instance of #{MODEL_CLASS} with id '#{id}' not found."
+      ctx[:errors] << "Instance of #{MODEL_CLASS} with id '#{params[:id]}' not found."
     end
 
   end

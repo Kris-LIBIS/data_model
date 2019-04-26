@@ -2,7 +2,7 @@
 
 require 'teneo/data_model'
 
-module Teneo::DataModel::Concept::Format::Contract
+module Teneo::DataModel::Format::Contract
 
   class Base < Teneo::DataModel::Concept::Contract
 

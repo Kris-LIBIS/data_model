@@ -2,7 +2,7 @@
 
 require 'teneo/data_model'
 
-module Teneo::DataModel::Concept::Format::Contract
+module Teneo::DataModel::Format::Contract
 
   class Create < Base
 
@@ -13,7 +13,7 @@ module Teneo::DataModel::Concept::Format::Contract
     property :puids
     property :extensions
 
-    validation :default, inherit: true do
+    validation name: :default, inherit: true do
       required(:name).filled(:str?) {unique?(:name)}
       required(:category).filled(:str?, included_in?: %w'IMAGE AUDIO VIDEO TEXT TABULAR PRESENTATION ARCHIVE EMAIL OTHER')
       optional(:description).maybe(:str?, min_size?: 1)

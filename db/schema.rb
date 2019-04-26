@@ -45,8 +45,20 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["parameters"], name: "index_converters_on_parameters", using: :gin
   end
 
-# Could not dump table "formats" because of following StandardError
-#   Unknown type 'format_category' for column 'category'
+  create_table "formats", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "category", null: false
+    t.string "description"
+    t.string "mime_types", null: false, array: true
+    t.string "puids", array: true
+    t.string "extensions", null: false, array: true
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.index ["extensions"], name: "index_formats_on_extensions", using: :gin
+    t.index ["mime_types"], name: "index_formats_on_mime_types", using: :gin
+    t.index ["name"], name: "index_formats_on_name", unique: true
+    t.index ["puids"], name: "index_formats_on_puids", using: :gin
+  end
 
   create_table "ingest_agreements", force: :cascade do |t|
     t.string "name", null: false

@@ -1,26 +1,16 @@
 # frozen_string_literal: true
 
-module Teneo::DataModel::Concept
+module Teneo::DataModel::AccessRight::Contract
 
-  module AccessRight
+  autoload :Base, 'teneo/data_model/concept/access_right/contract/base'
+  autoload :Create, 'teneo/data_model/concept/access_right/contract/create'
+  autoload :Update, 'teneo/data_model/concept/access_right/contract/update'
 
-    module Contract
-      # Contracts
-      autoload :Base, 'teneo/data_model/concept/access_right/contract/base'
-      autoload :Create, 'teneo/data_model/concept/access_right/contract/create'
-      autoload :Update, 'teneo/data_model/concept/access_right/contract/update'
-    end
+end
 
-    module Operation
+module Teneo::DataModel::AccessRight::Operation
 
-      MODEL_CLASS = Teneo::DataModel::AccessRight
-      CREATE_CONTRACT = Teneo::DataModel::Concept::AccessRight::Contract::Create
-      UPDATE_CONTRACT = Teneo::DataModel::Concept::AccessRight::Contract::Update
-
-      include CRUD
-
-    end
-
-  end
+  MODEL_CLASS = 'Teneo::DataModel::AccessRight'
+  include Teneo::DataModel::Concept::CRUD
 
 end

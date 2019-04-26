@@ -266,6 +266,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :formats do |t|
       t.string :name, null: false, index: {unique: true}
+      t.string :category, null: false
       t.string :description
       t.string :mime_types, array: true, null: false
       t.string :puids, array: true
@@ -276,27 +277,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.index :mime_types, using: :gin
       t.index :puids, using: :gin
       t.index :extensions, using: :gin
-    end
-
-    reversible do |change|
-
-      change.up do
-
-        execute <<-SQL
-          CREATE TYPE format_category AS ENUM ('IMAGE', 'AUDIO', 'VIDEO', 'TEXT', 'TABULAR', 'PRESENTATION', 'ARCHIVE', 'EMAIL', 'OTHER');
-        SQL
-
-        # noinspection RailsParamDefResolve
-        add_column :formats, :category, :format_category, index: true
-      end
-
-      change.down do
-
-        execute <<-SQL
-          DROP TYPE format_category;
-        SQL
-
-      end
     end
 
   end

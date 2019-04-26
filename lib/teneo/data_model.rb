@@ -7,6 +7,8 @@ module Teneo
     autoload :Membership, 'teneo/data_model/membership'
     autoload :Format, 'teneo/data_model/format'
     autoload :AccessRight, 'teneo/data_model/access_right'
+    autoload :RetentionPolicy, 'teneo/data_model/retention_policy'
+    autoload :RepresentationInfo, 'teneo/data_model/representation_info'
 
     def self.root
       File.expand_path('../..', __dir__)

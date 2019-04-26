@@ -5,7 +5,7 @@ require 'trailblazer'
 
 RSpec.configure do |config|
 
-  require 'active_record_spec_helper'
+  require 'support/active_record_spec_helper'
 
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"

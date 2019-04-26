@@ -2,7 +2,7 @@
 
 require 'teneo/data_model'
 
-module Teneo::DataModel::AccessRight::Contract
+module Teneo::DataModel::RetentionPolicy::Contract
 
   class Update < Create
 

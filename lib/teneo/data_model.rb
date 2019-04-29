@@ -9,6 +9,9 @@ module Teneo
     autoload :AccessRight, 'teneo/data_model/access_right'
     autoload :RetentionPolicy, 'teneo/data_model/retention_policy'
     autoload :RepresentationInfo, 'teneo/data_model/representation_info'
+    autoload :MaterialFlow, 'teneo/data_model/material_flow'
+    autoload :Producer, 'teneo/data_model/producer'
+    autoload :IngestAgreement, 'teneo/data_model/ingest_agreement'
 
     def self.root
       File.expand_path('../..', __dir__)

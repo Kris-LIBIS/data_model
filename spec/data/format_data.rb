@@ -44,7 +44,7 @@ module Format
               params: ITEMS[:word]
           },
           'name missing' => {
-              params: ITEMS[:tiff].dup.tap {|x| x.delete(:name)},
+              params: ITEMS[:tiff].reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },
@@ -57,7 +57,7 @@ module Format
           'empty description' => {
               params: ITEMS[:jpeg].merge(description: ''),
               failure: true,
-              errors: {description: ['size cannot be less than 1']}
+              errors: {description: ['must be filled']}
           },
           'wrong category' => {
               params: ITEMS[:tiff].merge(category: 'BAD'),
@@ -65,19 +65,19 @@ module Format
               errors: {category: ['must be one of: IMAGE, AUDIO, VIDEO, TEXT, TABULAR, PRESENTATION, ARCHIVE, EMAIL, OTHER']}
           },
           'no mimetypes' => {
-              params: ITEMS[:tiff].dup.tap {|x| x.delete(:mime_types)},
+              params: ITEMS[:tiff].reject {|k| k == :mime_types},
               failure: true,
-              errors: {mime_types: ['must be filled', 'size cannot be less than 1', 'must be an array of String']}
+              errors: {mime_types: ['must be filled', 'must be an array of String']}
           },
           'empty mimetypes' => {
               params: ITEMS[:tiff].merge(mime_types: []),
               failure: true,
-              errors: {mime_types: ['must be filled', 'size cannot be less than 1', 'must be an array of String']}
+              errors: {mime_types: ['must be filled', 'must be an array of String']}
           },
           'wrong mimetypes' => {
               params: ITEMS[:tiff].merge(mime_types: :tiff),
               failure: true,
-              errors: {mime_types: ['must be an array', 'size cannot be less than 1', 'must be an array of String']}
+              errors: {mime_types: ['must be an array of String']}
           },
           'bad mimetypes' => {
               params: ITEMS[:tiff].merge(mime_types: [:tiff]),
@@ -87,22 +87,22 @@ module Format
           'empty puids' => {
               params: ITEMS[:tiff].merge(puids: []),
               failure: true,
-              errors: {puids: ['size cannot be less than 1', 'must be an array of String']}
+              errors: {puids: ['must be filled', 'must be an array of String']}
           },
           'no extensions' => {
-              params: ITEMS[:tiff].dup.tap {|x| x.delete(:extensions)},
+              params: ITEMS[:tiff].reject {|k| k == :extensions},
               failure: true,
-              errors: {extensions: ['must be filled', 'size cannot be less than 1', 'must be an array of String']}
+              errors: {extensions: ['must be filled', 'must be an array of String']}
           },
           'empty extensions' => {
               params: ITEMS[:tiff].merge(extensions: []),
               failure: true,
-              errors: {extensions: ['must be filled', 'size cannot be less than 1', 'must be an array of String']}
+              errors: {extensions: ['must be filled', 'must be an array of String']}
           },
           'wrong extensions' => {
               params: ITEMS[:tiff].merge(extensions: 123),
               failure: true,
-              errors: {extensions: ['must be an array', 'size cannot be less than 1', 'must be an array of String']}
+              errors: {extensions: ['must be an array of String']}
           },
           'bad extensionss' => {
               params: ITEMS[:tiff].merge(extensions: [123]),
@@ -164,7 +164,7 @@ module Format
               init: Proc.new {|ctx, spec| spec[:id] = ctx.create_class.(*build_params(ITEMS[:jpeg]))[model_param].id},
               params: {description: ''},
               failure: true,
-              errors: {description: ['size cannot be less than 1']}
+              errors: {description: ['must be filled']}
           },
           'wrong category' => {
               init: Proc.new {|ctx, spec| spec[:id] = ctx.create_class.(*build_params(ITEMS[:tiff]))[model_param].id},
@@ -176,19 +176,19 @@ module Format
               init: Proc.new {|ctx, spec| spec[:id] = ctx.create_class.(*build_params(ITEMS[:tiff]))[model_param].id},
               params: {mime_types: nil},
               failure: true,
-              errors: {mime_types: ['must be filled', 'size cannot be less than 1', 'must be an array of String']}
+              errors: {mime_types: ['must be filled', 'must be an array of String']}
           },
           'empty mimetypes' => {
               init: Proc.new {|ctx, spec| spec[:id] = ctx.create_class.(*build_params(ITEMS[:tiff]))[model_param].id},
               params: {mime_types: []},
               failure: true,
-              errors: {mime_types: ['must be filled', 'size cannot be less than 1', 'must be an array of String']}
+              errors: {mime_types: ['must be filled', 'must be an array of String']}
           },
           'wrong mimetypes' => {
               init: Proc.new {|ctx, spec| spec[:id] = ctx.create_class.(*build_params(ITEMS[:tiff]))[model_param].id},
               params: {mime_types: :tiff},
               failure: true,
-              errors: {mime_types: ['must be an array', 'size cannot be less than 1', 'must be an array of String']}
+              errors: {mime_types: ['must be an array of String']}
           },
           'bad mimetypes' => {
               init: Proc.new {|ctx, spec| spec[:id] = ctx.create_class.(*build_params(ITEMS[:tiff]))[model_param].id},

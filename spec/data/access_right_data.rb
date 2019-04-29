@@ -39,7 +39,7 @@ module AccessRight
               params: ITEMS[:private]
           },
           'name missing' => {
-              params: ITEMS[:public].dup.tap {|x| x.delete(:name)},
+              params: ITEMS[:public].reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },
@@ -54,7 +54,7 @@ module AccessRight
           'empty description' => {
               params: ITEMS[:private].merge(description: ''),
               failure: true,
-              errors: {description: ['size cannot be less than 1']}
+              errors: {description: ['must be filled']}
           }
       },
       retrieve: {
@@ -112,7 +112,7 @@ module AccessRight
               end,
               params: {description: ''},
               failure: true,
-              errors: {description: ['size cannot be less than 1']}
+              errors: {description: ['must be filled']}
           }
       },
       delete: {

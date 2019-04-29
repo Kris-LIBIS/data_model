@@ -1,6 +1,7 @@
 en:
   errors:
     unique?: "must be unique"
+    unique_combo?: "must be a unique combination"
     array_of?: "must be an array of %{type_class}"
     is_nil?: "should be nil"
     not_nil?: "must not be nil"

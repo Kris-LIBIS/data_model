@@ -28,7 +28,7 @@ module RepresentationInfo
           },
           'by preservation_type and usage_type' => {
               options: {filter: {preservation_type: 'DERIVATIVE_COPY', usage_type: 'VIEW'}},
-              check_params: [ITEMS[:high],ITEMS[:low]]
+              check_params: [ITEMS[:high], ITEMS[:low]]
           },
           'by presservation_type and usage_type without match' => {
               options: {filter: {preservation_type: 'PRESERVATION_MASTER', usage_type: 'THUMBNAIL'}},
@@ -44,7 +44,7 @@ module RepresentationInfo
               params: ITEMS[:high]
           },
           'name missing' => {
-              params: ITEMS[:archive].dup.tap {|x| x.delete(:name)},
+              params: ITEMS[:archive].reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },
@@ -59,7 +59,7 @@ module RepresentationInfo
           'empty preservation_type' => {
               params: ITEMS[:high].merge(preservation_type: ''),
               failure: true,
-              errors: {description: ['size cannot be less than 1']}
+              errors: {:preservation_type=>["must be filled"]}
           }
       },
       retrieve: {
@@ -75,11 +75,11 @@ module RepresentationInfo
           }
       },
       update: {
-          'with description' => {
+          'with representation_code' => {
               init: Proc.new do |ctx, spec|
                 spec[:id] = ctx.create_class.(*build_params(ITEMS[:archive]))[model_param].id
               end,
-              params: ITEMS[:archive].merge(description: 'Public access'),
+              params: ITEMS[:archive].merge(representation_code: 'ARCHIVE'),
           },
           'no name change' => {
               init: Proc.new do |ctx, spec|
@@ -88,19 +88,19 @@ module RepresentationInfo
               params: {name: 'OPEN'},
               check_params: ITEMS[:archive],
           },
-          'only description' => {
+          'only representation_code' => {
               init: Proc.new do |ctx, spec|
                 spec[:id] = ctx.create_class.(*build_params(ITEMS[:archive]))[model_param].id
               end,
-              params: {description: 'Public access'},
-              check_params: ITEMS[:archive].merge(description: 'Public access'),
+              params: {representation_code: 'ARCHIVE'},
+              check_params: ITEMS[:archive].merge(representation_code: 'ARCHIVE'),
           },
-          'remove description' => {
+          'remove representation_code' => {
               init: Proc.new do |ctx, spec|
                 spec[:id] = ctx.create_class.(*build_params(ITEMS[:high]))[model_param].id
               end,
-              params: {description: nil},
-              check_params: ITEMS[:high].merge(description: nil),
+              params: {representation_code: nil},
+              check_params: ITEMS[:high].merge(representation_code: nil),
           },
           'duplicate name' => {
               init: Proc.new do |ctx, spec|
@@ -111,13 +111,13 @@ module RepresentationInfo
               failure: true,
               errors: {name: ['must be unique']}
           },
-          'empty description' => {
+          'empty representation_code' => {
               init: Proc.new do |ctx, spec|
                 spec[:id] = ctx.create_class.(*build_params(ITEMS[:high]))[model_param].id
               end,
-              params: {description: ''},
+              params: {representation_code: ''},
               failure: true,
-              errors: {description: ['size cannot be less than 1']}
+              errors: {representation_code: ['size cannot be less than 1']}
           }
       },
       delete: {

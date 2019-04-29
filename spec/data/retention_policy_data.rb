@@ -39,7 +39,7 @@ module RetentionPolicy
               params: ITEMS[:keep10y]
           },
           'name missing' => {
-              params: ITEMS[:permanent].dup.tap {|x| x.delete(:name)},
+              params: ITEMS[:permanent].reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },

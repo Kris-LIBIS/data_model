@@ -22,6 +22,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
     params = params.merge(id: spec[:id]) if spec[:id]
     params = build_params(params, spec[:options])
     result = subject.(*params)
+    ap result if RSPEC_DEBUG
     if spec[:failure]
       expect(result).to be_failure
       ap result["contract.#{operation_type}"]&.errors&.messages if RSPEC_DEBUG
@@ -56,13 +57,13 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
       spec[:check_params] = spec[:check_params] || spec[:params] || {}
       if spec[:check_params].is_a? Array
         expect(result[model_param].count).to eql spec[:check_params].size
-        spec[:check_params].each_with_index do |params, i|
-          params.each do |key, value|
+        spec[:check_params].each_with_index do |parameters, i|
+          parameters.each do |key, value|
             expect(result[model_param][i][key]).to eql value
           end
         end
       else
-        ap result[model_param&.attributes]&.inspect if RSPEC_DEBUG
+        ap result[model_param]&.attributes&.inspect if RSPEC_DEBUG
         spec[:check_params].each do |key, value|
           expect(result[model_param].send(key)).to eq value
         end
@@ -84,6 +85,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
       # ap item_params
       item_params.values.each do |params|
         result = create_class.(*build_params(params))
+        # ap result
         expect(result).to be_success
       end
     end

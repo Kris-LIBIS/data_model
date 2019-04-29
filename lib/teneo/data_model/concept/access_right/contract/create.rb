@@ -13,7 +13,7 @@ module Teneo::DataModel::AccessRight::Contract
     validation name: :default, inherit: true do
       required(:name).filled(:str?) {unique? :name}
       required(:ext_id).filled(:str?)
-      optional(:description).maybe(:str?, min_size?: 1)
+      optional(:description).maybe(:str?, :filled?)
     end
 
   end

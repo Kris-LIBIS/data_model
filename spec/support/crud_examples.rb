@@ -85,7 +85,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
       # ap item_params
       item_params.values.each do |params|
         result = create_class.(*build_params(params))
-        # ap result
+        ap result if RSPEC_DEBUG
         expect(result).to be_success
       end
     end

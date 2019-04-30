@@ -23,10 +23,10 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :organizations do |t|
       t.string :name, null: false, index: {unique: true}
-      t.string :description
-      t.string :inst_code
+      t.string :inst_code, null: false
       t.string :ingest_dir
-      t.jsonb :upload_areas, null: false, default: '{}'
+      t.string :description
+      t.jsonb :upload_areas
 
       t.column :lock_version, :integer, null: false, default: 0
     end

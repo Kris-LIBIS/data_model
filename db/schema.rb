@@ -155,10 +155,10 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "organizations", force: :cascade do |t|
     t.string "name", null: false
-    t.string "description"
-    t.string "inst_code"
+    t.string "inst_code", null: false
     t.string "ingest_dir"
-    t.jsonb "upload_areas", default: "{}", null: false
+    t.string "description"
+    t.jsonb "upload_areas"
     t.integer "lock_version", default: 0, null: false
     t.index ["name"], name: "index_organizations_on_name", unique: true
     t.index ["upload_areas"], name: "index_organizations_on_upload_areas", using: :gin

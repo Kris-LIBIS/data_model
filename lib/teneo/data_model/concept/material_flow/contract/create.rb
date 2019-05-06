@@ -13,14 +13,11 @@ module Teneo::DataModel::MaterialFlow::Contract
 
     validation name: :default, inherit: true, with: {form: true} do
 
-      required(:name) .filled(:str?)
-      required(:ext_id ).filled(:str?)
+      required(:name).filled(:str?) {unique_scope? [:inst_code, :name]}
+      required(:ext_id).filled(:str?)
       required(:inst_code).filled(:str?)
       optional(:description).maybe(:filled?, :str?)
 
-      rule unique_combo: [:name, :inst_code] do |name, _inst_code|
-        name.unique_combo?([:name, :inst_code])
-      end
     end
 
   end

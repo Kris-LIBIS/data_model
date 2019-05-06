@@ -13,9 +13,9 @@ module Teneo
         end
 
         def self.load(hash)
+          return nil if hash.nil? or hash.empty?
           hash = JSON.parse(hash) if hash.is_a?(String)
-          # return {} if hash.nil?
-          hash.with_indifferent_access
+          (hash || {}).with_indifferent_access
         end
       end
 

@@ -30,6 +30,7 @@ class Teneo::DataModel::Concept::Contract < Reform::Form
       end
 
       def array_of?(type_class, value)
+        return true if value.nil?
         value.is_a?(Array) && value.all? {|x| x.is_a?(type_class)}
       end
 
@@ -39,16 +40,21 @@ class Teneo::DataModel::Concept::Contract < Reform::Form
         query.nil?
       end
 
-      def unique_combo?(columns, _value)
+      def unique_scope?(columns, value)
         hash = columns.inject({}) do |hash, column|
           hash[column] = form.model.send(column) || form.input_params[column]; hash
         end
+        hash[columns.last] = value
         query = form.model.class.where.not(id: form.model.id).find_by(hash)
         query.nil?
       end
 
       def exists?(column, value)
         !form.model.class.find_by(Hash[column, value]).nil?
+      end
+
+      def model_exist?(model, id)
+        !model.find_by(id: id).nil?
       end
     end
   end

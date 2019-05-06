@@ -158,10 +158,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "inst_code", null: false
     t.string "ingest_dir"
     t.string "description"
-    t.jsonb "upload_areas"
     t.integer "lock_version", default: 0, null: false
     t.index ["name"], name: "index_organizations_on_name", unique: true
-    t.index ["upload_areas"], name: "index_organizations_on_upload_areas", using: :gin
   end
 
   create_table "packages", force: :cascade do |t|
@@ -217,6 +215,15 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["item_id"], name: "index_status_logs_on_item_id"
   end
 
+  create_table "storages", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "protocol", null: false
+    t.jsonb "options"
+    t.bigint "organization_id", null: false
+    t.index ["organization_id", "name"], name: "index_storages_on_organization_id_and_name", unique: true
+    t.index ["organization_id"], name: "index_storages_on_organization_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "uuid", null: false
     t.string "email", default: "", null: false
@@ -260,4 +267,5 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "memberships", "users"
   add_foreign_key "packages", "ingest_agreements"
   add_foreign_key "status_logs", "items", on_delete: :cascade
+  add_foreign_key "storages", "organizations"
 end

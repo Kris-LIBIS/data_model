@@ -26,12 +26,19 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :inst_code, null: false
       t.string :ingest_dir
       t.string :description
-      t.jsonb :upload_areas
 
       t.column :lock_version, :integer, null: false, default: 0
     end
 
-    add_index :organizations, :upload_areas, using: :gin
+    create_table :storages do |t|
+      t.string :name, null: false
+      t.string :protocol, null: false
+      t.jsonb :options
+
+      t.references :organization, foreign_key: true, null: false
+    end
+
+    add_index :storages, [:organization_id, :name], unique: true
 
     create_table :memberships do |t|
       t.references :user, foreign_key: true

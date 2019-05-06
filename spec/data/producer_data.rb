@@ -41,7 +41,7 @@ module Producer
           'name missing' => {
               params: ITEMS[:ingester].reject {|k| k == :name},
               failure: true,
-              errors: {name: ['must be filled']}
+              errors: {name: ['must be filled', 'must be unique within its scope']}
           },
           'ext_id missing' => {
               params: ITEMS[:ingester].reject {|k| k == :ext_id},
@@ -69,7 +69,7 @@ module Producer
               end,
               params: ITEMS[:ingester],
               failure: true,
-              errors: {unique_combo: ["must be a unique combination"]}
+              errors: {name: ["must be unique within its scope"]}
           },
           'duplicate name but other inst_code' => {
               init: Proc.new do |ctx, _spec|

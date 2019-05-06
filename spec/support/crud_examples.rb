@@ -2,16 +2,17 @@
 
 require 'teneo/data_model'
 require 'awesome_print'
+require 'prettyprint'
 
 require 'support/active_record_spec_helper'
 
-RSPEC_DEBUG = false
+RSPEC_DEBUG = true
 
 def spec_desciption(desc, spec)
   "#{spec[:failure] ? 'Failure' : 'Success'} : #{desc}"
 end
 
-RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_data|
+RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_data, init_proc = nil|
 
   # noinspection RubyResolve
   def spec_macro(spec, operation_type:)
@@ -22,10 +23,10 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
     params = params.merge(id: spec[:id]) if spec[:id]
     params = build_params(params, spec[:options])
     result = subject.(*params)
-    ap result if RSPEC_DEBUG
+    pp result if RSPEC_DEBUG
     if spec[:failure]
       expect(result).to be_failure
-      ap result["contract.#{operation_type}"]&.errors&.messages if RSPEC_DEBUG
+      pp result["contract.#{operation_type}"]&.errors&.messages if RSPEC_DEBUG
       case operation_type
       when :create
         expect(result[model_param]).not_to be_nil
@@ -63,7 +64,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
           end
         end
       else
-        ap result[model_param]&.attributes&.inspect if RSPEC_DEBUG
+        pp result[model_param]&.attributes&.inspect if RSPEC_DEBUG
         spec[:check_params].each do |key, value|
           expect(result[model_param].send(key)).to eq value
         end
@@ -82,10 +83,12 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
     }
 
     before(:example) do
-      # ap item_params
+      init_proc.() if init_proc
+      # pp item_params
       item_params.values.each do |params|
+        # klass = params.delete(:create_class) || create_class
         result = create_class.(*build_params(params))
-        ap result if RSPEC_DEBUG
+        pp result if RSPEC_DEBUG
         expect(result).to be_success
       end
     end

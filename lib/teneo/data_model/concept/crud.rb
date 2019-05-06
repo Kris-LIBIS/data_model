@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'trailblazer'
 require 'trailblazer/operation'
+require 'trailblazer/operation'
 
 module Teneo::DataModel::Concept::CRUD
 
@@ -29,9 +30,9 @@ module Teneo::DataModel::Concept::CRUD
   class Create < Base
 
     step Trailblazer::Operation::Model(nil, :new)
-    step Trailblazer::Operation::Contract.Build name: :create
-    step Trailblazer::Operation::Contract.Validate name: :create
-    step Trailblazer::Operation::Contract.Persist name: :create
+    step Trailblazer::Operation::Contract::Build name: :create
+    step Trailblazer::Operation::Contract::Validate name: :create
+    step Trailblazer::Operation::Contract::Persist name: :create
 
   end
 

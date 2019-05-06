@@ -2,7 +2,6 @@
 require 'active_support/core_ext/object/with_options'
 
 require_relative 'base'
-require_relative 'serializers/hash_serializer'
 
 module Teneo
   module DataModel
@@ -12,10 +11,10 @@ module Teneo
 
       with_options dependent: :destroy, inverse_of: :organization do |model|
         model.has_many :memberships
+        model.has_many :storages
         model.has_many :ingest_agreements
       end
 
-      # serialize :upload_areas, Teneo::DataModel::Serializers::HashSerializer
 
     end
   end

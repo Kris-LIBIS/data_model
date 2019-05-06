@@ -4,6 +4,8 @@ connection_info = YAML.load_file("config/database.yml")["test"]
 ActiveRecord::Base.establish_connection(connection_info)
 # require_relative '../db/schema'
 
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+
 RSpec.configure do |config|
   config.around do |example|
     ActiveRecord::Base.transaction do

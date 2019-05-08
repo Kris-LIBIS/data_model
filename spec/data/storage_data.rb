@@ -6,29 +6,32 @@ module Storage
   DATA = {
       org1: {name: 'ORG1', inst_code: 'ORG1'},
       org2: {name: 'ORG2', inst_code: 'ORG2'},
-      storage1: {name: 'upload', protocol: 'nas', options: {'path' => '/upload/org1'}},
-      storage2: {name: 'ftp_server', protocol: 'ftp', options: {'host' => 'ftp.org1.com'}},
-      storage3: {name: 'upload', protocol: 'nas', options: {'path' => '/upload/org2'}},
+      storage1: {org: :org1, name: 'upload', protocol: 'nas', options: {'path' => '/upload/org1'}},
+      storage2: {org: :org1, name: 'ftp_server', protocol: 'ftp', options: {'host' => 'ftp.org1.com'}},
+      storage3: {org: :org2, name: 'upload', protocol: 'nas', options: {'path' => '/upload/org2'}},
   }
 
-  INIT = Proc.new do |_ctx, spec|
-    result = Teneo::DataModel::Organization::Operation::Create.(DATA[:org1])
-    # puts result.inspect
-    org1 = result[model_param]
-    spec[:org1] = org1 if spec
-    result = Teneo::DataModel::Organization::Operation::Create.(DATA[:org2])
-    # puts result.inspect
-    org2 = result[model_param]
-    spec[:org2] = org2 if spec
-    result = Teneo::DataModel::Storage::Operation::Create.(DATA[:storage1].merge(organization_id: org1.id))
-    # puts result.inspect
-    spec[:storage1] = result[model_param] if spec
-    result = Teneo::DataModel::Storage::Operation::Create.(DATA[:storage2].merge(organization_id: org1.id))
-    # puts result.inspect
-    spec[:storage2] = result[model_param] if spec
-    result = Teneo::DataModel::Storage::Operation::Create.(DATA[:storage3].merge(organization_id: org2.id))
-    # puts result.inspect
-    spec[:storage3] = result[model_param] if spec
+  LINKS = {
+      storage1: {organization: :org1},
+      storage2: {organization: :org1},
+      storage3: {organization: :org2}
+  }
+
+  def self.create(spec, key)
+
+  INIT = Proc.new do |_ctx, spec = {}|
+    spec[:org1] = Teneo::DataModel::Organization::Operation::Create.(DATA[:org1])[model_param]
+    spec[:org2] = Teneo::DataModel::Organization::Operation::Create.(DATA[:org2])[model_param]
+    create = Proc.new do |k|
+      data = DATA[k].dup
+      org = data.delete(:org)
+      result = Teneo::DataModel::Storage::Operation::Create.(data.merge(organization_id: spec[org].id))
+      # puts result.inspect
+      spec[k] = result[model_param]
+    end
+    create.(:storage1)
+    create.(:storage2)
+    create.(:storage3)
   end
 
   ITEMS = {

@@ -12,16 +12,40 @@ def spec_desciption(desc, spec)
   "#{spec[:failure] ? 'Failure' : 'Success'} : #{desc}"
 end
 
-RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_data, init_proc = nil|
+RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
+
+  def create_item(spec, params, create_class = nil)
+    create_class = Object.const_get(params[:class].to_s + '::Operation::Create') if params[:class]
+    result = create_class.(*make_params(spec, params))
+    pp result if RSPEC_DEBUG
+    expect(result.success?).to be_truthy
+    result[model_param]
+  end
+
+  def create_items(item_params, spec)
+    item_params.each do |key, params|
+      spec[key] = create_item(spec, params, create_class)
+    end
+  end
+
+  def make_params(spec, params)
+    params ||= {}
+    data = (params[:data] || params).dup
+    data[:id] = spec[:id] if spec[:id]
+    params[:links]&.each do |k, v|
+      o = spec[v]
+      data[k] = o.id
+    end
+    build_params(data, spec[:options])
+  end
 
   # noinspection RubyResolve
   def spec_macro(spec, operation_type:)
     spec[:init] = spec[:init].(self, spec) if spec[:init]
     spec[:init] = nil
-    spec.each {|k, v| spec[k] = v.(self.spec) if v.is_a?(Proc)}
-    params = spec[:params] || {}
-    params = params.merge(id: spec[:id]) if spec[:id]
-    params = build_params(params, spec[:options])
+    spec.each {|k, v| spec[k] = v.(self, spec) if v.is_a?(Proc)}
+    spec[:params] ||= {}
+    params = make_params(spec, spec[:params])
     result = subject.(*params)
     pp result if RSPEC_DEBUG
     if spec[:failure]
@@ -55,22 +79,30 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
         # Do nothing
       end
       expect(result[model_param]).not_to be_nil
-      spec[:check_params] = spec[:check_params] || spec[:params] || {}
-      if spec[:check_params].is_a? Array
+      check_params = spec[:check_params] || spec[:params]
+      if check_params.is_a? Array
         expect(result[model_param].count).to eql spec[:check_params].size
         spec[:check_params].each_with_index do |parameters, i|
+          parameters = parameters[:data] if parameters.has_key?(:data)
           parameters.each do |key, value|
             expect(result[model_param][i][key]).to eql value
           end
         end
       else
         pp result[model_param]&.attributes&.inspect if RSPEC_DEBUG
-        spec[:check_params].each do |key, value|
+        check_params = check_params[:data] if check_params.has_key?(:data)
+        check_params.each do |key, value|
           expect(result[model_param].send(key)).to eq value
         end
       end
     end
   end
+
+  let(:create_class) {
+    Object.const_get(active_record.name + '::Operation::Create')
+  }
+
+  # let(:data_module) { data_module }
 
   context 'Index operation' do
 
@@ -78,24 +110,10 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
       Object.const_get active_record.name + '::Operation::Index'
     }
 
-    let(:create_class) {
-      Object.const_get(active_record.name + '::Operation::Create')
-    }
-
-    before(:example) do
-      init_proc.() if init_proc
-      # pp item_params
-      item_params.values.each do |params|
-        # klass = params.delete(:create_class) || create_class
-        result = create_class.(*build_params(params))
-        pp result if RSPEC_DEBUG
-        expect(result).to be_success
-      end
-    end
-
-    test_data[:index].each do |desc, spec|
+    data_module.const_get('TESTS')[:index].each do |desc, spec|
 
       it "#{spec_desciption(desc, spec)}" do
+        create_items(data_module.const_get('ITEMS'), spec)
         spec_macro(spec, operation_type: :index)
       end
 
@@ -109,7 +127,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
       Object.const_get active_record.name + '::Operation::Create'
     }
 
-    test_data[:create].each do |desc, spec|
+    data_module.const_get('TESTS')[:create].each do |desc, spec|
 
       it "#{spec_desciption(desc, spec)}" do
         spec_macro(spec, operation_type: :create)
@@ -125,13 +143,10 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
       Object.const_get active_record.name + '::Operation::Retrieve'
     }
 
-    let(:create_class) {
-      Object.const_get(active_record.name + '::Operation::Create')
-    }
-
-    test_data[:retrieve].each do |desc, spec|
+    data_module.const_get('TESTS')[:retrieve].each do |desc, spec|
 
       it "#{spec_desciption(desc, spec)}" do
+        create_items(data_module.const_get('ITEMS'), spec)
         spec_macro(spec, operation_type: :retrieve)
       end
 
@@ -145,13 +160,10 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
       Object.const_get active_record.name + '::Operation::Update'
     }
 
-    let(:create_class) {
-      Object.const_get(active_record.name + '::Operation::Create')
-    }
-
-    test_data[:update].each do |desc, spec|
+    data_module.const_get('TESTS')[:update].each do |desc, spec|
 
       it "#{spec_desciption(desc, spec)}" do
+        create_items(data_module.const_get('ITEMS'), spec)
         spec_macro(spec, operation_type: :update)
       end
 
@@ -165,12 +177,10 @@ RSpec.shared_examples 'CRUD operations' do |active_record, item_params, test_dat
       Object.const_get active_record.name + '::Operation::Delete'
     }
 
-    let(:create_class) {
-      Object.const_get(active_record.name + '::Operation::Create')
-    }
-
-    test_data[:delete].each do |desc, spec|
+    data_module.const_get('TESTS')[:delete].each do |desc, spec|
       it "#{spec_desciption(desc, spec)}" do
+        # data_module.const_get('ITEMS').each {|key, params| spec[key] = create_item(spec, params, create_class)}
+        create_items(data_module.const_get('ITEMS'), spec)
         spec_macro(spec, operation_type: :delete)
       end
     end

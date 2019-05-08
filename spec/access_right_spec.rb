@@ -5,6 +5,6 @@ require 'data/access_right_data'
 
 RSpec.describe 'AccessRight' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::AccessRight, AccessRight::ITEMS, AccessRight::TESTS
+  include_examples 'CRUD operations', Teneo::DataModel::AccessRight, AccessRight
 
 end

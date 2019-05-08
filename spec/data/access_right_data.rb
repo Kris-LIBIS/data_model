@@ -3,9 +3,9 @@
 module AccessRight
 
   ITEMS = {
-      public: {name: 'PUBLIC', ext_id: 'AR_PUBLIC'},
-      private: {name: 'PRIVATE', ext_id: 'AR_PRIVATE', description: 'Private access'},
-      open: {name: 'OPEN', ext_id: 'AR_PUBLIC'},
+      public: {class: Teneo::DataModel::AccessRight, data: {name: 'PUBLIC', ext_id: 'AR_PUBLIC'}},
+      private: {class: Teneo::DataModel::AccessRight, data: {name: 'PRIVATE', ext_id: 'AR_PRIVATE', description: 'Private access'}},
+      open: {class: Teneo::DataModel::AccessRight, data: {name: 'OPEN', ext_id: 'AR_PUBLIC'}},
   }
 
   TESTS = {
@@ -14,54 +14,52 @@ module AccessRight
               check_params: ITEMS.values
           },
           'by name' => {
-              options: {filter: {name: ITEMS[:public][:name]}},
+              options: {filter: {name: 'PUBLIC'}},
               check_params: [ITEMS[:public]]
           },
           'by ext_id' => {
-              options: {filter: {ext_id: ITEMS[:public][:ext_id]}},
+              options: {filter: {ext_id: 'AR_PUBLIC'}},
               check_params: [ITEMS[:public], ITEMS[:open]]
           },
           'by name and ext_id' => {
-              options: {filter: {ext_id: ITEMS[:public][:ext_id], name: ITEMS[:open][:name]}},
+              options: {filter: {name: 'OPEN', ext_id: 'AR_PUBLIC'}},
               check_params: [ITEMS[:open]]
           },
           'by name and ext_id without match' => {
-              options: {filter: {name: ITEMS[:public][:name], ext_id: ITEMS[:private][:ext_id]}},
+              options: {filter: {name: 'PUBLIC', ext_id: 'AR_PRIVATE'}},
               check_params: []
           }
       },
       create: {
           'minimal item' => {
               params: ITEMS[:public],
-              check_params: ITEMS[:public].merge(description: nil)
+              check_params: ITEMS[:public][:data].merge(description: nil)
           },
           'full item' => {
               params: ITEMS[:private]
           },
           'name missing' => {
-              params: ITEMS[:public].reject {|k| k == :name},
+              params: ITEMS[:public][:data].reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },
           'duplicate name' => {
               init: Proc.new do |ctx, spec|
-                ctx.subject.(*build_params(spec[:params]))
+                ctx.create_item(spec, spec[:params])
               end,
               params: ITEMS[:public],
               failure: true,
               errors: {name: ['must be unique']}
           },
           'empty description' => {
-              params: ITEMS[:private].merge(description: ''),
+              params: ITEMS[:private][:data].merge(description: ''),
               failure: true,
               errors: {description: ['must be filled']}
           }
       },
       retrieve: {
           'get item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:public]))[model_param].id
-              end,
+              id: Proc.new {|_ctx, spec| spec[:public].id},
               check_params: ITEMS[:public]
           },
           'wrong id' => {
@@ -70,46 +68,29 @@ module AccessRight
           }
       },
       update: {
-          'with description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:public]))[model_param].id
-              end,
-              params: ITEMS[:public].merge(description: 'Public access'),
+          'change description' => {
+              id: Proc.new {|_ctx, spec| spec[:public].id},
+              params: {description: 'Public access'},
+              check_params: ITEMS[:public][:data].merge(description: 'Public access')
           },
           'no name change' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:public]))[model_param].id
-              end,
-              params: {name: 'OPEN'},
-              check_params: ITEMS[:public],
-          },
-          'only description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:public]))[model_param].id
-              end,
-              params: {description: 'Public access'},
-              check_params: ITEMS[:public].merge(description: 'Public access'),
+              id: Proc.new {|_ctx, spec| spec[:public].id},
+              params: {name: 'SEMI-PUBLIC'},
+              check_params: ITEMS[:public]
           },
           'remove description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:private]))[model_param].id
-              end,
+              id: Proc.new {|_ctx, spec| spec[:private].id},
               params: {description: nil},
-              check_params: ITEMS[:private].merge(description: nil),
+              check_params: ITEMS[:private][:data].merge(description: nil),
           },
           'duplicate name' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_class.(*build_params(ITEMS[:public]))[model_param]
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:private]))[model_param].id
-              end,
-              params: {name: ITEMS[:public][:name]},
+              id: Proc.new {|_ctx, spec| spec[:private].id},
+              params: {name: ITEMS[:public][:data][:name]},
               failure: true,
               errors: {name: ['must be unique']}
           },
           'empty description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:private]))[model_param].id
-              end,
+              id: Proc.new {|_ctx, spec| spec[:private].id},
               params: {description: ''},
               failure: true,
               errors: {description: ['must be filled']}
@@ -117,8 +98,8 @@ module AccessRight
       },
       delete: {
           'existing item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:public]))[model_param].id
+              id: Proc.new do |_ctx, spec|
+                spec[:public].id
               end,
               check_params: ITEMS[:public]
           },

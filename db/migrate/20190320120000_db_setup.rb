@@ -54,7 +54,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       change.up do
 
         execute <<-SQL
-          CREATE TYPE user_role AS ENUM ('uploader', 'ingester', 'admin');
+            CREATE TYPE user_role AS ENUM ('uploader', 'ingester', 'admin');
         SQL
 
         # noinspection RailsParamDefResolve

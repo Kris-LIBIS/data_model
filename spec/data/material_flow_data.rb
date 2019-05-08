@@ -3,9 +3,18 @@
 module MaterialFlow
 
   ITEMS = {
-      ingester: {name: 'Ingester', ext_id: '1000', inst_code: 'INST1'},
-      collections: {name: 'Collections', ext_id: '2000', inst_code: 'INST1', description: 'Create Collections'},
-      other: {name: 'Ingester', ext_id: '3000', inst_code: 'INST2', description: 'Other ingester workflow'},
+      ingester: {
+          class: Teneo::DataModel::MaterialFlow,
+          data: {name: 'Ingester', ext_id: '1000', inst_code: 'INST1'}
+      },
+      collections: {
+          class: Teneo::DataModel::MaterialFlow,
+          data: {name: 'Collections', ext_id: '2000', inst_code: 'INST1', description: 'Create Collections'}
+      },
+      other: {
+          class: Teneo::DataModel::MaterialFlow,
+          data: {name: 'Ingester', ext_id: '3000', inst_code: 'INST2', description: 'Other ingester workflow'}
+      },
   }
 
   TESTS = {
@@ -33,29 +42,29 @@ module MaterialFlow
       create: {
           'minimal item' => {
               params: ITEMS[:ingester],
-              check_params: ITEMS[:ingester].merge(description: nil)
+              check_params: ITEMS[:ingester][:data].merge(description: nil)
           },
           'full item' => {
               params: ITEMS[:collections]
           },
           'name missing' => {
-              params: ITEMS[:ingester].reject {|k| k == :name},
+              params: ITEMS[:ingester][:data].reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique within its scope']}
           },
           'ext_id missing' => {
-              params: ITEMS[:ingester].reject {|k| k == :ext_id},
+              params: ITEMS[:ingester][:data].reject {|k| k == :ext_id},
               failure: true,
               errors: {ext_id: ['must be filled']}
           },
           'inst_code missing' => {
-              params: ITEMS[:ingester].reject {|k| k == :inst_code},
+              params: ITEMS[:ingester][:data].reject {|k| k == :inst_code},
               failure: true,
               errors: {inst_code: ['must be filled']}
           },
           'duplicate name with same inst_code' => {
               init: Proc.new do |ctx, spec|
-                ctx.subject.(*build_params(spec[:params]))
+                ctx.create_item(spec, ITEMS[:ingester])
               end,
               params: ITEMS[:ingester],
               failure: true,
@@ -63,21 +72,19 @@ module MaterialFlow
           },
           'duplicate name but other inst_code' => {
               init: Proc.new do |ctx, spec|
-                ctx.subject.(*build_params(ITEMS[:ingester]))
+                ctx.create_item(spec, ITEMS[:ingester])
               end,
-              params: ITEMS[:ingester].merge(inst_code: 'OTHER_INST')
+              params: ITEMS[:ingester][:data].merge(inst_code: 'OTHER_INST')
           },
           'empty description' => {
-              params: ITEMS[:collections].merge(description: ''),
+              params: ITEMS[:collections][:data].merge(description: ''),
               failure: true,
               errors: {description: ['must be filled']}
           }
       },
       retrieve: {
           'get item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
+              id: Proc.new {|_ctx, spec| spec[:ingester].id},
               check_params: ITEMS[:ingester]
           },
           'wrong id' => {
@@ -87,36 +94,26 @@ module MaterialFlow
       },
       update: {
           'with description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
-              params: ITEMS[:ingester].merge(description: 'Ingester workflow'),
+              id: Proc.new {|_ctx, spec| spec[:ingester].id},
+              params: ITEMS[:ingester][:data].merge(description: 'Ingester workflow'),
           },
           'no name change' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
+              id: Proc.new {|_ctx, spec| spec[:ingester].id},
               params: {name: 'Something else'},
               check_params: ITEMS[:ingester],
           },
           'only description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
+              id: Proc.new {|_ctx, spec| spec[:ingester].id},
               params: {description: 'Ingester workflow'},
-              check_params: ITEMS[:ingester].merge(description: 'Ingester workflow'),
+              check_params: ITEMS[:ingester][:data].merge(description: 'Ingester workflow'),
           },
           'remove description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:collections]))[model_param].id
-              end,
+              id: Proc.new {|_ctx, spec| spec[:collections].id},
               params: {description: nil},
-              check_params: ITEMS[:collections].merge(description: nil),
+              check_params: ITEMS[:collections][:data].merge(description: nil),
           },
           'empty description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:collections]))[model_param].id
-              end,
+              id: Proc.new {|_ctx, spec| spec[:collections].id},
               params: {description: ''},
               failure: true,
               errors: {description: ['must be filled']}
@@ -124,9 +121,7 @@ module MaterialFlow
       },
       delete: {
           'existing item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
+              id: Proc.new {|_ctx, spec| spec[:ingester].id},
               check_params: ITEMS[:ingester]
           },
           'non-existing item' => {

@@ -5,6 +5,6 @@ require 'data/format_data'
 
 RSpec.describe 'Format' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::Format, Format::ITEMS, Format::TESTS
+  include_examples 'CRUD operations', Teneo::DataModel::Format, Format
 
 end

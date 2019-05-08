@@ -5,6 +5,6 @@ require 'data/material_flow_data'
 
 RSpec.describe 'MaterialFlow' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::MaterialFlow, MaterialFlow::ITEMS, MaterialFlow::TESTS
+  include_examples 'CRUD operations', Teneo::DataModel::MaterialFlow, MaterialFlow
 
 end

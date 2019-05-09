@@ -9,8 +9,10 @@ class Teneo::DataModel::Concept::Operation < ::Trailblazer::Operation
   # extend Trailblazer::Operation::Contract::DSL
 
   def self.build_params(params = {}, options = {})
+    options ||= {}
+    params ||= {}
     p = V21 ? {params: params} : params
-    V21 ? [p.merge(options)] : [p || {}, options || {}]
+    V21 ? [p.merge(options)] : [p, options]
   end
 
   def self.result_param(param)

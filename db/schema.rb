@@ -81,13 +81,13 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   end
 
   create_table "ingest_jobs", force: :cascade do |t|
-    t.integer "order", null: false
+    t.integer "stage", null: false
     t.jsonb "config"
     t.bigint "ingest_agreement_id"
     t.bigint "workflow_id"
     t.index ["config"], name: "index_ingest_jobs_on_config", using: :gin
+    t.index ["ingest_agreement_id", "stage"], name: "index_ingest_jobs_on_ingest_agreement_id_and_stage", unique: true
     t.index ["ingest_agreement_id"], name: "index_ingest_jobs_on_ingest_agreement_id"
-    t.index ["order"], name: "index_ingest_jobs_on_order"
     t.index ["workflow_id"], name: "index_ingest_jobs_on_workflow_id"
   end
 
@@ -102,8 +102,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "status"
     t.bigint "access_right_id", null: false
     t.bigint "retention_policy_id", null: false
+    t.bigint "ingest_agreement_id"
     t.bigint "template_id"
-    t.bigint "ingest_agreement_id", null: false
     t.integer "lock_version", default: 0, null: false
     t.index ["access_right_id"], name: "index_ingest_models_on_access_right_id"
     t.index ["ingest_agreement_id"], name: "index_ingest_models_on_ingest_agreement_id"

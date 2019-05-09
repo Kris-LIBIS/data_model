@@ -3,9 +3,18 @@
 module AccessRight
 
   ITEMS = {
-      public: {class: Teneo::DataModel::AccessRight, data: {name: 'PUBLIC', ext_id: 'AR_PUBLIC'}},
-      private: {class: Teneo::DataModel::AccessRight, data: {name: 'PRIVATE', ext_id: 'AR_PRIVATE', description: 'Private access'}},
-      open: {class: Teneo::DataModel::AccessRight, data: {name: 'OPEN', ext_id: 'AR_PUBLIC'}},
+      public: {
+          class: Teneo::DataModel::AccessRight,
+          data: {name: 'PUBLIC', ext_id: 'AR_PUBLIC'}
+      },
+      private: {
+          class: Teneo::DataModel::AccessRight,
+          data: {name: 'PRIVATE', ext_id: 'AR_PRIVATE', description: 'Private access'}
+      },
+      open: {
+          class: Teneo::DataModel::AccessRight,
+          data: {name: 'OPEN', ext_id: 'AR_PUBLIC'}
+      },
   }
 
   TESTS = {

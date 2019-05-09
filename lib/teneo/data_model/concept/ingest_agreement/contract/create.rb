@@ -20,6 +20,7 @@ module Teneo::DataModel::IngestAgreement::Contract
     property :material_flow_id
 
     validation name: :default, inherit: true do
+
       required(:organization_id).filled {model_exist? Teneo::DataModel::Organization}
       required(:name).filled(:str?) {unique_scope? [:organization_id, :name]}
       optional(:project_name).maybe(:str?)

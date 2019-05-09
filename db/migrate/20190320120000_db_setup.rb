@@ -128,6 +128,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
     end
 
+    # Converters
+    # ##########
+
     create_table :converters do |t|
       t.string :name
       t.string :description
@@ -136,6 +139,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
     end
 
     add_index :converters, :parameters, using: :gin
+
+    # Workflows
+    # #########
 
     create_table :workflows do |t|
       t.string :stage
@@ -170,6 +176,68 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:organization_id, :name], unique: true
+    end
+
+    # Ingest Models, Manifestations and ConversionJobs
+    # ################################################
+
+    create_table :ingest_models do |t|
+      t.string :name, null: false, index: {unique: true}
+      t.string :description
+      t.string :entity_type
+      t.string :user_a
+      t.string :user_b
+      t.string :user_c
+      t.string :identifier
+      t.string :status
+
+      t.references :access_right, foreign_key: true, null: false
+      t.references :retention_policy, foreign_key: true, null: false
+
+      t.references :ingest_agreement, foreign_key: true, null: true
+
+      t.references :template, foreign_key: {to_table: :ingest_models}
+
+      t.column :lock_version, :integer, null: false, default: 0
+    end
+
+    create_table :manifestations do |t|
+      t.integer :order, null: false, index: true
+      t.string :name, null: false
+      t.string :label, null: false
+      t.boolean :optional, default: false
+
+      t.references :access_right, foreign_key: true
+      t.references :representation_info, foreign_key: true, null: false
+
+      t.references :from, foreign_key: {to_table: :manifestations}, null: true
+      t.references :ingest_model, foreign_key: true, null: false
+    end
+
+    create_table :conversion_jobs do |t|
+      t.integer :order, null: false, index: true
+      t.string :format_filter
+      t.string :filename_filter
+      t.jsonb :config
+
+      t.references :manifestation, foreign_key: true
+      t.references :converter, foreign_key: true
+
+      t.index :config, using: :gin
+    end
+
+    # Ingest Jobs
+    # ###########
+
+    create_table :ingest_jobs do |t|
+      t.integer :stage, null: false
+      t.jsonb :config
+
+      t.references :ingest_agreement, foreign_key: true
+      t.references :workflow, foreign_key: true
+
+      t.index [:ingest_agreement_id, :stage], unique: true
+      t.index :config, using: :gin
     end
 
     # Packages and Items
@@ -209,63 +277,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.references :item, foreign_key: {on_delete: :cascade}
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
-    end
-
-    # Ingest Models, Manifestations and Conversions
-    # #############################################
-
-    create_table :ingest_models do |t|
-      t.string :name, null: false, index: {unique: true}
-      t.string :description
-      t.string :entity_type
-      t.string :user_a
-      t.string :user_b
-      t.string :user_c
-      t.string :identifier
-      t.string :status
-
-      t.references :access_right, foreign_key: true, null: false
-      t.references :retention_policy, foreign_key: true, null: false
-
-      t.references :template, foreign_key: {to_table: :ingest_models}
-      t.references :ingest_agreement, foreign_key: true, null: false
-
-      t.column :lock_version, :integer, null: false, default: 0
-    end
-
-    create_table :manifestations do |t|
-      t.integer :order, null: false, index: true
-      t.string :name, null: false
-      t.string :label, null: false
-      t.boolean :optional, default: false
-
-      t.references :access_right, foreign_key: true
-      t.references :representation_info, foreign_key: true, null: false
-
-      t.references :from, foreign_key: {to_table: :manifestations}, null: true
-      t.references :ingest_model, foreign_key: true, null: false
-    end
-
-    create_table :conversion_jobs do |t|
-      t.integer :order, null: false, index: true
-      t.string :format_filter
-      t.string :filename_filter
-      t.jsonb :config
-
-      t.references :manifestation, foreign_key: true
-      t.references :converter, foreign_key: true
-
-      t.index :config, using: :gin
-    end
-
-    create_table :ingest_jobs do |t|
-      t.integer :order, null: false, index: true
-      t.jsonb :config
-
-      t.references :ingest_agreement, foreign_key: true
-      t.references :workflow, foreign_key: true
-
-      t.index :config, using: :gin
     end
 
     # Formats database

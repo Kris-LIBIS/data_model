@@ -33,23 +33,6 @@ module Teneo::DataModel::IngestAgreement::Contract
       optional(:producer_id).maybe {model_exist?(Teneo::DataModel::Producer) && matches_inst_code?(Teneo::DataModel::Producer)}
       optional(:material_flow_id).maybe {model_exist?(Teneo::DataModel::MaterialFlow) && matches_inst_code?(Teneo::DataModel::MaterialFlow)}
 
-      # TODO: does not work
-      # rule(producer_inst_code: [:organization_id, :producer_id]) do |organization_id, producer_id|
-      #   producer_id == nil || begin
-      #     org = Teneo::DataModel::Organization.find_by(id: organization_id)
-      #     producer = Teneo::DataModel::Producer.find_by(id: producer_id)
-      #     org.inst_code == producer.inst_code
-      #   end
-      # end
-      #
-      # rule(material_flow_inst_code: [:organization_id, :material_flow_id]) do |organization_id, material_flow_id|
-      #   material_flow_id == nil || begin
-      #     org = Teneo::DataModel::Organization.find_by(id: organization_id)
-      #     material_flow = Teneo::DataModel::MaterialFlow.find_by(id: material_flow_id)
-      #     org.inst_code == material_flow.inst_code
-      #   end
-      # end
-
     end
 
   end

@@ -3,9 +3,18 @@
 module Producer
 
   ITEMS = {
-      ingester: {name: 'Ingester', ext_id: '1000', inst_code: 'INST1', agent: 'ingester', password: 'abc123'},
-      producer: {name: 'Producer', ext_id: '2000', inst_code: 'INST1', agent: 'producer', password: 'abc123', description: 'Regular producer'},
-      other: {name: 'Ingester', ext_id: '3000', inst_code: 'INST2', agent: 'producer', password: 'abc123'},
+      ingester: {
+          class: Teneo::DataModel::Producer,
+          data: {name: 'Ingester', ext_id: '1000', inst_code: 'INST1', agent: 'ingester', password: 'abc123'}
+      },
+      producer: {
+          class: Teneo::DataModel::Producer,
+          data: {name: 'Producer', ext_id: '2000', inst_code: 'INST1', agent: 'producer', password: 'abc123', description: 'Regular producer'}
+      },
+      other: {
+          class: Teneo::DataModel::Producer,
+          data: {name: 'Ingester', ext_id: '3000', inst_code: 'INST2', agent: 'producer', password: 'abc123'}
+      }
   }
 
   TESTS = {
@@ -33,61 +42,55 @@ module Producer
       create: {
           'minimal item' => {
               params: ITEMS[:ingester],
-              check_params: ITEMS[:ingester].merge(description: nil)
+              check_params: ITEMS[:ingester][:data].merge(description: nil)
           },
           'full item' => {
               params: ITEMS[:producer]
           },
           'name missing' => {
-              params: ITEMS[:ingester].reject {|k| k == :name},
+              params: ITEMS[:ingester].deep_reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique within its scope']}
           },
           'ext_id missing' => {
-              params: ITEMS[:ingester].reject {|k| k == :ext_id},
+              params: ITEMS[:ingester].deep_reject {|k| k == :ext_id},
               failure: true,
               errors: {ext_id: ['must be filled']}
           },
           'inst_code missing' => {
-              params: ITEMS[:ingester].reject {|k| k == :inst_code},
+              params: ITEMS[:ingester].deep_reject {|k| k == :inst_code},
               failure: true,
               errors: {inst_code: ['must be filled']}
           },
           'agent missing' => {
-              params: ITEMS[:ingester].reject {|k| k == :agent},
+              params: ITEMS[:ingester].deep_reject {|k| k == :agent},
               failure: true,
               errors: {agent: ['must be filled']}
           },
           'password missing' => {
-              params: ITEMS[:ingester].reject {|k| k == :password},
+              params: ITEMS[:ingester].deep_reject {|k| k == :password},
               failure: true,
               errors: {password: ['must be filled']}
           },
           'duplicate name with same inst_code' => {
-              init: Proc.new do |ctx, spec|
-                ctx.subject.(*build_params(spec[:params]))
-              end,
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},
               params: ITEMS[:ingester],
               failure: true,
               errors: {name: ["must be unique within its scope"]}
           },
           'duplicate name but other inst_code' => {
-              init: Proc.new do |ctx, _spec|
-                ctx.subject.(*build_params(ITEMS[:ingester]))
-              end,
-              params: ITEMS[:ingester].merge(inst_code: 'OTHER_INST')
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},
+              params: ITEMS[:ingester].deep_merge(data: {inst_code: 'OTHER_INST'})
           },
           'empty description' => {
-              params: ITEMS[:producer].merge(description: ''),
+              params: ITEMS[:producer].deep_merge(data:{description: ''}),
               failure: true,
               errors: {description: ['must be filled']}
           }
       },
       retrieve: {
           'get item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:ingester].id},
               check_params: ITEMS[:ingester]
           },
           'wrong id' => {
@@ -97,36 +100,26 @@ module Producer
       },
       update: {
           'with description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:ingester].id},
               params: ITEMS[:ingester].merge(description: 'Ingester producer'),
           },
           'no name change' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:ingester].id},
               params: {name: 'Something else'},
               check_params: ITEMS[:ingester],
           },
           'only description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:ingester].id},
               params: {description: 'Ingester producer'},
               check_params: ITEMS[:ingester].merge(description: 'Ingester producer'),
           },
           'remove description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:producer]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:producer].id},
               params: {description: nil},
               check_params: ITEMS[:producer].merge(description: nil),
           },
           'empty description' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:producer]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:producer].id},
               params: {description: ''},
               failure: true,
               errors: {description: ['must be filled']}
@@ -134,9 +127,7 @@ module Producer
       },
       delete: {
           'existing item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:ingester]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:ingester].id},
               check_params: ITEMS[:ingester]
           },
           'non-existing item' => {

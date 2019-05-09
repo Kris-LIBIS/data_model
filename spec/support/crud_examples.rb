@@ -31,6 +31,16 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
   def make_params(spec, params)
     params ||= {}
     data = (params[:data] || params).dup
+    params[:links]&.each do |k, v|
+      o = spec[v]
+      data[k] = o.id
+    end
+    build_params(data)
+  end
+
+  def make_params_for_macro(spec)
+    params = spec[:params] || {}
+    data = (params[:data] || params).dup
     data[:id] = spec[:id] if spec[:id]
     params[:links]&.each do |k, v|
       o = spec[v]
@@ -45,7 +55,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
     spec[:init] = nil
     spec.each {|k, v| spec[k] = v.(self, spec) if v.is_a?(Proc)}
     spec[:params] ||= {}
-    params = make_params(spec, spec[:params])
+    params = make_params_for_macro(spec)
     result = subject.(*params)
     pp result if RSPEC_DEBUG
     if spec[:failure]

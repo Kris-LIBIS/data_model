@@ -48,83 +48,81 @@ module Format
       create: {
           'minimal item' => {
               params: ITEMS[:tiff],
-              check_params: ITEMS[:tiff][:data].merge(description: nil)
+              check_params: ITEMS[:tiff].deep_merge(data: {description: nil})
           },
           'complete item' => {
               params: ITEMS[:word]
           },
           'name missing' => {
-              params: ITEMS[:tiff][:data].reject {|k| k == :name},
+              params: ITEMS[:tiff].deep_reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },
           'duplicate name' => {
-              init: Proc.new do |ctx, spec|
-                  ctx.create_item(spec, spec[:params])
-              end,
+              init: -> (ctx, spec) {ctx.create_item(spec, spec[:params])},
               params: ITEMS[:tiff],
               failure: true,
               errors: {name: ['must be unique']},
           },
           'empty description' => {
-              params: ITEMS[:jpeg][:data].merge(description: ''),
+              params: ITEMS[:jpeg].deep_merge(data: {description: ''}),
               failure: true,
               errors: {description: ['must be filled']}
           },
           'wrong category' => {
-              params: ITEMS[:tiff][:data].merge(category: 'BAD'),
+              params: ITEMS[:tiff].deep_merge(data: {category: 'BAD'}),
               failure: true,
               errors: {category: ['must be one of: IMAGE, AUDIO, VIDEO, TEXT, TABULAR, PRESENTATION, ARCHIVE, EMAIL, OTHER']}
           },
           'no mimetypes' => {
-              params: ITEMS[:tiff][:data].reject {|k| k == :mime_types},
+              params: ITEMS[:tiff].deep_reject {|k| k == :mime_types},
               failure: true,
               errors: {mime_types: ['must be filled', 'must be an array of String']}
           },
           'empty mimetypes' => {
-              params: ITEMS[:tiff][:data].merge(mime_types: []),
+              params: ITEMS[:tiff].deep_merge(data: {mime_types: []}),
               failure: true,
               errors: {mime_types: ['must be filled', 'must be an array of String']}
           },
           'wrong mimetypes' => {
-              params: ITEMS[:tiff][:data].merge(mime_types: :tiff),
+              params: ITEMS[:tiff].deep_merge(data: {mime_types: :tiff}),
               failure: true,
               errors: {mime_types: ['must be an array of String']}
           },
           'bad mimetypes' => {
-              params: ITEMS[:tiff][:data].merge(mime_types: [:tiff]),
+              params: ITEMS[:tiff].deep_merge(data: {mime_types: [:tiff]}),
               failure: true,
               errors: {mime_types: ['must be an array of String']}
           },
           'empty puids' => {
-              params: ITEMS[:tiff][:data].merge(puids: []),
+              params: ITEMS[:tiff].deep_merge(data: {puids: []}),
               failure: true,
               errors: {puids: ['must be filled', 'must be an array of String']}
           },
           'no extensions' => {
-              params: ITEMS[:tiff][:data].reject {|k| k == :extensions},
+              params: ITEMS[:tiff].deep_reject {|k| k == :extensions},
               failure: true,
               errors: {extensions: ['must be filled', 'must be an array of String']}
           },
           'empty extensions' => {
-              params: ITEMS[:tiff][:data].merge(extensions: []),
+              params: ITEMS[:tiff].deep_merge(data: {extensions: []}),
               failure: true,
               errors: {extensions: ['must be filled', 'must be an array of String']}
           },
           'wrong extensions' => {
-              params: ITEMS[:tiff][:data].merge(extensions: 123),
+              params: ITEMS[:tiff].deep_merge(data: {extensions: 123}),
               failure: true,
               errors: {extensions: ['must be an array of String']}
           },
           'bad extensionss' => {
-              params: ITEMS[:tiff][:data].merge(extensions: [123]),
+              params: ITEMS[:tiff].deep_merge(data: {extensions: [123]}),
               failure: true,
               errors: {extensions: ['must be an array of String']}
           }
       },
       retrieve: {
           'get item' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
+              id: -> (ctx, spec) {spec[:tiff].id},
               check_params: ITEMS[:tiff]
           },
           'wrong id' => {
@@ -134,84 +132,86 @@ module Format
       },
       update: {
           'full item' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
-              params: ITEMS[:tiff][:data].merge(
-                  description: 'Tagged Image File Format (TIFF)',
-                  mime_types: %w'image/tiff image/x-tiff image/tif image/x-tif application/tiff application/x-tiff application/tif application/x-tif',
-                  puids: %w'fmt/353 fmt/154 fmt/153 fmt/156 fmt/155 fmt/152 fmt/202 x-fmt/387 x-fmt/388 x-fmt/399',
-                  extensions: %w'tif TIF tiff tifx dng nef'
+              id: -> (ctx, spec) {spec[:tiff].id},
+              params: ITEMS[:tiff].deep_merge(
+                  data: {
+                      description: 'Tagged Image File Format (TIFF)',
+                      mime_types: %w'image/tiff image/x-tiff image/tif image/x-tif application/tiff application/x-tiff application/tif application/x-tif',
+                      puids: %w'fmt/353 fmt/154 fmt/153 fmt/156 fmt/155 fmt/152 fmt/202 x-fmt/387 x-fmt/388 x-fmt/399',
+                      extensions: %w'tif TIF tiff tifx dng nef'
+                  }
               )
           },
           'with description' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
-              params: ITEMS[:tiff][:data].merge(description: 'Tagged Image File Format (TIFF)')
+              id: -> (ctx, spec) {spec[:tiff].id},
+              params: ITEMS[:tiff].deep_merge(data: {description: 'Tagged Image File Format (TIFF)'})
           },
           'no name change' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
+              id: -> (ctx, spec) {spec[:tiff].id},
               params: {name: 'TIF_IMAGE'},
               check_params: ITEMS[:tiff]
           },
           'only description' => {
-              id: Proc.new {|_ctx, spec| spec[:word].id},
+              id: -> (ctx, spec) {spec[:word].id},
               params: {description: 'Some image format'},
-              check_params: ITEMS[:word][:data].merge(description: 'Some image format')
+              check_params: ITEMS[:word].deep_merge(data: {description: 'Some image format'})
           },
           'remove description' => {
-              id: Proc.new {|_ctx, spec| spec[:word].id},
+              id: -> (ctx, spec) {spec[:word].id},
               params: {description: nil},
-              check_params: ITEMS[:word][:data].merge(description: nil)
+              check_params: ITEMS[:word].deep_merge(data: {description: nil})
           },
           'remove puids' => {
-              id: Proc.new {|_ctx, spec| spec[:word].id},
+              id: -> (ctx, spec) {spec[:word].id},
               params: {puids: nil},
-              saved_params: ITEMS[:word][:data].merge(puids: nil)
+              saved_params: ITEMS[:word].deep_merge(data: {puids: nil})
           },
           'duplicate name' => {
-              id: Proc.new {|_ctx, spec| spec[:jpeg].id},
+              id: -> (ctx, spec) {spec[:jpeg].id},
               params: {name: ITEMS[:tiff][:name]},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },
           'empty description' => {
-              id: Proc.new {|_ctx, spec| spec[:jpeg].id},
+              id: -> (ctx, spec) {spec[:jpeg].id},
               params: {description: ''},
               failure: true,
               errors: {description: ['must be filled']}
           },
           'wrong category' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
+              id: -> (ctx, spec) {spec[:tiff].id},
               params: {category: 'BAD'},
               failure: true,
               errors: {category: ['must be one of: IMAGE, AUDIO, VIDEO, TEXT, TABULAR, PRESENTATION, ARCHIVE, EMAIL, OTHER']}
           },
           'no mimetypes' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
+              id: -> (ctx, spec) {spec[:tiff].id},
               params: {mime_types: nil},
               failure: true,
               errors: {mime_types: ['must be filled', 'must be an array of String']}
           },
           'empty mimetypes' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
+              id: -> (ctx, spec) {spec[:tiff].id},
               params: {mime_types: []},
               failure: true,
               errors: {mime_types: ['must be filled', 'must be an array of String']}
           },
           'wrong mimetypes' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
+              id: -> (ctx, spec) {spec[:tiff].id},
               params: {mime_types: :tiff},
               failure: true,
               errors: {mime_types: ['must be an array of String']}
           },
           'bad mimetypes' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
-              params: {mime_types: ITEMS[:tiff].merge(mime_types: [:tiff])[:mime_types]},
+              id: -> (ctx, spec) {spec[:tiff].id},
+              params: {mime_types: [:tiff]},
               failure: true,
               errors: {mime_types: ['must be an array of String']}
           }
       },
       delete: {
           'existing item' => {
-              id: Proc.new {|_ctx, spec| spec[:tiff].id},
+              id: -> (ctx, spec) {spec[:tiff].id},
               check_params: ITEMS[:tiff]
           },
           'non-existing item' => {

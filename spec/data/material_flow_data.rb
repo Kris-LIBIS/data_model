@@ -42,49 +42,45 @@ module MaterialFlow
       create: {
           'minimal item' => {
               params: ITEMS[:ingester],
-              check_params: ITEMS[:ingester][:data].merge(description: nil)
+              check_params: ITEMS[:ingester].deep_merge(data:{description: nil})
           },
           'full item' => {
               params: ITEMS[:collections]
           },
           'name missing' => {
-              params: ITEMS[:ingester][:data].reject {|k| k == :name},
+              params: ITEMS[:ingester].deep_reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique within its scope']}
           },
           'ext_id missing' => {
-              params: ITEMS[:ingester][:data].reject {|k| k == :ext_id},
+              params: ITEMS[:ingester].deep_reject {|k| k == :ext_id},
               failure: true,
               errors: {ext_id: ['must be filled']}
           },
           'inst_code missing' => {
-              params: ITEMS[:ingester][:data].reject {|k| k == :inst_code},
+              params: ITEMS[:ingester].deep_reject {|k| k == :inst_code},
               failure: true,
               errors: {inst_code: ['must be filled']}
           },
           'duplicate name with same inst_code' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_item(spec, ITEMS[:ingester])
-              end,
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},
               params: ITEMS[:ingester],
               failure: true,
               errors: {name: ["must be unique within its scope"]}
           },
           'duplicate name but other inst_code' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_item(spec, ITEMS[:ingester])
-              end,
-              params: ITEMS[:ingester][:data].merge(inst_code: 'OTHER_INST')
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},
+              params: ITEMS[:ingester].deep_merge(data: {inst_code: 'OTHER_INST'})
           },
           'empty description' => {
-              params: ITEMS[:collections][:data].merge(description: ''),
+              params: ITEMS[:collections].deep_merge(data: {description: ''}),
               failure: true,
               errors: {description: ['must be filled']}
           }
       },
       retrieve: {
           'get item' => {
-              id: Proc.new {|_ctx, spec| spec[:ingester].id},
+              id: -> (ctx, spec) {spec[:ingester].id},
               check_params: ITEMS[:ingester]
           },
           'wrong id' => {
@@ -94,26 +90,26 @@ module MaterialFlow
       },
       update: {
           'with description' => {
-              id: Proc.new {|_ctx, spec| spec[:ingester].id},
-              params: ITEMS[:ingester][:data].merge(description: 'Ingester workflow'),
+              id: -> (ctx, spec) {spec[:ingester].id},
+              params: ITEMS[:ingester].deep_merge(data: {description: 'Ingester workflow'}),
           },
           'no name change' => {
-              id: Proc.new {|_ctx, spec| spec[:ingester].id},
+              id: -> (ctx, spec) {spec[:ingester].id},
               params: {name: 'Something else'},
               check_params: ITEMS[:ingester],
           },
           'only description' => {
-              id: Proc.new {|_ctx, spec| spec[:ingester].id},
+              id: -> (ctx, spec) {spec[:ingester].id},
               params: {description: 'Ingester workflow'},
-              check_params: ITEMS[:ingester][:data].merge(description: 'Ingester workflow'),
+              check_params: ITEMS[:ingester].deep_merge(data: {description: 'Ingester workflow'}),
           },
           'remove description' => {
-              id: Proc.new {|_ctx, spec| spec[:collections].id},
+              id: -> (ctx, spec) {spec[:collections].id},
               params: {description: nil},
-              check_params: ITEMS[:collections][:data].merge(description: nil),
+              check_params: ITEMS[:collections].deep_merge(data: {description: nil}),
           },
           'empty description' => {
-              id: Proc.new {|_ctx, spec| spec[:collections].id},
+              id: -> (ctx, spec) {spec[:collections].id},
               params: {description: ''},
               failure: true,
               errors: {description: ['must be filled']}
@@ -121,7 +117,7 @@ module MaterialFlow
       },
       delete: {
           'existing item' => {
-              id: Proc.new {|_ctx, spec| spec[:ingester].id},
+              id: -> (ctx, spec) {spec[:ingester].id},
               check_params: ITEMS[:ingester]
           },
           'non-existing item' => {

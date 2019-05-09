@@ -33,33 +33,31 @@ module AccessRight
       create: {
           'minimal item' => {
               params: ITEMS[:public],
-              check_params: ITEMS[:public][:data].merge(description: nil)
+              check_params: ITEMS[:public].deep_merge(data: {description: nil})
           },
           'full item' => {
               params: ITEMS[:private]
           },
           'name missing' => {
-              params: ITEMS[:public][:data].reject {|k| k == :name},
+              params: ITEMS[:public].deep_reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },
           'duplicate name' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_item(spec, spec[:params])
-              end,
+              init: -> (ctx, spec) {ctx.create_item(spec, spec[:params])},
               params: ITEMS[:public],
               failure: true,
               errors: {name: ['must be unique']}
           },
           'empty description' => {
-              params: ITEMS[:private][:data].merge(description: ''),
+              params: ITEMS[:private].deep_merge(data: {description: ''}),
               failure: true,
               errors: {description: ['must be filled']}
           }
       },
       retrieve: {
           'get item' => {
-              id: Proc.new {|_ctx, spec| spec[:public].id},
+              id: -> (ctx, spec) {spec[:public].id},
               check_params: ITEMS[:public]
           },
           'wrong id' => {
@@ -69,28 +67,28 @@ module AccessRight
       },
       update: {
           'change description' => {
-              id: Proc.new {|_ctx, spec| spec[:public].id},
+              id: -> (ctx, spec) {spec[:public].id},
               params: {description: 'Public access'},
-              check_params: ITEMS[:public][:data].merge(description: 'Public access')
+              check_params: ITEMS[:public].deep_merge(data: {description: 'Public access'})
           },
           'no name change' => {
-              id: Proc.new {|_ctx, spec| spec[:public].id},
+              id: -> (ctx, spec) {spec[:public].id},
               params: {name: 'SEMI-PUBLIC'},
               check_params: ITEMS[:public]
           },
           'remove description' => {
-              id: Proc.new {|_ctx, spec| spec[:private].id},
+              id: -> (ctx, spec) {spec[:private].id},
               params: {description: nil},
-              check_params: ITEMS[:private][:data].merge(description: nil),
+              check_params: ITEMS[:private].deep_merge(data: {description: nil}),
           },
           'duplicate name' => {
-              id: Proc.new {|_ctx, spec| spec[:private].id},
+              id: -> (ctx, spec) {spec[:private].id},
               params: {name: ITEMS[:public][:data][:name]},
               failure: true,
               errors: {name: ['must be unique']}
           },
           'empty description' => {
-              id: Proc.new {|_ctx, spec| spec[:private].id},
+              id: -> (ctx, spec) {spec[:private].id},
               params: {description: ''},
               failure: true,
               errors: {description: ['must be filled']}
@@ -98,9 +96,7 @@ module AccessRight
       },
       delete: {
           'existing item' => {
-              id: Proc.new do |_ctx, spec|
-                spec[:public].id
-              end,
+              id: -> (ctx, spec) {spec[:public].id},
               check_params: ITEMS[:public]
           },
           'non-existing item' => {

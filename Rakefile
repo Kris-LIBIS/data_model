@@ -32,8 +32,15 @@ namespace :db do
     puts 'Database migrated.'
   end
 
+  desc 'Kill open DB connections'
+  task :kill_connections do
+    db_name = db_config['database']
+    `psql -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='#{db_name}' AND pid <> pg_backend_pid();" -d '#{db_name}'`
+    puts 'Database connections closed.'
+  end
+
   desc 'Drop the database'
-  task :drop do
+  task :drop => :kill_connections do
     ActiveRecord::Base.establish_connection(db_config_admin)
     ActiveRecord::Base.connection.drop_database(db_config['database'])
     puts 'Database deleted.'

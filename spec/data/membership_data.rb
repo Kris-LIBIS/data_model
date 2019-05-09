@@ -40,89 +40,80 @@ module Membership
           data: {role: 'admin'},
           links: {user_id: :user2, organization_id: :org2}
       },
+      membership5: {
+          class: Teneo::DataModel::Membership,
+          data: {role: 'admin'},
+          links: {user_id: :user1, organization_id: :org1}
+      }
   }
 
   # noinspection RubyStringKeysInHashInspection
   TESTS = {
       index: {
           'get all' => {
-              check_params: [ITEMS[:membership1], ITEMS[:membership2], ITEMS[:membership3], ITEMS[:membership4]]
+              check_params: [ITEMS[:membership1], ITEMS[:membership2], ITEMS[:membership3], ITEMS[:membership4], ITEMS[:membership5]]
           },
           'by role' => {
               options: {filter: {role: 'admin'}},
-              check_params: [ITEMS[:membership3], ITEMS[:membership4]]
+              check_params: [ITEMS[:membership3], ITEMS[:membership4], ITEMS[:membership5]]
           },
           'by organization_id' => {
-              options: Proc.new {|_ctx, spec| {filter: {organization_id: spec[:org1].id}}},
-              check_params: [ITEMS[:membership1], ITEMS[:membership3]]
+              options: -> (ctx, spec) {{filter: {organization_id: spec[:org1].id}}},
+              check_params: [ITEMS[:membership1], ITEMS[:membership3], ITEMS[:membership5]]
           },
           'by user_id' => {
-              options: Proc.new {|_ctx, spec| {filter: {user_id: spec[:user1].id}}},
-              check_params: [ITEMS[:membership1], ITEMS[:membership2]]
+              options: -> (ctx, spec) {{filter: {user_id: spec[:user1].id}}},
+              check_params: [ITEMS[:membership1], ITEMS[:membership2], ITEMS[:membership5]]
           },
           'by user_id and role with match' => {
-              options: Proc.new {|_ctx, spec| {filter: {user_id: spec[:user2].id, role: 'admin'}}},
+              options: -> (ctx, spec) {{filter: {user_id: spec[:user2].id, role: 'admin'}}},
               check_params: [ITEMS[:membership3], ITEMS[:membership4]]
           },
           'by user_id and role without match' => {
-              options: Proc.new {|_ctx, spec| {filter: {user_id: spec[:user1].id, role: 'admin'}}},
+              options: -> (ctx, spec) {{filter: {user_id: spec[:user2].id, role: 'uploader'}}},
               check_params: []
           }
       },
       create: {
           'regular item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:org1] = ctx.create_item(spec, ITEMS[:org1])
+              init: -> (ctx, spec) {spec[:org1] = ctx.create_item(spec, ITEMS[:org1])
                 spec[:user1] = ctx.create_item(spec, ITEMS[:user1])
-              end,
+              },
               params: ITEMS[:membership1],
               check_params: ITEMS[:membership1]
           },
           'role missing' => {
-              init: Proc.new do |ctx, spec|
-                spec[:org1] = ctx.create_item(spec, ITEMS[:org1])
+              init: -> (ctx, spec) {spec[:org1] = ctx.create_item(spec, ITEMS[:org1])
                 spec[:user1] = ctx.create_item(spec, ITEMS[:user1])
-              end,
-              params: ITEMS[:membership1].merge(data: ITEMS[:membership1][:data].reject! {|k| k == :role}),
+              },
+              params: ITEMS[:membership1].deep_reject {|k| k == :role},
               failure: true,
-              errors: {name: ['must be filled', 'must be unique within its scope']}
+              errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'must be unique within its scope']}
           },
           'duplicate role with different organization' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_items(ITEMS, spec)
-              end,
-              params: ITEMS[:membership1].merge(links: {user_id: :user1, organization_id: :org2})
+              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
+              params: ITEMS[:membership1].deep_merge(links: {user_id: :user1, organization_id: :org2})
           },
           'duplicate role with different user' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_items(ITEMS, spec)
-              end,
-              params: ITEMS[:membership1].merge(links: {user_id: :user2, organization_id: :org1})
+              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
+              params: ITEMS[:membership1].deep_merge(links: {user_id: :user2, organization_id: :org1})
           },
           'duplicate role with same user and organization' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_items(ITEMS, spec)
-              end,
-              params: ITEMS[:membership1].merge(links: {user_id: :user1, organization_id: :org1}),
+              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
+              params: ITEMS[:membership1].deep_merge(links: {user_id: :user1, organization_id: :org1}),
               failure: true,
               errors: {role: ['must be unique within its scope']}
           },
           'empty role' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_items(ITEMS, spec)
-              end,
-              params: ITEMS[:membership1].merge(data: {role: ''}),
+              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
+              params: ITEMS[:membership1].deep_merge(data: {role: ''}),
               failure: true,
-              errors: {name: ['must be filled', 'must be unique within its scope']}
+              errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'must be unique within its scope']}
           }
       },
       retrieve: {
           'get item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:org1] = Teneo::DataModel::Organization::Operation::Create.(ITEMS[:org1])[model_param]
-                spec[:check_params] = spec[:check_params].merge(organization_id: spec[:org1].id)
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:membership1].merge(organization_id: spec[:org1].id)))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:membership1].id},
               check_params: ITEMS[:membership1]
           },
           'wrong id' => {
@@ -131,81 +122,27 @@ module Membership
           }
       },
       update: {
-          'with protocol and options' => {
-              init: Proc.new do |ctx, spec|
-                Storage::INIT.call(ctx, spec)
-                spec[:id] = spec[:membership1].id
-              end,
-              params: {protocol: 'gdrive', options: {'credentials_file' => 'credentials.json', 'path' => '/data'}},
-              check_params: ITEMS[:membership1].merge(protocol: 'gdrive', options: {'credentials_file' => 'credentials.json', 'path' => '/data'}),
+          'role change' => {
+              id: -> (ctx, spec) {spec[:membership1].id},
+              params: {role: 'uploader'},
+              check_params: ITEMS[:membership1].deep_merge(data: {role: 'uploader'}),
           },
-          'name change' => {
-              init: Proc.new do |ctx, spec|
-                Storage::INIT.call(ctx, spec)
-                spec[:id] = spec[:membership1].id
-              end,
-              params: {name: 'cloud'},
-              check_params: ITEMS[:membership1].merge(name: 'cloud'),
-          },
-          'duplicate name OK' => {
-              init: Proc.new do |ctx, spec|
-                Storage::INIT.call(ctx, spec)
-                spec[:id] = spec[:membership3].id
-              end,
-              params: {name: ITEMS[:membership2][:name]},
-              check_params: ITEMS[:membership3].merge(name: ITEMS[:membership2][:name]),
-          },
-          'duplicate name not OK' => {
-              init: Proc.new do |ctx, spec|
-                Storage::INIT.call(ctx, spec)
-                spec[:id] = spec[:membership1].id
-              end,
-              params: {name: ITEMS[:membership2][:name]},
+          'role change duplicate' => {
+              id: -> (ctx, spec) {spec[:membership1].id},
+              params: {role: 'admin'},
               failure: true,
-              errors: {name: ['must be unique within its scope']},
+              errors: {role: ['must be unique within its scope']},
           },
-          'empty protocol' => {
-              init: Proc.new do |ctx, spec|
-                Storage::INIT.call(ctx, spec)
-                spec[:id] = spec[:membership1].id
-              end,
-              params: {protocol: ''},
+          'empty role' => {
+              id: -> (ctx, spec) {spec[:membership1].id},
+              params: {role: ''},
               failure: true,
-              errors: {protocol: ['must be filled']}
-          },
-          'empty options' => {
-              init: Proc.new do |ctx, spec|
-                Storage::INIT.call(ctx, spec)
-                spec[:id] = spec[:membership1].id
-              end,
-              params: {options: ''},
-              failure: true,
-              errors: {options: ['must be a hash']}
-          },
-          'remove protocol' => {
-              init: Proc.new do |ctx, spec|
-                Storage::INIT.call(ctx, spec)
-                spec[:id] = spec[:membership1].id
-              end,
-              params: {protocol: nil},
-              failure: true,
-              errors: {protocol: ['must be filled']}
-          },
-          'remove options' => {
-              init: Proc.new do |ctx, spec|
-                Storage::INIT.call(ctx, spec)
-                spec[:id] = spec[:membership1].id
-              end,
-              params: {options: nil},
-              check_params: ITEMS[:membership1].merge(options: nil),
+              errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'must be unique within its scope']}
           }
       },
       delete: {
           'existing item' => {
-              init: Proc.new do |ctx, spec|
-                Storage::INIT.call(ctx, spec)
-                spec[:id] = spec[:membership1].id
-              end,
+              id: -> (ctx, spec) {spec[:membership1].id},
               check_params: ITEMS[:membership1]
           },
           'non-existing item' => {

@@ -2,6 +2,7 @@
 
 class DbSetup < ActiveRecord::Migration[5.2]
 
+  # noinspection RubyResolve
   def change
 
     # Users and Organizations
@@ -43,8 +44,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
     create_table :memberships do |t|
       t.references :user, foreign_key: true
       t.references :organization, foreign_key: true
-
-      t.index [:user_id, :organization_id]
 
       t.column :lock_version, :integer, null: false, default: 0
     end
@@ -153,7 +152,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     # #################
 
     create_table :ingest_agreements do |t|
-      t.string :name, null: false, index: {unique: true}
+      t.string :name, null: false
       t.string :project_name
       t.string :collection_name
       t.string :contact_ingest, array: true
@@ -161,15 +160,16 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :contact_system, array: true
       t.string :collection_description
       t.string :ingest_job_name
-
-      t.references :producer, foreign_key: true, null: false
-      t.references :material_flow, foreign_key: true, null: false
-
       t.string :collector
+
+      t.references :producer, foreign_key: true
+      t.references :material_flow, foreign_key: true
 
       t.references :organization, foreign_key: true, null: false
 
       t.column :lock_version, :integer, null: false, default: 0
+
+      t.index [:organization_id, :name], unique: true
     end
 
     # Packages and Items

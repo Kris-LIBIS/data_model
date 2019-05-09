@@ -14,16 +14,28 @@ end
 
 RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
 
+  def print_result(result)
+    return unless RSPEC_DEBUG
+    if result.success?
+      puts 'OK'
+      pp result[model_param]
+    else
+      puts 'FAILED'
+      pp result
+    end
+  end
+  
   def create_item(spec, params, create_class = nil)
     create_class = Object.const_get(params[:class].to_s + '::Operation::Create') if params[:class]
     result = create_class.(*make_params(spec, params))
-    pp result if RSPEC_DEBUG
+    print_result(result)
     expect(result.success?).to be_truthy
     result[model_param]
   end
 
-  def create_items(item_params, spec)
+  def create_items(item_params, spec, *keys)
     item_params.each do |key, params|
+      next unless keys.empty? || keys.include?(key)
       spec[key] = create_item(spec, params, create_class)
     end
   end
@@ -57,7 +69,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
     spec[:params] ||= {}
     params = make_params_for_macro(spec)
     result = subject.(*params)
-    pp result if RSPEC_DEBUG
+    print_result(result)
     if spec[:failure]
       expect(result).to be_failure
       pp result["contract.#{operation_type}"]&.errors&.messages if RSPEC_DEBUG

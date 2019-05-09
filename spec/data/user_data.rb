@@ -3,23 +3,36 @@
 module User
 
   ITEMS = {
-      user1: {uuid: '4689fc7b-c949-4904-bc5b-99fec47882f5', email: 'user1@example.com'},
-      user2: {uuid: '3c1d6d36-e618-4a38-bebd-8db6b6d3d76f', email: 'user2@example.com', first_name: 'John', last_name: 'Doe'},
-      user3: {uuid: '8b482de0-962c-408a-b336-ac0b5ce235da', email: 'user3@example.com', first_name: 'Jane', last_name: 'Doe'},
-      user4: {uuid: '73fb2898-875b-4569-90a7-6b8749d39e81', email: 'user4@example.com', first_name: 'John', last_name: 'Fox'},
+      user1: {
+          class: Teneo::DataModel::User,
+          data: {uuid: 'uuid1', email: 'user1@example.com'}
+      },
+      user2: {
+          class: Teneo::DataModel::User,
+          data: {uuid: 'uuid2', email: 'user2@example.com', first_name: 'John', last_name: 'Doe'}
+      },
+      user3: {
+          class: Teneo::DataModel::User,
+          data: {uuid: 'uuid3', email: 'user3@example.com', first_name: 'Jane', last_name: 'Doe'}
+      },
+      user4: {
+          class: Teneo::DataModel::User,
+          data: {uuid: 'uuid4', email: 'user4@example.com', first_name: 'John', last_name: 'Fox'}
+      }
   }
 
+  # noinspection RubyUnusedLocalVariable
   TESTS = {
       index: {
           'get all' => {
               check_params: ITEMS.values
           },
           'by uuid' => {
-              options: {filter: {uuid: ITEMS[:user1][:uuid]}},
+              options: {filter: {uuid: 'uuid1'}},
               check_params: [ITEMS[:user1]]
           },
           'by email' => {
-              options: {filter: {email: ITEMS[:user2][:email]}},
+              options: {filter: {email: 'user2@example.com'}},
               check_params: [ITEMS[:user2]]
           },
           'by first name' => {
@@ -42,53 +55,47 @@ module User
       create: {
           'minimal item' => {
               params: ITEMS[:user1],
-              check_params: ITEMS[:user1].merge(first_name: nil, last_name: nil)
+              check_params: ITEMS[:user1].deep_merge(data: {first_name: nil, last_name: nil})
           },
           'full item' => {
               params: ITEMS[:user2]
           },
           'uuid missing' => {
-              params: ITEMS[:user1].reject {|k| k == :uuid},
+              params: ITEMS[:user1].deep_reject {|k| k == :uuid},
               failure: true,
               errors: {uuid: ['must be filled', 'must be unique']}
           },
           'email missing' => {
-              params: ITEMS[:user1].reject {|k| k == :email},
+              params: ITEMS[:user1].deep_reject {|k| k == :email},
               failure: true,
               errors: {email: ['must be filled', 'must be unique']}
           },
           'duplicate uuid' => {
-              init: Proc.new do |ctx, spec|
-                ctx.subject.(*build_params(ITEMS[:user1]))
-              end,
-              params: ITEMS[:user2].merge(uuid: ITEMS[:user1][:uuid]),
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:user1])},
+              params: ITEMS[:user2].deep_merge(data: {uuid: 'uuid1'}),
               failure: true,
               errors: {uuid: ['must be unique']}
           },
           'duplicate email' => {
-              init: Proc.new do |ctx, spec|
-                ctx.subject.(*build_params(ITEMS[:user1]))
-              end,
-              params: ITEMS[:user2].merge(email: ITEMS[:user1][:email]),
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:user1])},
+              params: ITEMS[:user2].deep_merge(data: {email: 'user1@example.com'}),
               failure: true,
               errors: {email: ['must be unique']}
           },
           'empty uuid' => {
-              params: ITEMS[:user2].merge(uuid: ''),
+              params: ITEMS[:user2].deep_merge(data: {uuid: ''}),
               failure: true,
               errors: {uuid: ['must be filled', 'must be unique']}
           },
           'empty email' => {
-              params: ITEMS[:user2].merge(email: ''),
+              params: ITEMS[:user2].deep_merge(data: {email: ''}),
               failure: true,
               errors: {email: ['must be filled', 'must be unique']}
           }
       },
       retrieve: {
           'get item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user1]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:user1].id},
               check_params: ITEMS[:user1]
           },
           'wrong id' => {
@@ -98,69 +105,49 @@ module User
       },
       update: {
           'with first and last name' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user1]))[model_param].id
-              end,
-              params: ITEMS[:user1].merge(first_name: 'Jane', last_name: 'Fox'),
+              id: -> (ctx, spec) {spec[:user1].id},
+              params: ITEMS[:user1][:data].merge(first_name: 'Jane', last_name: 'Fox'),
           },
           'no uuid change' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user1]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:user1].id},
               params: {uuid: '02350846-9e55-4937-b478-230d83cb8d60'},
               check_params: ITEMS[:user1],
           },
           'only email change' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user1]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:user1].id},
               params: {email: 'userx@example.com'},
-              check_params: ITEMS[:user1].merge(email: 'userx@example.com'),
+              check_params: ITEMS[:user1][:data].merge(email: 'userx@example.com'),
           },
           'only first and last name' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user1]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:user1].id},
               params: {first_name: 'Jane', last_name: 'Fox'},
-              check_params: ITEMS[:user1].merge(first_name: 'Jane', last_name: 'Fox'),
+              check_params: ITEMS[:user1][:data].merge(first_name: 'Jane', last_name: 'Fox'),
           },
           'remove first and last name' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user2]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:user2].id},
               params: {first_name: nil, last_name: nil},
-              check_params: ITEMS[:user2].merge(first_name: nil, last_name: nil),
+              check_params: ITEMS[:user2][:data].merge(first_name: nil, last_name: nil),
           },
           'duplicate uuid' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_class.(*build_params(ITEMS[:user1]))[model_param]
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user2]))[model_param].id
-              end,
-              params: {uuid: ITEMS[:user1][:uuid]},
+              id: -> (ctx, spec) {spec[:user2].id},
+              params: {uuid: 'uuid1'},
               failure: true,
               errors: {uuid: ['must be unique']},
           },
           'duplicate email' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_class.(*build_params(ITEMS[:user1]))[model_param]
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user2]))[model_param].id
-              end,
-              params: {email: ITEMS[:user1][:email]},
+              id: -> (ctx, spec) {spec[:user2].id},
+              params: {email: 'user1@example.com'},
               failure: true,
               errors: {email: ['must be unique']},
           },
           'empty first name' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user2]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:user2].id},
               params: {first_name: ''},
               failure: true,
               errors: {first_name: ['must be filled']}
           },
           'empty last name' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user2]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:user2].id},
               params: {last_name: ''},
               failure: true,
               errors: {last_name: ['must be filled']}
@@ -168,10 +155,8 @@ module User
       },
       delete: {
           'existing item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:user1]))[model_param].id
-              end,
-              check_params: ITEMS[:user1]
+              id: -> (ctx, spec) {spec[:user2].id},
+              check_params: ITEMS[:user2]
           },
           'non-existing item' => {
               id: 0,

@@ -3,12 +3,25 @@
 module RepresentationInfo
 
   ITEMS = {
-      archive: {name: 'ARCHIVE', preservation_type: 'PRESERVATION_MASTER', usage_type: 'VIEW'},
-      high: {name: 'VIEW_MAIN', preservation_type: 'DERIVATIVE_COPY', usage_type: 'VIEW', representation_code: 'HIGH'},
-      low: {name: 'VIEW', preservation_type: 'DERIVATIVE_COPY', usage_type: 'VIEW', representation_code: 'LOW'},
-      thumbnail: {name: 'THUMBNAIL', preservation_type: 'DERIVATIVE_COPY', usage_type: 'THUMBNAIL', representation_code: 'THUMBNAIL'},
+      archive: {
+          class: Teneo::DataModel::RepresentationInfo,
+          data: {name: 'ARCHIVE', preservation_type: 'PRESERVATION_MASTER', usage_type: 'VIEW'}
+      },
+      high: {
+          class: Teneo::DataModel::RepresentationInfo,
+          data: {name: 'VIEW_MAIN', preservation_type: 'DERIVATIVE_COPY', usage_type: 'VIEW', representation_code: 'HIGH'}
+      },
+      low: {
+          class: Teneo::DataModel::RepresentationInfo,
+          data: {name: 'VIEW', preservation_type: 'DERIVATIVE_COPY', usage_type: 'VIEW', representation_code: 'LOW'}
+      },
+      thumbnail: {
+          class: Teneo::DataModel::RepresentationInfo,
+          data: {name: 'THUMBNAIL', preservation_type: 'DERIVATIVE_COPY', usage_type: 'THUMBNAIL', representation_code: 'THUMBNAIL'}
+      },
   }
 
+  # noinspection RubyUnusedLocalVariable
   TESTS = {
       index: {
           'get all' => {
@@ -38,35 +51,31 @@ module RepresentationInfo
       create: {
           'minimal item' => {
               params: ITEMS[:archive],
-              check_params: ITEMS[:archive].merge(representation_code: nil)
+              check_params: ITEMS[:archive][:data].merge(representation_code: nil)
           },
           'full item' => {
               params: ITEMS[:high]
           },
           'name missing' => {
-              params: ITEMS[:archive].reject {|k| k == :name},
+              params: ITEMS[:archive].deep_reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },
           'duplicate name' => {
-              init: Proc.new do |ctx, spec|
-                ctx.subject.(*build_params(spec[:params]))
-              end,
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:archive])},
               params: ITEMS[:archive],
               failure: true,
               errors: {name: ['must be unique']}
           },
           'empty preservation_type' => {
-              params: ITEMS[:high].merge(preservation_type: ''),
+              params: ITEMS[:high].deep_merge(data: {preservation_type: ''}),
               failure: true,
-              errors: {:preservation_type=>["must be filled"]}
+              errors: {:preservation_type => ["must be filled"]}
           }
       },
       retrieve: {
           'get item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:archive]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:archive].id},
               check_params: ITEMS[:archive]
           },
           'wrong id' => {
@@ -76,45 +85,32 @@ module RepresentationInfo
       },
       update: {
           'with representation_code' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:archive]))[model_param].id
-              end,
-              params: ITEMS[:archive].merge(representation_code: 'ARCHIVE'),
+              id: -> (ctx, spec) {spec[:archive].id},
+              params: ITEMS[:archive].deep_merge(data: {representation_code: 'ARCHIVE'}),
           },
           'no name change' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:archive]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:archive].id},
               params: {name: 'OPEN'},
               check_params: ITEMS[:archive],
           },
           'only representation_code' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:archive]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:archive].id},
               params: {representation_code: 'ARCHIVE'},
-              check_params: ITEMS[:archive].merge(representation_code: 'ARCHIVE'),
+              check_params: ITEMS[:archive][:data].merge(representation_code: 'ARCHIVE'),
           },
           'remove representation_code' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:high]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:high].id},
               params: {representation_code: nil},
-              check_params: ITEMS[:high].merge(representation_code: nil),
+              check_params: ITEMS[:high][:data].merge(representation_code: nil),
           },
           'duplicate name' => {
-              init: Proc.new do |ctx, spec|
-                ctx.create_class.(*build_params(ITEMS[:archive]))[model_param]
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:high]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:high].id},
               params: {name: ITEMS[:archive][:name]},
               failure: true,
-              errors: {name: ['must be unique']}
+              errors: {name: ['must be filled','must be unique']}
           },
           'empty representation_code' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:high]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:high].id},
               params: {representation_code: ''},
               failure: true,
               errors: {representation_code: ['size cannot be less than 1']}
@@ -122,9 +118,7 @@ module RepresentationInfo
       },
       delete: {
           'existing item' => {
-              init: Proc.new do |ctx, spec|
-                spec[:id] = ctx.create_class.(*build_params(ITEMS[:archive]))[model_param].id
-              end,
+              id: -> (ctx, spec) {spec[:archive].id},
               check_params: ITEMS[:archive]
           },
           'non-existing item' => {

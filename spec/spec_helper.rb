@@ -26,6 +26,10 @@ def model_param
   Teneo::DataModel::Concept::Operation.result_param(:model)
 end
 
+def result_param(p)
+  Teneo::DataModel::Concept::Operation.result_param(p)
+end
+
 require 'active_support/core_ext/hash'
 
 class Hash

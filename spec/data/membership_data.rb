@@ -88,7 +88,7 @@ module Membership
               },
               params: ITEMS[:membership1].deep_reject {|k| k == :role},
               failure: true,
-              errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'must be unique within its scope']}
+              errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'values in scope of organization_id, user_id, role must be unique']}
           },
           'duplicate role with different organization' => {
               init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
@@ -102,13 +102,13 @@ module Membership
               init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
               params: ITEMS[:membership1].deep_merge(links: {user_id: :user1, organization_id: :org1}),
               failure: true,
-              errors: {role: ['must be unique within its scope']}
+              errors: {role: ['values in scope of organization_id, user_id, role must be unique']}
           },
           'empty role' => {
               init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
               params: ITEMS[:membership1].deep_merge(data: {role: ''}),
               failure: true,
-              errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'must be unique within its scope']}
+              errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'values in scope of organization_id, user_id, role must be unique']}
           }
       },
       retrieve: {
@@ -131,13 +131,13 @@ module Membership
               id: -> (ctx, spec) {spec[:membership1].id},
               params: {role: 'admin'},
               failure: true,
-              errors: {role: ['must be unique within its scope']},
+              errors: {role: ['values in scope of organization_id, user_id, role must be unique']},
           },
           'empty role' => {
               id: -> (ctx, spec) {spec[:membership1].id},
               params: {role: ''},
               failure: true,
-              errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'must be unique within its scope']}
+              errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'values in scope of organization_id, user_id, role must be unique']}
           }
       },
       delete: {

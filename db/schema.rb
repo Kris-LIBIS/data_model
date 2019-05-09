@@ -69,13 +69,13 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "contact_system", array: true
     t.string "collection_description"
     t.string "ingest_job_name"
-    t.bigint "producer_id", null: false
-    t.bigint "material_flow_id", null: false
     t.string "collector"
+    t.bigint "producer_id"
+    t.bigint "material_flow_id"
     t.bigint "organization_id", null: false
     t.integer "lock_version", default: 0, null: false
     t.index ["material_flow_id"], name: "index_ingest_agreements_on_material_flow_id"
-    t.index ["name"], name: "index_ingest_agreements_on_name", unique: true
+    t.index ["organization_id", "name"], name: "index_ingest_agreements_on_organization_id_and_name", unique: true
     t.index ["organization_id"], name: "index_ingest_agreements_on_organization_id"
     t.index ["producer_id"], name: "index_ingest_agreements_on_producer_id"
   end

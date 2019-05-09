@@ -50,7 +50,7 @@ module MaterialFlow
           'name missing' => {
               params: ITEMS[:ingester].deep_reject {|k| k == :name},
               failure: true,
-              errors: {name: ['must be filled', 'must be unique within its scope']}
+              errors: {name: ['must be filled', 'values in scope of inst_code, name must be unique']}
           },
           'ext_id missing' => {
               params: ITEMS[:ingester].deep_reject {|k| k == :ext_id},
@@ -66,7 +66,7 @@ module MaterialFlow
               init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},
               params: ITEMS[:ingester],
               failure: true,
-              errors: {name: ["must be unique within its scope"]}
+              errors: {name: ["values in scope of inst_code, name must be unique"]}
           },
           'duplicate name but other inst_code' => {
               init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},

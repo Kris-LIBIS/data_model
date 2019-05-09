@@ -5,6 +5,6 @@ require 'data/representation_info_data'
 
 RSpec.describe 'RepresentationInfo' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::RepresentationInfo, RepresentationInfo::ITEMS, RepresentationInfo::TESTS
+  include_examples 'CRUD operations', Teneo::DataModel::RepresentationInfo, RepresentationInfo
 
 end

@@ -1,7 +1,8 @@
 en:
   errors:
     unique?: "must be unique"
-    unique_scope?: "must be unique within its scope"
+    unique_scope?: "values in scope of %{columns} must be unique"
     array_of?: "must be an array of %{type_class}"
     is_nil?: "should be nil"
     not_nil?: "must not be nil"
+    matches_inst_code?: "should have the same inst_code as the linked organization"

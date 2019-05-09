@@ -42,7 +42,7 @@ class Teneo::DataModel::Concept::Operation < ::Trailblazer::Operation
   end
 
   def self.get_model_class
-    Object.const_get parent_module.const_get('MODEL_CLASS')
+    Object.const_get(parent_module.const_get('MODEL_CLASS'))
   end
 
   def self.get_create_contract

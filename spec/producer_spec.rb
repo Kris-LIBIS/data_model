@@ -5,6 +5,6 @@ require 'data/producer_data'
 
 RSpec.describe 'Producer' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::Producer, Producer::ITEMS, Producer::TESTS
+  include_examples 'CRUD operations', Teneo::DataModel::Producer, Producer
 
 end

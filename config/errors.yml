@@ -6,3 +6,4 @@ en:
     is_nil?: "should be nil"
     not_nil?: "must not be nil"
     matches_inst_code?: "should have the same inst_code as the linked organization"
+    model_exist?: "%{model} with id=%{id} does not exist"

@@ -1,21 +1,12 @@
 # frozen_string_literal: true
 
-module AccessRight
+require_relative 'data_model_data'
 
-  ITEMS = {
-      public: {
-          class: Teneo::DataModel::AccessRight,
-          data: {name: 'PUBLIC', ext_id: 'AR_PUBLIC'}
-      },
-      private: {
-          class: Teneo::DataModel::AccessRight,
-          data: {name: 'PRIVATE', ext_id: 'AR_PRIVATE', description: 'Private access'}
-      },
-      open: {
-          class: Teneo::DataModel::AccessRight,
-          data: {name: 'OPEN', ext_id: 'AR_PUBLIC'}
-      },
-  }
+module AccessRightData
+
+  MODEL = Teneo::DataModel::AccessRight
+
+  ITEMS = DataModelData::ITEMS.for(MODEL)
 
   TESTS = {
       index: {
@@ -24,15 +15,15 @@ module AccessRight
           },
           'by name' => {
               options: {filter: {name: 'PUBLIC'}},
-              check_params: [ITEMS[:public]]
+              check_params: ITEMS.slice(:access_right1).values
           },
           'by ext_id' => {
               options: {filter: {ext_id: 'AR_PUBLIC'}},
-              check_params: [ITEMS[:public], ITEMS[:open]]
+              check_params: ITEMS.slice(:access_right1, :access_right3).values
           },
           'by name and ext_id' => {
               options: {filter: {name: 'OPEN', ext_id: 'AR_PUBLIC'}},
-              check_params: [ITEMS[:open]]
+              check_params: ITEMS.slice(:access_right3).values
           },
           'by name and ext_id without match' => {
               options: {filter: {name: 'PUBLIC', ext_id: 'AR_PRIVATE'}},
@@ -41,33 +32,33 @@ module AccessRight
       },
       create: {
           'minimal item' => {
-              params: ITEMS[:public],
-              check_params: ITEMS[:public].deep_merge(data: {description: nil})
+              params: ITEMS[:access_right1],
+              check_params: ITEMS[:access_right1]#.deep_merge(data: {description: nil})
           },
           'full item' => {
-              params: ITEMS[:private]
+              params: ITEMS[:access_right2]
           },
           'name missing' => {
-              params: ITEMS[:public].deep_reject {|k| k == :name},
+              params: ITEMS[:access_right1].deep_reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'must be unique']}
           },
           'duplicate name' => {
               init: -> (ctx, spec) {ctx.create_item(spec, spec[:params])},
-              params: ITEMS[:public],
+              params: ITEMS[:access_right1],
               failure: true,
               errors: {name: ['must be unique']}
           },
           'empty description' => {
-              params: ITEMS[:private].deep_merge(data: {description: ''}),
+              params: ITEMS[:access_right2].deep_merge(data: {description: ''}),
               failure: true,
               errors: {description: ['must be filled']}
           }
       },
       retrieve: {
           'get item' => {
-              id: -> (ctx, spec) {spec[:public].id},
-              check_params: ITEMS[:public]
+              id: -> (ctx, spec) {spec[:access_right1].id},
+              check_params: ITEMS[:access_right1]
           },
           'wrong id' => {
               id: 0,
@@ -76,28 +67,28 @@ module AccessRight
       },
       update: {
           'change description' => {
-              id: -> (ctx, spec) {spec[:public].id},
+              id: -> (ctx, spec) {spec[:access_right1].id},
               params: {description: 'Public access'},
-              check_params: ITEMS[:public].deep_merge(data: {description: 'Public access'})
+              check_params: ITEMS[:access_right1].deep_merge(data: {description: 'Public access'})
           },
           'no name change' => {
-              id: -> (ctx, spec) {spec[:public].id},
+              id: -> (ctx, spec) {spec[:access_right1].id},
               params: {name: 'SEMI-PUBLIC'},
-              check_params: ITEMS[:public]
+              check_params: ITEMS[:access_right1]
           },
           'remove description' => {
-              id: -> (ctx, spec) {spec[:private].id},
+              id: -> (ctx, spec) {spec[:access_right2].id},
               params: {description: nil},
-              check_params: ITEMS[:private].deep_merge(data: {description: nil}),
+              check_params: ITEMS[:access_right2].deep_merge(data: {description: nil}),
           },
           'duplicate name' => {
-              id: -> (ctx, spec) {spec[:private].id},
-              params: {name: ITEMS[:public][:data][:name]},
+              id: -> (ctx, spec) {spec[:access_right2].id},
+              params: {name: ITEMS[:access_right1][:data][:name]},
               failure: true,
               errors: {name: ['must be unique']}
           },
           'empty description' => {
-              id: -> (ctx, spec) {spec[:private].id},
+              id: -> (ctx, spec) {spec[:access_right2].id},
               params: {description: ''},
               failure: true,
               errors: {description: ['must be filled']}
@@ -105,8 +96,8 @@ module AccessRight
       },
       delete: {
           'existing item' => {
-              id: -> (ctx, spec) {spec[:public].id},
-              check_params: ITEMS[:public]
+              id: -> (ctx, spec) {spec[:access_right1].id},
+              check_params: ITEMS[:access_right1]
           },
           'non-existing item' => {
               id: 0,

@@ -1,25 +1,11 @@
 # frozen_string_literal: true
+require_relative 'user_data'
+require_relative 'organization_data'
 
 module Membership
 
   # noinspection RubyStringKeysInHashInspection
-  ITEMS = {
-      org1: {
-          class: Teneo::DataModel::Organization,
-          data: {name: 'ORG1', inst_code: 'ORG1'}
-      },
-      org2: {
-          class: Teneo::DataModel::Organization,
-          data: {name: 'ORG2', inst_code: 'ORG2'}
-      },
-      user1: {
-          class: Teneo::DataModel::User,
-          data: {uuid: '4689fc7b-c949-4904-bc5b-99fec47882f5', email: 'user1@example.com'}
-      },
-      user2: {
-          class: Teneo::DataModel::User,
-          data: {uuid: '3c1d6d36-e618-4a38-bebd-8db6b6d3d76f', email: 'user2@example.com'}
-      },
+  ITEMS = User.ITEMS.merge(Organization.ITEMS).merge(
       membership1: {
           class: Teneo::DataModel::Membership,
           data: {role: 'ingester'},
@@ -45,7 +31,7 @@ module Membership
           data: {role: 'admin'},
           links: {user_id: :user1, organization_id: :org1}
       }
-  }
+  )
 
   # noinspection RubyStringKeysInHashInspection
   TESTS = {
@@ -77,14 +63,14 @@ module Membership
       create: {
           'regular item' => {
               init: -> (ctx, spec) {spec[:org1] = ctx.create_item(spec, ITEMS[:org1])
-                spec[:user1] = ctx.create_item(spec, ITEMS[:user1])
+              spec[:user1] = ctx.create_item(spec, ITEMS[:user1])
               },
               params: ITEMS[:membership1],
               check_params: ITEMS[:membership1]
           },
           'role missing' => {
               init: -> (ctx, spec) {spec[:org1] = ctx.create_item(spec, ITEMS[:org1])
-                spec[:user1] = ctx.create_item(spec, ITEMS[:user1])
+              spec[:user1] = ctx.create_item(spec, ITEMS[:user1])
               },
               params: ITEMS[:membership1].deep_reject {|k| k == :role},
               failure: true,

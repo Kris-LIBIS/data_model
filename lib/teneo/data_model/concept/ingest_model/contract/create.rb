@@ -32,8 +32,11 @@ module Teneo::DataModel::IngestModel::Contract
       required(:retention_policy_id).filled {model_exist? Teneo::DataModel::RetentionPolicy}
       required(:access_right_id).filled {model_exist? Teneo::DataModel::AccessRight}
 
-      #TODO: check that only 1 ingest model links to a single ingest agreement
     end
+
+    # TODO: more sanity validations:
+    # - ingest agreement link is unique (only 1 ingest model links to given ingest agreement)
+    # - support for templates & derivates, including no delete if derivates exist
 
   end
 

@@ -210,7 +210,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.references :access_right, foreign_key: true
       t.references :representation_info, foreign_key: true, null: false
 
-      t.references :from, foreign_key: {to_table: :manifestations}, null: true
+      t.references :from, foreign_key: {to_table: :manifestations}
       t.references :ingest_model, foreign_key: true, null: false
     end
 

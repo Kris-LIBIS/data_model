@@ -30,19 +30,19 @@ def result_param(p)
   Teneo::DataModel::Concept::Operation.result_param(p)
 end
 
-require 'active_support/core_ext/hash'
-
-class Hash
-  def deep_reject(&block)
-    self.each_with_object({}) do |(k,v), m|
-      m[k] = v.is_a?(Hash) ? v.deep_reject(&block) : v unless block.call(k,v)
-    end
-  end
-
-  def deep_apply(method, &block)
-    self.each_with_object({}) do |(k,v), m|
-      m[k] = v.is_a?(Hash) ? v.deep_apply(method, &block) : v
-    end.send(method, &block)
-  end
-
-end
+# require 'active_support/core_ext/hash'
+#
+# class Hash
+#   def deep_reject(&block)
+#     self.each_with_object({}) do |(k,v), m|
+#       m[k] = v.is_a?(Hash) ? v.deep_reject(&block) : v unless block.call(k,v)
+#     end
+#   end
+#
+#   def deep_apply(method, &block)
+#     self.each_with_object({}) do |(k,v), m|
+#       m[k] = v.is_a?(Hash) ? v.deep_apply(method, &block) : v
+#     end.send(method, &block)
+#   end
+#
+# end

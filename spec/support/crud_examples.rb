@@ -12,7 +12,7 @@ def spec_desciption(desc, spec)
   "#{spec[:failure] ? 'Failure' : 'Success'} : #{desc}"
 end
 
-RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
+RSpec.shared_examples 'CRUD operations' do |data_module|
 
   def print_result(result)
     return unless RSPEC_DEBUG
@@ -20,8 +20,8 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
       puts 'OK'
       pp result[model_param]
     else
-      puts 'FAILED'
       pp result
+      puts 'FAILED'
     end
   end
   
@@ -45,7 +45,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
     data = (params[:data] || params).dup
     params[:links]&.each do |k, v|
       o = spec[v]
-      data[k] = o.id
+      data[k] = o ? o.id : v
     end
     build_params(data)
   end
@@ -56,7 +56,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
     data[:id] = spec[:id] if spec[:id]
     params[:links]&.each do |k, v|
       o = spec[v]
-      data[k] = o.id
+      data[k] = o ? o.id : v
     end
     build_params(data, spec[:options])
   end
@@ -89,6 +89,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
       end
       expect(result["contract.#{operation_type}"].errors.messages).to eq spec[:errors] if spec[:errors]
     else
+      pp result["contract.#{operation_type}"]&.errors&.messages if RSPEC_DEBUG && result.failure?
       expect(result).to be_success
       case operation_type
       when :create, :retrieve, :update
@@ -121,7 +122,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
   end
 
   let(:create_class) {
-    Object.const_get(active_record.name + '::Operation::Create')
+    Object.const_get(data_module.const_get('MODEL').name + '::Operation::Create')
   }
 
   # let(:data_module) { data_module }
@@ -129,7 +130,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
   context 'Index operation' do
 
     subject {
-      Object.const_get active_record.name + '::Operation::Index'
+      Object.const_get data_module.const_get('MODEL').name + '::Operation::Index'
     }
 
     data_module.const_get('TESTS')[:index].each do |desc, spec|
@@ -146,7 +147,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
   context 'Create operation' do
 
     subject {
-      Object.const_get active_record.name + '::Operation::Create'
+      Object.const_get data_module.const_get('MODEL').name + '::Operation::Create'
     }
 
     data_module.const_get('TESTS')[:create].each do |desc, spec|
@@ -162,7 +163,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
   context 'Retrieve operation' do
 
     subject {
-      Object.const_get active_record.name + '::Operation::Retrieve'
+      Object.const_get data_module.const_get('MODEL').name + '::Operation::Retrieve'
     }
 
     data_module.const_get('TESTS')[:retrieve].each do |desc, spec|
@@ -179,7 +180,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
   context 'Update operation' do
 
     subject {
-      Object.const_get active_record.name + '::Operation::Update'
+      Object.const_get data_module.const_get('MODEL').name + '::Operation::Update'
     }
 
     data_module.const_get('TESTS')[:update].each do |desc, spec|
@@ -196,7 +197,7 @@ RSpec.shared_examples 'CRUD operations' do |active_record, data_module|
   context 'Delete operation' do
 
     subject {
-      Object.const_get active_record.name + '::Operation::Delete'
+      Object.const_get data_module.const_get('MODEL').name + '::Operation::Delete'
     }
 
     data_module.const_get('TESTS')[:delete].each do |desc, spec|

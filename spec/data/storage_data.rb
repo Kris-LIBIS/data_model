@@ -1,51 +1,29 @@
 # frozen_string_literal: true
+require_relative 'data_model_data'
 
-module Storage
+module StorageData
 
-  # noinspection RubyStringKeysInHashInspection
-  ITEMS = {
-      org1: {
-          class: Teneo::DataModel::Organization,
-          data: {name: 'ORG1', inst_code: 'ORG1'}
-      },
-      org2: {
-          class: Teneo::DataModel::Organization,
-          data: {name: 'ORG2', inst_code: 'ORG2'}
-      },
-      storage1: {
-          class: Teneo::DataModel::Storage,
-          data: {name: 'upload', protocol: 'nas', options: {'path' => '/upload/org1'}},
-          links: {organization_id: :org1}
-      },
-      storage2: {
-          class: Teneo::DataModel::Storage,
-          data: {name: 'ftp_server', protocol: 'ftp', options: {'host' => 'ftp.org1.com'}},
-          links: {organization_id: :org1}
-      },
-      storage3: {
-          class: Teneo::DataModel::Storage,
-          data: {name: 'upload', protocol: 'nas', options: {'path' => '/upload/org2'}},
-          links: {organization_id: :org2}
-      },
-  }
+  MODEL = Teneo::DataModel::Storage
 
-  # noinspection RubyStringKeysInHashInspection,RubyUnusedLocalVariable
+  ITEMS = DataModelData::ITEMS.for(MODEL)
+
+  # noinspection RubyUnusedLocalVariable,RubyStringKeysInHashInspection
   TESTS = {
       index: {
           'get all' => {
-              check_params: [ITEMS[:storage1], ITEMS[:storage2], ITEMS[:storage3]]
+              check_params: ITEMS.only(MODEL).values
           },
           'by name' => {
               options: {filter: {name: 'upload'}},
-              check_params: [ITEMS[:storage1], ITEMS[:storage3]]
+              check_params: ITEMS.vslice(:storage1, :storage3)
           },
           'by protocol' => {
               options: {filter: {protocol: 'nas'}},
-              check_params: [ITEMS[:storage1], ITEMS[:storage3]]
+              check_params: ITEMS.vslice(:storage1, :storage3)
           },
           'by name and protocol with match' => {
               options: {filter: {name: 'upload', protocol: 'nas'}},
-              check_params: [ITEMS[:storage1], ITEMS[:storage3]]
+              check_params: ITEMS.vslice(:storage1, :storage3)
           },
           'by name and protocol without match' => {
               options: {filter: {name: 'upload', protocol: 'ftp'}},
@@ -54,28 +32,37 @@ module Storage
       },
       create: {
           'regular item' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :org1)},
+              # init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :org1)},
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :storage1)},
               params: ITEMS[:storage1],
               check_params: ITEMS[:storage1]
           },
           'name missing' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :org1)},
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :storage1)},
               params: ITEMS[:storage1].deep_reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'values in scope of organization_id, name must be unique']}
           },
           'duplicate name with different organization' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :org1, :org2, :storage1)},
+              init: -> (ctx, spec) {
+                ctx.create_dependencies(ITEMS, spec, :storage1)
+                ctx.create_item(spec, ITEMS[:storage1])
+                ctx.create_dependencies(ITEMS, spec, :storage3)
+              },
               params: ITEMS[:storage3]
           },
           'duplicate name with the same organization' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :org1, :org2, :storage1)},
+              init: -> (ctx, spec) {
+                ctx.create_dependencies(ITEMS, spec, :storage1)
+                ctx.create_item(spec, ITEMS[:storage1])
+                ctx.create_dependencies(ITEMS, spec, :storage2)
+              },
               params: ITEMS[:storage2].deep_merge(data: {name: 'upload'}),
               failure: true,
               errors: {name: ['values in scope of organization_id, name must be unique']}
           },
           'empty name' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :org1)},
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :storage1)},
               params: ITEMS[:storage1].deep_merge(data: {name: ''}),
               failure: true,
               errors: {name: ['must be filled', 'values in scope of organization_id, name must be unique']}

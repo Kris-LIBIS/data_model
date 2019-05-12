@@ -1,124 +1,88 @@
 # frozen_string_literal: true
-require_relative 'ingest_model_data'
+require_relative 'data_model_data'
 
-module Manifestation
+module ManifestationData
 
-  # noinspection RubyStringKeysInHashInspection
-  ITEMS = {
-      rp: {
-          class: Teneo::DataModel::RetentionPolicy,
-          data: {name: 'PERMANENT', ext_id: 'RP_NONE'}
-      },
-      public: {
-          class: Teneo::DataModel::AccessRight,
-          data: {name: 'PUBLIC', ext_id: 'AR_PUBLIC'}
-      },
-      private: {
-          class: Teneo::DataModel::AccessRight,
-          data: {name: 'PRIVATE', ext_id: 'AR_PRIVATE', description: 'Private access'}
-      },
-      open: {
-          class: Teneo::DataModel::AccessRight,
-          data: {name: 'OPEN', ext_id: 'AR_PUBLIC'}
-      },
-      archive: {
-          class: Teneo::DataModel::RepresentationInfo,
-          data: {name: 'ARCHIVE', preservation_type: 'PRESERVATION_MASTER', usage_type: 'VIEW'}
-      },
-      high: {
-          class: Teneo::DataModel::RepresentationInfo,
-          data: {name: 'VIEW_MAIN', preservation_type: 'DERIVATIVE_COPY', usage_type: 'VIEW', representation_code: 'HIGH'}
-      },
-      low: {
-          class: Teneo::DataModel::RepresentationInfo,
-          data: {name: 'VIEW', preservation_type: 'DERIVATIVE_COPY', usage_type: 'VIEW', representation_code: 'LOW'}
-      },
-      thumbnail: {
-          class: Teneo::DataModel::RepresentationInfo,
-          data: {name: 'THUMBNAIL', preservation_type: 'DERIVATIVE_COPY', usage_type: 'THUMBNAIL', representation_code: 'THUMBNAIL'}
-      },
-      model: {
-          class: Teneo::DataModel::IngestModel,
-          data: {name: 'model'},
-          links: {retention_policy_id: :rp, access_right_id: :ar}
-      },
-      master: {
-          class: Teneo::DataModel::IngestModel,
-          data: {name: 'model 1'},
-          links: {retention_policy_id: :rp1, access_right_id: :ar1}
-      },
-      mod_master: {
-          class: Teneo::DataModel::IngestModel,
-          data: {name: 'model 2', description: 'ingest model 2', entity_type: 'entity type 1',
-                 user_a: 'a', user_b: 'b', user_c: 'c', identifier: '123', status: 'stored'},
-          links: {retention_policy_id: :rp1, access_right_id: :ar1}
-      },
-      derived: {
-          class: Teneo::DataModel::IngestModel,
-          data: {name: 'model 3'},
-          links: {retention_policy_id: :rp1, access_right_id: :ar1}
-      },
-  }
+  MODEL = Teneo::DataModel::Manifestation
 
-  # noinspection RubyStringKeysInHashInspection,RubyUnusedLocalVariable
+  ITEMS = DataModelData::ITEMS.for(MODEL)
+
+  # noinspection RubyUnusedLocalVariable
   TESTS = {
       index: {
           'get all' => {
-              check_params: [ITEMS[:master], ITEMS[:mod_master], ITEMS[:derived]]
+              check_params: ITEMS.only(MODEL).values
           },
           'by name' => {
-              options: {filter: {name: 'model 1'}},
-              check_params: [ITEMS[:master]]
+              options: {filter: {name: 'manifestation 1'}},
+              check_params: ITEMS.vslice(:manifestation1)
           },
           'by name without match' => {
-              options: {filter: {name: 'model xxx'}},
+              options: {filter: {name: 'manifestation xxx'}},
               check_params: []
+          },
+          'by label' => {
+              options: {filter: {label: 'Label 1'}},
+              check_params: ITEMS.vslice(:manifestation1, :manifestation3)
+          },
+          'by label for model' => {
+              options: -> (ctx, spec) {{filter: {ingest_model_id: spec[:model1].id, label: 'Label 1'}}},
+              check_params: ITEMS.vslice(:manifestation1)
           }
       },
       create: {
           'regular item' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :rp1, :ar1)},
-              params: ITEMS[:master]
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :manifestation1)},
+              params: ITEMS[:manifestation1]
           },
-          'complete item' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :rp1, :ar1)},
-              params: ITEMS[:mod_master]
+          'with from relation' => {
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :manifestation2)},
+              params: ITEMS[:manifestation2]
           },
           'name missing' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :rp1, :ar1)},
-              params: ITEMS[:master].deep_reject {|k| k == :name},
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :manifestation1)},
+              params: ITEMS[:manifestation1].deep_reject {|k| k == :name},
               failure: true,
-              errors: {name: ['must be filled', 'must be unique']}
+              errors: {name: ['must be filled', 'values in scope of ingest_model_id, name must be unique']}
           },
           'duplicate name' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :rp1, :ar1, :master)},
-              params: ITEMS[:mod_master].deep_merge(data: {name: 'model 1'}),
+              init: -> (ctx, spec) {
+                ctx.create_dependencies(ITEMS, spec, :manifestation2)
+                ctx.create_items(ITEMS, spec, :manifestation1)
+              },
+              params: ITEMS[:manifestation2].deep_merge(data: {name: 'manifestation 1'}),
               failure: true,
-              errors: {name: ['must be unique']}
+              errors: {name: ['values in scope of ingest_model_id, name must be unique']}
           },
           'empty name' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :rp1, :ar1)},
-              params: ITEMS[:master].deep_merge(data: {name: ''}),
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :manifestation1)},
+              params: ITEMS[:manifestation1].deep_merge(data: {name: ''}),
               failure: true,
-              errors: {name: ['must be filled', 'must be unique']}
+              errors: {name: ['must be filled', 'values in scope of ingest_model_id, name must be unique']}
           },
-          'wrong accessright' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :rp1, :ar1)},
-              params: ITEMS[:master].deep_merge(links: {access_right_id: 0}),
+          'from other ingest model' => {
+              init: -> (ctx, spec) {
+                ctx.create_dependencies(ITEMS, spec, :manifestation4)
+                ctx.create_items(ITEMS,spec,:manifestation1)
+              },
+              params: ITEMS[:manifestation4].deep_merge(links: {from_id: :manifestation1}),
               failure: true,
-              errors: {access_right_id: ['Teneo::DataModel::AccessRight with id=0 does not exist']}
+              errors: {from_id: ['should refer to a manifestaion of the same ingest model']}
           },
-          'wrong retention policy' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :rp1, :ar1)},
-              params: ITEMS[:master].deep_merge(links: {retention_policy_id: 0}),
+          'from with higer order' => {
+              init: -> (ctx, spec) {
+                ctx.create_dependencies(ITEMS, spec, :manifestation3)
+                ctx.create_items(ITEMS,spec,:manifestation4)
+              },
+              params: ITEMS[:manifestation3].deep_merge(links: {from_id: :manifestation4}),
               failure: true,
-              errors: {retention_policy_id: ['Teneo::DataModel::RetentionPolicy with id=0 does not exist']}
+              errors: {from_id: ['should refer to a manifestation with lower order rank', 'should refer to a manifestaion of the same ingest model']}
           },
       },
       retrieve: {
           'get item' => {
-              id: -> (ctx, spec) {spec[:master].id},
-              check_params: ITEMS[:master]
+              id: -> (ctx, spec) {spec[:manifestation1].id},
+              check_params: ITEMS[:manifestation1]
           },
           'wrong id' => {
               id: 0,
@@ -127,21 +91,37 @@ module Manifestation
       },
       update: {
           'name change' => {
-              id: -> (ctx, spec) {spec[:master].id},
-              params: {name: 'model xxx'},
-              check_params: ITEMS[:master][:data].merge(name: 'model xxx'),
+              id: -> (ctx, spec) {spec[:manifestation1].id},
+              params: {name: 'manifestation x'},
+              check_params: ITEMS[:manifestation1][:data].merge(name: 'manifestation x'),
           },
           'duplicate name' => {
-              id: -> (ctx, spec) {spec[:master].id},
-              params: {name: 'model 2'},
+              id: -> (ctx, spec) {spec[:manifestation1].id},
+              params: {name: 'manifestation 2'},
               failure: true,
-              errors: {name: ['must be unique']},
+              errors: {name: ['values in scope of ingest_model_id, name must be unique']},
+          },
+          'duplicate order for same ingest_model' => {
+              id: -> (ctx, spec) {spec[:manifestation2].id},
+              params: {order: 1},
+              failure: true,
+              errors: {order: ['values in scope of ingest_model_id, order must be unique']},
+          },
+          'duplicate order for different ingest_model' => {
+              id: -> (ctx, spec) {spec[:manifestation3].id},
+              params: {order: 1},
+              check_params: ITEMS[:manifestation3][:data].merge(order: 1),
           },
       },
       delete: {
           'existing item' => {
-              id: -> (ctx, spec) {spec[:master].id},
-              check_params: ITEMS[:master]
+              id: -> (ctx, spec) {spec[:manifestation2].id},
+              check_params: ITEMS[:manifestation2]
+          },
+          'item in use' => {
+              id: -> (ctx, spec) {spec[:manifestation1].id},
+              failure: true,
+              errors: nil
           },
           'non-existing item' => {
               id: 0,

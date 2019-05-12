@@ -8,6 +8,9 @@ module Teneo::DataModel
     self.table_name = 'converters'
 
     has_many :conversion_jobs
+
+    serialize :parameters, Teneo::DataModel::Serializers::HashSerializer
+
   end
 
 end

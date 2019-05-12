@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'symbolized'
 
 module Teneo
   module DataModel
@@ -15,7 +16,7 @@ module Teneo
         def self.load(hash)
           return nil if hash.nil? or hash.empty?
           hash = JSON.parse(hash) if hash.is_a?(String)
-          (hash || {}).with_indifferent_access
+          (hash || {}).to_symbolized_hash
         end
       end
 

@@ -5,6 +5,6 @@ require 'data/user_data'
 
 RSpec.describe 'User' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::User, User
+  include_examples 'CRUD operations', UserData
 
 end

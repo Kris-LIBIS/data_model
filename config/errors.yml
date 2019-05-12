@@ -6,4 +6,6 @@ en:
     is_nil?: "should be nil"
     not_nil?: "must not be nil"
     matches_inst_code?: "should have the same inst_code as the linked organization"
+    matches_ingest_model?: "should refer to a manifestaion of the same ingest model"
+    from_with_lower_order?: "should refer to a manifestation with lower order rank"
     model_exist?: "%{model} with id=%{id} does not exist"

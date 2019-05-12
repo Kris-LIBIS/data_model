@@ -1,21 +1,11 @@
 # frozen_string_literal: true
+require_relative 'data_model_data'
 
-module MaterialFlow
+module MaterialFlowData
 
-  ITEMS = {
-      ingester: {
-          class: Teneo::DataModel::MaterialFlow,
-          data: {name: 'Ingester', ext_id: '1000', inst_code: 'INST1'}
-      },
-      collections: {
-          class: Teneo::DataModel::MaterialFlow,
-          data: {name: 'Collections', ext_id: '2000', inst_code: 'INST1', description: 'Create Collections'}
-      },
-      other: {
-          class: Teneo::DataModel::MaterialFlow,
-          data: {name: 'Ingester', ext_id: '3000', inst_code: 'INST2', description: 'Other ingester workflow'}
-      },
-  }
+  MODEL = Teneo::DataModel::MaterialFlow
+
+  ITEMS = DataModelData::ITEMS.for(MODEL)
 
   TESTS = {
       index: {
@@ -24,15 +14,15 @@ module MaterialFlow
           },
           'by name' => {
               options: {filter: {name: 'Ingester'}},
-              check_params: [ITEMS[:ingester], ITEMS[:other]]
+              check_params: ITEMS.vslice(:material_flow1, :material_flow3, :material_flow4)
           },
           'by ext_id' => {
               options: {filter: {ext_id: '1000'}},
-              check_params: [ITEMS[:ingester]]
+              check_params: ITEMS.vslice(:material_flow1)
           },
           'by name and inst_code' => {
               options: {filter: {name: 'Ingester', inst_code: 'INST2'}},
-              check_params: [ITEMS[:other]]
+              check_params: ITEMS.vslice(:material_flow3)
           },
           'by name and inst_code without match' => {
               options: {filter: {name: 'Collections', inst_code: 'INST2'}},
@@ -41,47 +31,47 @@ module MaterialFlow
       },
       create: {
           'minimal item' => {
-              params: ITEMS[:ingester],
-              check_params: ITEMS[:ingester].deep_merge(data:{description: nil})
+              params: ITEMS[:material_flow1],
+              check_params: ITEMS[:material_flow1].deep_merge(data:{description: nil})
           },
           'full item' => {
-              params: ITEMS[:collections]
+              params: ITEMS[:material_flow2]
           },
           'name missing' => {
-              params: ITEMS[:ingester].deep_reject {|k| k == :name},
+              params: ITEMS[:material_flow1].deep_reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'values in scope of inst_code, name must be unique']}
           },
           'ext_id missing' => {
-              params: ITEMS[:ingester].deep_reject {|k| k == :ext_id},
+              params: ITEMS[:material_flow1].deep_reject {|k| k == :ext_id},
               failure: true,
               errors: {ext_id: ['must be filled']}
           },
           'inst_code missing' => {
-              params: ITEMS[:ingester].deep_reject {|k| k == :inst_code},
+              params: ITEMS[:material_flow1].deep_reject {|k| k == :inst_code},
               failure: true,
               errors: {inst_code: ['must be filled']}
           },
           'duplicate name with same inst_code' => {
-              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},
-              params: ITEMS[:ingester],
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:material_flow1])},
+              params: ITEMS[:material_flow1],
               failure: true,
               errors: {name: ["values in scope of inst_code, name must be unique"]}
           },
           'duplicate name but other inst_code' => {
-              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},
-              params: ITEMS[:ingester].deep_merge(data: {inst_code: 'OTHER_INST'})
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:material_flow1])},
+              params: ITEMS[:material_flow1].deep_merge(data: {inst_code: 'OTHER_INST'})
           },
           'empty description' => {
-              params: ITEMS[:collections].deep_merge(data: {description: ''}),
+              params: ITEMS[:material_flow2].deep_merge(data: {description: ''}),
               failure: true,
               errors: {description: ['must be filled']}
           }
       },
       retrieve: {
           'get item' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
-              check_params: ITEMS[:ingester]
+              id: -> (ctx, spec) {spec[:material_flow1].id},
+              check_params: ITEMS[:material_flow1]
           },
           'wrong id' => {
               id: 0,
@@ -90,26 +80,26 @@ module MaterialFlow
       },
       update: {
           'with description' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
-              params: ITEMS[:ingester].deep_merge(data: {description: 'Ingester workflow'}),
+              id: -> (ctx, spec) {spec[:material_flow1].id},
+              params: ITEMS[:material_flow1].deep_merge(data: {description: 'Ingester workflow'}),
           },
           'no name change' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
+              id: -> (ctx, spec) {spec[:material_flow1].id},
               params: {name: 'Something else'},
-              check_params: ITEMS[:ingester],
+              check_params: ITEMS[:material_flow1],
           },
           'only description' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
+              id: -> (ctx, spec) {spec[:material_flow1].id},
               params: {description: 'Ingester workflow'},
-              check_params: ITEMS[:ingester].deep_merge(data: {description: 'Ingester workflow'}),
+              check_params: ITEMS[:material_flow1].deep_merge(data: {description: 'Ingester workflow'}),
           },
           'remove description' => {
-              id: -> (ctx, spec) {spec[:collections].id},
+              id: -> (ctx, spec) {spec[:material_flow2].id},
               params: {description: nil},
-              check_params: ITEMS[:collections].deep_merge(data: {description: nil}),
+              check_params: ITEMS[:material_flow2].deep_merge(data: {description: nil}),
           },
           'empty description' => {
-              id: -> (ctx, spec) {spec[:collections].id},
+              id: -> (ctx, spec) {spec[:material_flow2].id},
               params: {description: ''},
               failure: true,
               errors: {description: ['must be filled']}
@@ -117,8 +107,8 @@ module MaterialFlow
       },
       delete: {
           'existing item' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
-              check_params: ITEMS[:ingester]
+              id: -> (ctx, spec) {spec[:material_flow1].id},
+              check_params: ITEMS[:material_flow1]
           },
           'non-existing item' => {
               id: 0,

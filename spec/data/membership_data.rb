@@ -1,59 +1,33 @@
 # frozen_string_literal: true
-require_relative 'user_data'
-require_relative 'organization_data'
+require_relative 'data_model_data'
 
-module Membership
+module MembershipData
 
-  # noinspection RubyStringKeysInHashInspection
-  ITEMS = User.ITEMS.merge(Organization.ITEMS).merge(
-      membership1: {
-          class: Teneo::DataModel::Membership,
-          data: {role: 'ingester'},
-          links: {user_id: :user1, organization_id: :org1}
-      },
-      membership2: {
-          class: Teneo::DataModel::Membership,
-          data: {role: 'uploader'},
-          links: {user_id: :user1, organization_id: :org2}
-      },
-      membership3: {
-          class: Teneo::DataModel::Membership,
-          data: {role: 'admin'},
-          links: {user_id: :user2, organization_id: :org1}
-      },
-      membership4: {
-          class: Teneo::DataModel::Membership,
-          data: {role: 'admin'},
-          links: {user_id: :user2, organization_id: :org2}
-      },
-      membership5: {
-          class: Teneo::DataModel::Membership,
-          data: {role: 'admin'},
-          links: {user_id: :user1, organization_id: :org1}
-      }
-  )
+  MODEL = Teneo::DataModel::Membership
 
-  # noinspection RubyStringKeysInHashInspection
+  ITEMS = DataModelData::ITEMS.for(MODEL)
+
+  # noinspection RubyUnusedLocalVariable
   TESTS = {
       index: {
           'get all' => {
-              check_params: [ITEMS[:membership1], ITEMS[:membership2], ITEMS[:membership3], ITEMS[:membership4], ITEMS[:membership5]]
+              check_params: ITEMS.only(MODEL).values
           },
           'by role' => {
               options: {filter: {role: 'admin'}},
-              check_params: [ITEMS[:membership3], ITEMS[:membership4], ITEMS[:membership5]]
+              check_params: ITEMS.vslice(:membership3, :membership4, :membership5)
           },
           'by organization_id' => {
               options: -> (ctx, spec) {{filter: {organization_id: spec[:org1].id}}},
-              check_params: [ITEMS[:membership1], ITEMS[:membership3], ITEMS[:membership5]]
+              check_params: ITEMS.vslice(:membership1, :membership3, :membership5)
           },
           'by user_id' => {
               options: -> (ctx, spec) {{filter: {user_id: spec[:user1].id}}},
-              check_params: [ITEMS[:membership1], ITEMS[:membership2], ITEMS[:membership5]]
+              check_params: ITEMS.vslice(:membership1, :membership2, :membership5)
           },
           'by user_id and role with match' => {
               options: -> (ctx, spec) {{filter: {user_id: spec[:user2].id, role: 'admin'}}},
-              check_params: [ITEMS[:membership3], ITEMS[:membership4]]
+              check_params: ITEMS.vslice(:membership3, :membership4)
           },
           'by user_id and role without match' => {
               options: -> (ctx, spec) {{filter: {user_id: spec[:user2].id, role: 'uploader'}}},
@@ -62,36 +36,32 @@ module Membership
       },
       create: {
           'regular item' => {
-              init: -> (ctx, spec) {spec[:org1] = ctx.create_item(spec, ITEMS[:org1])
-              spec[:user1] = ctx.create_item(spec, ITEMS[:user1])
-              },
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :membership1)},
               params: ITEMS[:membership1],
               check_params: ITEMS[:membership1]
           },
           'role missing' => {
-              init: -> (ctx, spec) {spec[:org1] = ctx.create_item(spec, ITEMS[:org1])
-              spec[:user1] = ctx.create_item(spec, ITEMS[:user1])
-              },
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :membership1)},
               params: ITEMS[:membership1].deep_reject {|k| k == :role},
               failure: true,
               errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'values in scope of organization_id, user_id, role must be unique']}
           },
           'duplicate role with different organization' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
+              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :membership1, :org2)},
               params: ITEMS[:membership1].deep_merge(links: {user_id: :user1, organization_id: :org2})
           },
           'duplicate role with different user' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
+              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :membership1, :user2)},
               params: ITEMS[:membership1].deep_merge(links: {user_id: :user2, organization_id: :org1})
           },
           'duplicate role with same user and organization' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
-              params: ITEMS[:membership1].deep_merge(links: {user_id: :user1, organization_id: :org1}),
+              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec, :membership1)},
+              params: ITEMS[:membership1],
               failure: true,
               errors: {role: ['values in scope of organization_id, user_id, role must be unique']}
           },
           'empty role' => {
-              init: -> (ctx, spec) {ctx.create_items(ITEMS, spec)},
+              init: -> (ctx, spec) {ctx.create_dependencies(ITEMS, spec, :membership1)},
               params: ITEMS[:membership1].deep_merge(data: {role: ''}),
               failure: true,
               errors: {role: ['must be filled', 'must be one of: uploader, ingester, admin', 'values in scope of organization_id, user_id, role must be unique']}

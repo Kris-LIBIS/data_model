@@ -5,6 +5,6 @@ require 'data/membership_data'
 
 RSpec.describe 'Membership' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::Membership, Membership
+  include_examples 'CRUD operations', MembershipData
 
 end

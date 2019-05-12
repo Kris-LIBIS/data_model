@@ -5,6 +5,6 @@ require 'data/organization_data'
 
 RSpec.describe 'Organization' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::Organization, Organization
+  include_examples 'CRUD operations', OrganizationData
 
 end

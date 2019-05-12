@@ -135,7 +135,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :name
       t.string :description
       t.string :class_name
-      t.jsonb :parameters, array: true
+      t.jsonb :parameters
     end
 
     add_index :converters, :parameters, using: :gin
@@ -212,6 +212,10 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.references :from, foreign_key: {to_table: :manifestations}
       t.references :ingest_model, foreign_key: true, null: false
+
+      t.index [:ingest_model_id, :name], unique: true
+      t.index [:ingest_model_id, :order], unique: true
+      t.index [:ingest_model_id, :label], unique: true
     end
 
     create_table :conversion_jobs do |t|

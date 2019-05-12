@@ -1,27 +1,13 @@
 # frozen_string_literal: true
+require_relative 'data_model_data'
 
-module Organization
+module OrganizationData
 
-  # noinspection RubyStringKeysInHashInspection
-  ITEMS = {
-      org1: {
-          class: Teneo::DataModel::Organization,
-          data: {name: 'Organization 1', inst_code: 'INST1'}
-      },
-      org2: {
-          class: Teneo::DataModel::Organization,
-          data: {name: 'Organization 2', inst_code: 'INST2', ingest_dir: '/org2', description: 'organization 2'}
-      },
-      org3: {
-          class: Teneo::DataModel::Organization,
-          data: {name: 'Organization 3', inst_code: 'INST2', ingest_dir: '/org3'}
-      },
-      org4: {
-          class: Teneo::DataModel::Organization,
-          data: {name: 'Organization 4', inst_code: 'INST1', description: 'organization 4'}
-      }
-  }
+  MODEL = Teneo::DataModel::Organization
 
+  ITEMS = DataModelData::ITEMS.for(MODEL)
+
+  # noinspection RubyUnusedLocalVariable
   TESTS = {
       index: {
           'get all' => {
@@ -29,23 +15,23 @@ module Organization
           },
           'by name' => {
               options: {filter: {name: 'Organization 1'}},
-              check_params: [ITEMS[:org1]]
+              check_params: ITEMS.vslice(:org1)
           },
           'by inst_code' => {
               options: {filter: {inst_code: 'INST2'}},
-              check_params: [ITEMS[:org2], ITEMS[:org3]]
+              check_params: ITEMS.vslice(:org2, :org3)
           },
           'by ingest_dir' => {
               options: {filter: {ingest_dir: '/org3'}},
-              check_params: [ITEMS[:org3]]
+              check_params: ITEMS.vslice(:org3)
           },
           'by description' => {
               options: {filter: {description: 'organization 4'}},
-              check_params: [ITEMS[:org4]]
+              check_params: ITEMS.vslice(:org4)
           },
           'by inst_code and ingest_dir with match' => {
               options: {filter: {inst_code: 'INST2', ingest_dir: '/org3'}},
-              check_params: [ITEMS[:org3]]
+              check_params: ITEMS.vslice(:org3)
           },
           'by inst_code and ingest_dir without match' => {
               options: {filter: {inst_code: 'INST2', ingest_dir: '/org1'}},

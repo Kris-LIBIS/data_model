@@ -5,6 +5,6 @@ require 'data/manifestation_data'
 
 RSpec.describe 'Manifestation' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::Manifestation, Manifestation
+  include_examples 'CRUD operations', ManifestationData
 
 end

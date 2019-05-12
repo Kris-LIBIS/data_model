@@ -15,15 +15,15 @@ module AccessRightData
           },
           'by name' => {
               options: {filter: {name: 'PUBLIC'}},
-              check_params: ITEMS.slice(:access_right1).values
+              check_params: ITEMS.vslice(:access_right1)
           },
           'by ext_id' => {
               options: {filter: {ext_id: 'AR_PUBLIC'}},
-              check_params: ITEMS.slice(:access_right1, :access_right3).values
+              check_params: ITEMS.vslice(:access_right1, :access_right3)
           },
           'by name and ext_id' => {
               options: {filter: {name: 'OPEN', ext_id: 'AR_PUBLIC'}},
-              check_params: ITEMS.slice(:access_right3).values
+              check_params: ITEMS.vslice(:access_right3)
           },
           'by name and ext_id without match' => {
               options: {filter: {name: 'PUBLIC', ext_id: 'AR_PRIVATE'}},
@@ -33,7 +33,7 @@ module AccessRightData
       create: {
           'minimal item' => {
               params: ITEMS[:access_right1],
-              check_params: ITEMS[:access_right1]#.deep_merge(data: {description: nil})
+              check_params: ITEMS[:access_right1].deep_merge(data: {description: nil})
           },
           'full item' => {
               params: ITEMS[:access_right2]

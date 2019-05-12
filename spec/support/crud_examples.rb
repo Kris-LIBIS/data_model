@@ -4,7 +4,7 @@ require 'teneo/data_model'
 require 'awesome_print'
 require 'prettyprint'
 
-require 'support/active_record_spec_helper'
+require_relative 'active_record_spec_helper'
 
 RSPEC_DEBUG = true
 
@@ -13,6 +13,8 @@ def spec_desciption(desc, spec)
 end
 
 RSpec.shared_examples 'CRUD operations' do |data_module|
+
+  ITEMS = data_module.const_get('ITEMS')
 
   def print_result(result)
     return unless RSPEC_DEBUG
@@ -24,8 +26,9 @@ RSpec.shared_examples 'CRUD operations' do |data_module|
       puts 'FAILED'
     end
   end
-  
+
   def create_item(spec, params, create_class = nil)
+    puts "Create_item -- params: #{params.inspect}"
     create_class = Object.const_get(params[:class].to_s + '::Operation::Create') if params[:class]
     result = create_class.(*make_params(spec, params))
     print_result(result)
@@ -34,9 +37,21 @@ RSpec.shared_examples 'CRUD operations' do |data_module|
   end
 
   def create_items(item_params, spec, *keys)
-    item_params.each do |key, params|
-      next unless keys.empty? || keys.include?(key)
-      spec[key] = create_item(spec, params, create_class)
+    keys = item_params.keys if keys.empty?
+    keys.each do |key|
+      next if spec[key]
+      create_dependencies(item_params, spec, key)
+      spec[key] = create_item(spec, item_params[key], create_class)
+    end
+  end
+
+  def create_dependencies(item_params, spec, *keys)
+    dependencies = item_params.dependency_keys(*keys) - spec.keys
+    return if dependencies.empty?
+    create_dependencies(item_params, spec, *dependencies)
+    dependencies.each do |key|
+      next if spec[key] # Could have been created already by a sub-dependency
+      spec[key] = create_item(spec, item_params[key])
     end
   end
 
@@ -45,12 +60,12 @@ RSpec.shared_examples 'CRUD operations' do |data_module|
     data = (params[:data] || params).dup
     params[:links]&.each do |k, v|
       o = spec[v]
-      data[k] = o ? o.id : v
+      data[k] = o.id
     end
     build_params(data)
   end
 
-  def make_params_for_macro(spec)
+  def params_from_spec(spec)
     params = spec[:params] || {}
     data = (params[:data] || params).dup
     data[:id] = spec[:id] if spec[:id]
@@ -61,13 +76,13 @@ RSpec.shared_examples 'CRUD operations' do |data_module|
     build_params(data, spec[:options])
   end
 
-  # noinspection RubyResolve
+# noinspection RubyResolve
   def spec_macro(spec, operation_type:)
     spec[:init] = spec[:init].(self, spec) if spec[:init]
     spec[:init] = nil
     spec.each {|k, v| spec[k] = v.(self, spec) if v.is_a?(Proc)}
     spec[:params] ||= {}
-    params = make_params_for_macro(spec)
+    params = params_from_spec(spec)
     result = subject.(*params)
     print_result(result)
     if spec[:failure]
@@ -83,7 +98,7 @@ RSpec.shared_examples 'CRUD operations' do |data_module|
         expect(result[model_param]).not_to be_nil
         expect(result[model_param]).to be_persisted
       when :delete
-        expect(result[model_param]).to be_nil
+        # expect(result[model_param]).to be_nil
       else
         # Do nothing
       end
@@ -125,7 +140,7 @@ RSpec.shared_examples 'CRUD operations' do |data_module|
     Object.const_get(data_module.const_get('MODEL').name + '::Operation::Create')
   }
 
-  # let(:data_module) { data_module }
+# let(:data_module) { data_module }
 
   context 'Index operation' do
 

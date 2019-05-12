@@ -4,10 +4,6 @@ require 'symbolized'
 
 class Symbolized::SymbolizedHash
 
-  def for(*classes)
-    self.select {|_k, v| classes.include?(v[:class])}.tap {|x| puts x.inspect}
-  end
-
   def deep_reject(&block)
     self.each_with_object({}) do |(k, v), m|
       m[k] = v.is_a?(Hash) ? v.deep_reject(&block) : v unless block.call(k, v)
@@ -50,6 +46,14 @@ class Symbolized::SymbolizedHash
 
   def compact
     dup.tap(&:compact!)
+  end
+
+  def vslice(*keys)
+    self.slice(*keys).values
+  end
+
+  def +(other)
+    self.merge(other)
   end
 
 end

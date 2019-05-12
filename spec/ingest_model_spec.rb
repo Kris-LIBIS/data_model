@@ -5,6 +5,6 @@ require 'data/ingest_model_data'
 
 RSpec.describe 'IngestModel' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::IngestModel, IngestModel
+  include_examples 'CRUD operations', IngestModelData
 
 end

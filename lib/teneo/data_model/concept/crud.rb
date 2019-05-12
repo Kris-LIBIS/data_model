@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'trailblazer'
 require 'trailblazer/operation'
-require 'trailblazer/operation'
+require 'active_record/errors'
 
 module Teneo::DataModel::Concept::CRUD
 
@@ -65,6 +65,8 @@ module Teneo::DataModel::Concept::CRUD
 
     def delete!(_ctx, model:, **)
       model.destroy
+    rescue ActiveRecord::ActiveRecordError
+      return false
     end
 
   end

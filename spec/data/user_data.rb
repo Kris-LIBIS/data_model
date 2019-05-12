@@ -1,25 +1,10 @@
 # frozen_string_literal: true
+require_relative 'data_model_data'
 
-module User
+module UserData
 
-  ITEMS = {
-      user1: {
-          class: Teneo::DataModel::User,
-          data: {uuid: 'uuid1', email: 'user1@example.com'}
-      },
-      user2: {
-          class: Teneo::DataModel::User,
-          data: {uuid: 'uuid2', email: 'user2@example.com', first_name: 'John', last_name: 'Doe'}
-      },
-      user3: {
-          class: Teneo::DataModel::User,
-          data: {uuid: 'uuid3', email: 'user3@example.com', first_name: 'Jane', last_name: 'Doe'}
-      },
-      user4: {
-          class: Teneo::DataModel::User,
-          data: {uuid: 'uuid4', email: 'user4@example.com', first_name: 'John', last_name: 'Fox'}
-      }
-  }
+  MODEL = Teneo::DataModel::User
+  ITEMS = DataModelData::ITEMS.for(MODEL)
 
   # noinspection RubyUnusedLocalVariable
   TESTS = {
@@ -29,23 +14,23 @@ module User
           },
           'by uuid' => {
               options: {filter: {uuid: 'uuid1'}},
-              check_params: [ITEMS[:user1]]
+              check_params: ITEMS.vslice(:user1)
           },
           'by email' => {
               options: {filter: {email: 'user2@example.com'}},
-              check_params: [ITEMS[:user2]]
+              check_params: ITEMS.vslice(:user2)
           },
           'by first name' => {
               options: {filter: {first_name: 'John'}},
-              check_params: [ITEMS[:user2], ITEMS[:user4]]
+              check_params: ITEMS.vslice(:user2, :user4)
           },
           'by last name' => {
               options: {filter: {last_name: 'Doe'}},
-              check_params: [ITEMS[:user2], ITEMS[:user3]]
+              check_params: ITEMS.vslice(:user2, :user3)
           },
           'by first and last name with match' => {
               options: {filter: {first_name: 'Jane', last_name: 'Doe'}},
-              check_params: [ITEMS[:user3]]
+              check_params: ITEMS.vslice(:user3)
           },
           'by first and last name without match' => {
               options: {filter: {first_name: 'Jane', last_name: 'Fox'}},

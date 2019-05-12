@@ -5,6 +5,6 @@ require 'data/retention_policy_data'
 
 RSpec.describe 'RetentionPolicy' do
 
-  include_examples 'CRUD operations', Teneo::DataModel::RetentionPolicy, RetentionPolicy
+  include_examples 'CRUD operations', RetentionPolicyData
 
 end

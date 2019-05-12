@@ -1,26 +1,10 @@
 # frozen_string_literal: true
+require_relative 'data_model_data'
+module FormatData
 
-module Format
+  MODEL = Teneo::DataModel::Format
 
-  ITEMS = {
-      tiff: {
-          class: Teneo::DataModel::Format,
-          data: {name: 'TIFF', category: 'IMAGE', mime_types: %w'image/tiff', extensions: %w'tif'}
-      },
-      jpeg: {
-          class: Teneo::DataModel::Format,
-          data: {name: 'JPEG', category: 'IMAGE', mime_types: %w'image/jpeg', extensions: %w'jpg'}
-      },
-      word: {
-          class: Teneo::DataModel::Format,
-          data: {
-              name: 'WORD', category: 'TEXT', description: 'Microsoft Word Document (DOC)',
-              mime_types: %w'application/msword application/vnd.msword application/vnd.ms-word',
-              extensions: %w'doc wbk',
-              puids: %w'fmt/609 fmt/39 x-fmt/273'
-          }
-      },
-  }
+  ITEMS = DataModelData::ITEMS.for(MODEL)
 
   TESTS = {
       index: {
@@ -29,15 +13,15 @@ module Format
           },
           'by name' => {
               options: {filter: {name: 'TIFF'}},
-              check_params: [ITEMS[:tiff]]
+              check_params: ITEMS.vslice(:tiff)
           },
           'by category' => {
               options: {filter: {category: 'IMAGE'}},
-              check_params: [ITEMS[:tiff], ITEMS[:jpeg]]
+              check_params: ITEMS.vslice(:tiff, :jpeg)
           },
           'by name and category' => {
               options: {filter: {name: 'TIFF', category: 'IMAGE'}},
-              check_params: [ITEMS[:tiff]]
+              check_params: ITEMS.vslice(:tiff)
           },
           'by name and category without match' => {
               options: {filter: {name: 'TIFF', category: 'TEXT'}},

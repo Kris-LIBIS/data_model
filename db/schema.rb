@@ -41,7 +41,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "name"
     t.string "description"
     t.string "class_name"
-    t.jsonb "parameters", array: true
+    t.jsonb "parameters"
     t.index ["parameters"], name: "index_converters_on_parameters", using: :gin
   end
 
@@ -136,6 +136,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.bigint "ingest_model_id", null: false
     t.index ["access_right_id"], name: "index_manifestations_on_access_right_id"
     t.index ["from_id"], name: "index_manifestations_on_from_id"
+    t.index ["ingest_model_id", "label"], name: "index_manifestations_on_ingest_model_id_and_label", unique: true
+    t.index ["ingest_model_id", "name"], name: "index_manifestations_on_ingest_model_id_and_name", unique: true
+    t.index ["ingest_model_id", "order"], name: "index_manifestations_on_ingest_model_id_and_order", unique: true
     t.index ["ingest_model_id"], name: "index_manifestations_on_ingest_model_id"
     t.index ["order"], name: "index_manifestations_on_order"
     t.index ["representation_info_id"], name: "index_manifestations_on_representation_info_id"

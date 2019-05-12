@@ -64,6 +64,18 @@ class Teneo::DataModel::Concept::Contract < Reform::Form
         code = model.find_by(id: id)[:inst_code]
         ref_code == code
       end
+
+      def matches_ingest_model?(from_id)
+        return true if from_id.nil?
+        ref_id = form.model.send(:ingest_model_id) || form.input_params[:ingest_model_id]
+        form.model.class.find_by(id: from_id).send(:ingest_model_id) == ref_id
+      end
+
+      def from_with_lower_order?(from_id)
+        return true if from_id.nil?
+        ref_order = form.model.send(:order) || form.input_params[:order]
+        form.model.class.find_by(id: from_id).send(:order) < ref_order
+      end
     end
   end
 

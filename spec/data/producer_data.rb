@@ -1,21 +1,11 @@
 # frozen_string_literal: true
+require_relative 'data_model_data'
 
-module Producer
+module ProducerData
 
-  ITEMS = {
-      ingester: {
-          class: Teneo::DataModel::Producer,
-          data: {name: 'Ingester', ext_id: '1000', inst_code: 'INST1', agent: 'ingester', password: 'abc123'}
-      },
-      producer: {
-          class: Teneo::DataModel::Producer,
-          data: {name: 'Producer', ext_id: '2000', inst_code: 'INST1', agent: 'producer', password: 'abc123', description: 'Regular producer'}
-      },
-      other: {
-          class: Teneo::DataModel::Producer,
-          data: {name: 'Ingester', ext_id: '3000', inst_code: 'INST2', agent: 'producer', password: 'abc123'}
-      }
-  }
+  MODEL = Teneo::DataModel::Producer
+  
+  ITEMS = DataModelData::ITEMS.for(MODEL)
 
   # noinspection RubyUnusedLocalVariable
   TESTS = {
@@ -25,15 +15,15 @@ module Producer
           },
           'by name' => {
               options: {filter: {name: 'Ingester'}},
-              check_params: [ITEMS[:ingester], ITEMS[:other]]
+              check_params: ITEMS.vslice(:producer1, :producer3)
           },
           'by ext_id' => {
               options: {filter: {ext_id: '1000'}},
-              check_params: [ITEMS[:ingester]]
+              check_params: ITEMS.vslice(:producer1)
           },
           'by name and inst_code' => {
               options: {filter: {name: 'Ingester', inst_code: 'INST2'}},
-              check_params: [ITEMS[:other]]
+              check_params: ITEMS.vslice(:producer3)
           },
           'by name and inst_code without match' => {
               options: {filter: {name: 'Producer', inst_code: 'INST2'}},
@@ -42,57 +32,57 @@ module Producer
       },
       create: {
           'minimal item' => {
-              params: ITEMS[:ingester],
-              check_params: ITEMS[:ingester][:data].merge(description: nil)
+              params: ITEMS[:producer1],
+              check_params: ITEMS[:producer1][:data].merge(description: nil)
           },
           'full item' => {
-              params: ITEMS[:producer]
+              params: ITEMS[:producer2]
           },
           'name missing' => {
-              params: ITEMS[:ingester].deep_reject {|k| k == :name},
+              params: ITEMS[:producer1].deep_reject {|k| k == :name},
               failure: true,
               errors: {name: ['must be filled', 'values in scope of inst_code, name must be unique']}
           },
           'ext_id missing' => {
-              params: ITEMS[:ingester].deep_reject {|k| k == :ext_id},
+              params: ITEMS[:producer1].deep_reject {|k| k == :ext_id},
               failure: true,
               errors: {ext_id: ['must be filled']}
           },
           'inst_code missing' => {
-              params: ITEMS[:ingester].deep_reject {|k| k == :inst_code},
+              params: ITEMS[:producer1].deep_reject {|k| k == :inst_code},
               failure: true,
               errors: {inst_code: ['must be filled']}
           },
           'agent missing' => {
-              params: ITEMS[:ingester].deep_reject {|k| k == :agent},
+              params: ITEMS[:producer1].deep_reject {|k| k == :agent},
               failure: true,
               errors: {agent: ['must be filled']}
           },
           'password missing' => {
-              params: ITEMS[:ingester].deep_reject {|k| k == :password},
+              params: ITEMS[:producer1].deep_reject {|k| k == :password},
               failure: true,
               errors: {password: ['must be filled']}
           },
           'duplicate name with same inst_code' => {
-              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},
-              params: ITEMS[:ingester],
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:producer1])},
+              params: ITEMS[:producer1],
               failure: true,
               errors: {name: ["values in scope of inst_code, name must be unique"]}
           },
           'duplicate name but other inst_code' => {
-              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:ingester])},
-              params: ITEMS[:ingester].deep_merge(data: {inst_code: 'OTHER_INST'})
+              init: -> (ctx, spec) {ctx.create_item(spec, ITEMS[:producer1])},
+              params: ITEMS[:producer1].deep_merge(data: {inst_code: 'OTHER_INST'})
           },
           'empty description' => {
-              params: ITEMS[:producer].deep_merge(data:{description: ''}),
+              params: ITEMS[:producer2].deep_merge(data:{description: ''}),
               failure: true,
               errors: {description: ['must be filled']}
           }
       },
       retrieve: {
           'get item' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
-              check_params: ITEMS[:ingester]
+              id: -> (ctx, spec) {spec[:producer1].id},
+              check_params: ITEMS[:producer1]
           },
           'wrong id' => {
               id: 0,
@@ -101,26 +91,26 @@ module Producer
       },
       update: {
           'with description' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
-              params: ITEMS[:ingester].deep_merge(data:{description: 'Ingester producer'}),
+              id: -> (ctx, spec) {spec[:producer1].id},
+              params: ITEMS[:producer1].deep_merge(data:{description: 'Ingester producer'}),
           },
           'no name change' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
+              id: -> (ctx, spec) {spec[:producer1].id},
               params: {name: 'Something else'},
-              check_params: ITEMS[:ingester],
+              check_params: ITEMS[:producer1],
           },
           'only description' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
+              id: -> (ctx, spec) {spec[:producer1].id},
               params: {description: 'Ingester producer'},
-              check_params: ITEMS[:ingester][:data].merge(description: 'Ingester producer'),
+              check_params: ITEMS[:producer1][:data].merge(description: 'Ingester producer'),
           },
           'remove description' => {
-              id: -> (ctx, spec) {spec[:producer].id},
+              id: -> (ctx, spec) {spec[:producer2].id},
               params: {description: nil},
-              check_params: ITEMS[:producer][:data].merge(description: nil),
+              check_params: ITEMS[:producer2][:data].merge(description: nil),
           },
           'empty description' => {
-              id: -> (ctx, spec) {spec[:producer].id},
+              id: -> (ctx, spec) {spec[:producer2].id},
               params: {description: ''},
               failure: true,
               errors: {description: ['must be filled']}
@@ -128,8 +118,8 @@ module Producer
       },
       delete: {
           'existing item' => {
-              id: -> (ctx, spec) {spec[:ingester].id},
-              check_params: ITEMS[:ingester]
+              id: -> (ctx, spec) {spec[:producer1].id},
+              check_params: ITEMS[:producer1]
           },
           'non-existing item' => {
               id: 0,

@@ -1,4 +1,5 @@
-# noinspection RubyStringKeysInHashInspection
+# frozen_string_literal: true
+
 # require 'support/hash_with_indifferent_access'
 require_relative '../support/symbolized_hash'
 require 'set'
@@ -6,7 +7,7 @@ require 'set'
 module DataModelData
 
   # DataHash = ActiveSupport::HashWithIndifferentAccess
-  class DataHash < SymbolizedHash
+  class DataHash < ::SymbolizedHash
 
     def reverse
       self.class.new(self.reverse_each.to_h)

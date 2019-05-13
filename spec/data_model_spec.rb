@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Teneo::DataModel do
 
   it "has a version number" do

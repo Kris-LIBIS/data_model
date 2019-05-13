@@ -76,6 +76,13 @@ class Teneo::DataModel::Concept::Contract < Reform::Form
         ref_order = form.model.send(:order) || form.input_params[:order]
         form.model.class.find_by(id: from_id).send(:order) < ref_order
       end
+
+      def matches_package?(parent_id)
+        return true if parent_id.nil?
+        ref_id = form.model.send(:package_id) || form.input_params[:package_id]
+        form.model.class.find_by(id: parent_id).send(:package_id) == ref_id
+      end
+
     end
   end
 

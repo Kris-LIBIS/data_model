@@ -15,7 +15,14 @@ module Teneo
         model.has_many :ingest_agreements
       end
 
+      has_many :users, through: :memberships
 
+      accepts_nested_attributes_for :memberships, allow_destroy: true
+      accepts_nested_attributes_for :storages, allow_destroy: true
+
+      def to_s
+        name
+      end
     end
   end
 end

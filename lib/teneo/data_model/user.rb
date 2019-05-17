@@ -13,6 +13,15 @@ module Teneo
                dependent: :destroy,
                inverse_of: :user
 
+      has_many :organizations,
+               through: :memberships
+
+      accepts_nested_attributes_for :memberships, allow_destroy: true
+
+      def to_s
+        "#{first_name} #{last_name}"
+      end
+
       # @param [Hash] hash
       def self.from_hash(hash)
         super(hash, [:email]) do |item, h|

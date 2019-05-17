@@ -36,44 +36,19 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :protocol, null: false
       t.jsonb :options
 
+      t.index [:organization_id, :name], unique: true
+
       t.references :organization, foreign_key: true, null: false
     end
 
-    add_index :storages, [:organization_id, :name], unique: true
-
     create_table :memberships do |t|
-      t.references :user, foreign_key: true
-      t.references :organization, foreign_key: true
+      t.string :role, null: false
+      t.references :user, foreign_key: true, null: false
+      t.references :organization, foreign_key: true, null: false
+
+      t.index [:user_id, :organization_id, :role], unique: true
 
       t.column :lock_version, :integer, null: false, default: 0
-    end
-
-    reversible do |change|
-
-      change.up do
-
-        execute <<-SQL
-            CREATE TYPE user_role AS ENUM ('uploader', 'ingester', 'admin');
-        SQL
-
-        # noinspection RailsParamDefResolve
-        add_column :memberships, :role, :user_role, index: true
-
-        # noinspection RailsParamDefResolve
-        add_index :memberships, [:user_id, :organization_id, :role], unique: true
-
-      end
-
-      change.down do
-
-        remove_index :memberships, column: [:user_id, :organization_id, :role]
-
-        execute <<-SQL
-          DROP TYPE user_role;
-        SQL
-
-      end
-
     end
 
     # Code tables
@@ -136,9 +111,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :description
       t.string :class_name
       t.jsonb :parameters
-    end
 
-    add_index :converters, :parameters, using: :gin
+      t.index :parameters, using: :gin
+    end
 
     # Workflows
     # #########
@@ -149,10 +124,10 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :description
       t.jsonb :tasks, array: true
       t.jsonb :inputs, array: true
-    end
 
-    add_index :workflows, :tasks, using: :gin
-    add_index :workflows, :inputs, using: :gin
+      t.index :tasks, using: :gin
+      t.index :inputs, using: :gin
+    end
 
     # Ingest Agreements
     # #################

@@ -153,8 +153,15 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["inst_code", "name"], name: "index_material_flows_on_inst_code_and_name", unique: true
   end
 
-# Could not dump table "memberships" because of following StandardError
-#   Unknown type 'user_role' for column 'role'
+  create_table "memberships", force: :cascade do |t|
+    t.string "role", null: false
+    t.bigint "user_id", null: false
+    t.bigint "organization_id", null: false
+    t.integer "lock_version", default: 0, null: false
+    t.index ["organization_id"], name: "index_memberships_on_organization_id"
+    t.index ["user_id", "organization_id", "role"], name: "index_memberships_on_user_id_and_organization_id_and_role", unique: true
+    t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
 
   create_table "organizations", force: :cascade do |t|
     t.string "name", null: false

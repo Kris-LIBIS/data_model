@@ -4,7 +4,7 @@
   ingest_dir: '/tmp/ingest/INS01'
   storages:
     download:
-      protocol: 'ftp'
+      protocol: 'FTP'
       options:
         host: 'ftp.teneo.be'
         port: '21'
@@ -12,7 +12,7 @@
         password: 'demo'
         location: '/upload'
     uploads:
-      protocol: 'nfs'
+      protocol: 'NFS'
       options:
         location: '/mounted/nas/teneo/ready_to_ingest'
 - name: 'ubd'
@@ -21,12 +21,12 @@
   ingest_dir: '/tmp/ingest/INS02'
   storages:
     download:
-      protocol: 'gdrive'
+      protocol: 'GDRIVE'
       options:
         credentials_file: 'ubd.gdrive.credentials.json'
         location: '/data'
     uploads:
-      protocol: 'nfs'
+      protocol: 'NFS'
       options:
         location: '/nas/vol04/upload/ubd'
 - name: 'kadoc'
@@ -35,6 +35,6 @@
   ingest_dir: '/tmp/ingest/INS03'
   storages:
     uploads:
-      protocol: 'nfs'
+      protocol: 'NFS'
       options:
         location: '/nas/vol04/upload/kadoo'

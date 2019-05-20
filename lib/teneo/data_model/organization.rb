@@ -29,7 +29,7 @@ module Teneo
         item = super(hash, [:name])
         item.storages.clear
         storages.each do |name, data|
-          item.storages << Teneo::DataModel::Storage.from_hash(data.merge(name: name, organization: item), )
+          item.storages << Teneo::DataModel::Storage.from_hash(data.merge(name: name, organization: item), [:organization, :name])
         end
         item.save!
       end

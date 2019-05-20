@@ -13,6 +13,15 @@ module Teneo
       belongs_to :organization,
                  # class_name: 'Teneo::DataModel::Organization',
                  inverse_of: :memberships
+
+      validate :unique_role
+
+      def unique_role
+        query = Membership.where(user: user, organization: organization, role: role)
+        query = query.where.not(id: id) if id # exclude self if persisted
+        errors.add(:role, 'should be unique for a given user and organization') unless query.size == 0
+      end
+
     end
   end
 end

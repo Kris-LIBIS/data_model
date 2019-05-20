@@ -18,7 +18,7 @@ module Teneo
 
       accepts_nested_attributes_for :memberships, allow_destroy: true
 
-      def to_s
+      def name
         "#{first_name} #{last_name}"
       end
 

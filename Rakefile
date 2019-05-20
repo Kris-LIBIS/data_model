@@ -59,6 +59,13 @@ namespace :db do
     end
   end
 
+  desc 'Load the database seed files'
+  task :seed do
+    ActiveRecord::Base.establish_connection(db_config)
+    # noinspection RubyResolve
+    load File.join(__dir__, 'db', 'seeds.rb')
+  end
+
 end
 
 namespace :g do

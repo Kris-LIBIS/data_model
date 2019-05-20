@@ -1,0 +1,40 @@
+- name: 'libis'
+  description: 'LIBIS organization'
+  inst_code: 'INS01'
+  ingest_dir: '/tmp/ingest/INS01'
+  storages:
+    download:
+      protocol: 'ftp'
+      options:
+        host: 'ftp.teneo.be'
+        port: '21'
+        user: 'demo'
+        password: 'demo'
+        location: '/upload'
+    uploads:
+      protocol: 'nfs'
+      options:
+        location: '/mounted/nas/teneo/ready_to_ingest'
+- name: 'ubd'
+  description: 'KU Leuven bibliotheken'
+  inst_code: 'INS02'
+  ingest_dir: '/tmp/ingest/INS02'
+  storages:
+    download:
+      protocol: 'gdrive'
+      options:
+        credentials_file: 'ubd.gdrive.credentials.json'
+        location: '/data'
+    uploads:
+      protocol: 'nfs'
+      options:
+        location: '/nas/vol04/upload/ubd'
+- name: 'kadoc'
+  description: 'KADOC'
+  inst_code: 'INS03'
+  ingest_dir: '/tmp/ingest/INS03'
+  storages:
+    uploads:
+      protocol: 'nfs'
+      options:
+        location: '/nas/vol04/upload/kadoo'

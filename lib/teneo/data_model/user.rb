@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'teneo-data_model'
+require 'securerandom'
 require_relative 'base'
 
 module Teneo
@@ -18,6 +19,13 @@ module Teneo
 
       accepts_nested_attributes_for :memberships, allow_destroy: true
 
+      after_initialize :init
+
+      def init
+        self.uuid ||= SecureRandom.uuid
+      end
+
+
       def name
         "#{first_name} #{last_name}"
       end
@@ -25,7 +33,8 @@ module Teneo
       # @param [Hash] hash
       def self.from_hash(hash)
         super(hash, [:email]) do |item, h|
-          if (roles = h.delete[:roles])
+          item.memberships.clear
+          if (roles = h.delete(:roles))
             roles.each do |role|
               organization_name = role[:organization]
               org = Organization.find_by(name: organization_name)

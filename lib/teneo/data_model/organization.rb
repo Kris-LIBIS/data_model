@@ -23,6 +23,16 @@ module Teneo
       def to_s
         name
       end
+
+      def self.from_hash(hash)
+        storages = hash.delete('storages') || {}
+        item = super(hash, [:name])
+        item.storages.clear
+        storages.each do |name, data|
+          item.storages << Teneo::DataModel::Storage.from_hash(data.merge(name: name, organization: item), )
+        end
+        item.save!
+      end
     end
   end
 end

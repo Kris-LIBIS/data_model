@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'active_record'
+require 'active_support/core_ext/hash/compact'
 require 'active_support/core_ext/hash/keys'
 
 module Teneo
@@ -7,11 +8,11 @@ module Teneo
     class Base < ActiveRecord::Base
 
       def self.from_hash(hash, id_tags = [:name], &block)
-        self.create_from_hash(hash.cleanup, id_tags, &block)
+        self.create_from_hash(hash.compact, id_tags, &block)
       end
 
       def self.create_from_hash(hash, id_tags, &block)
-        hash = hash.deep_symbolize_keys(recursive: true)
+        hash = hash.deep_symbolize_keys
         id_tags = id_tags.map(&:to_sym)
         unless id_tags.empty? || id_tags.any? {|k| hash.include?(k)}
           error "Could not create '#{self.name}' object from Hash since none of the id tags '#{id_tags.join(',')}' are present"
@@ -25,7 +26,7 @@ module Teneo
         item = tags.empty? ? self.new : self.find_or_initialize_by(tags)
         item.attributes.clear
         block.call(item, hash) if block unless hash.empty?
-        item.assign_attributes(hash)
+        item.assign_attributes(tags.merge(hash))
         item.save!
         item
       end

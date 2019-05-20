@@ -23,6 +23,8 @@ module Teneo
     autoload :MaterialFlow, 'teneo/data_model/material_flow'
     autoload :Producer, 'teneo/data_model/producer'
 
+    autoload :SeedLoader, 'teneo/data_model/seed_loader'
+
     def self.root
       File.expand_path('../..', __dir__)
     end

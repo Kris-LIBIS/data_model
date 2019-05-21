@@ -14,6 +14,9 @@ module Teneo::DataModel
     has_many :ingest_agreements,
              dependent: :destroy,
              inverse_of: :material_flow
+
+    validates :name, :ext_id, :inst_code, presence: true
+    validates :name, uniqueness: {scope: :inst_code, message: 'already taken for this inst_code'}
   end
 
 end

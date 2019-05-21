@@ -97,7 +97,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     create_table :representation_infos do |t|
       t.string :name, null: false, index: {unique: true}
       t.string :preservation_type, null: false, index: true
-      t.string :usage_type
+      t.string :usage_type, null: false
       t.string :representation_code
 
       t.column :lock_version, :integer, null: false, default: 0

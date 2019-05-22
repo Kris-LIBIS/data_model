@@ -7,6 +7,17 @@ module Teneo
   module DataModel
     class Base < ActiveRecord::Base
 
+      def self.array_field(name)
+          # self.attr_internal_accessor("#{name}_list")
+          self.define_method "#{name}_list" do
+            self.send(name).blank? ? '' : self.send(name).join(',')
+          end
+          self.define_method "#{name}_list=" do |values|
+            self.send("#{name}=", [])
+            self.send("#{name}=", values.split(',')) unless values.blank?
+          end
+      end
+
       def self.from_hash(hash, id_tags = [:name], &block)
         self.create_from_hash(hash.compact, id_tags, &block)
       end

@@ -110,9 +110,10 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :name
       t.string :description
       t.string :class_name
+      t.string :script_name
       t.jsonb :parameters
 
-      t.index :parameters, using: :gin
+      t.column :lock_version, :integer, null: false, default: 0
     end
 
     # Workflows
@@ -127,6 +128,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.index :tasks, using: :gin
       t.index :inputs, using: :gin
+
+      t.column :lock_version, :integer, null: false, default: 0
     end
 
     # Ingest Agreements
@@ -177,8 +180,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     end
 
     create_table :manifestations do |t|
-      t.integer :order, null: false, index: true
-      t.string :name, null: false
+      t.integer :position, null: false
       t.string :label, null: false
       t.boolean :optional, default: false
 
@@ -188,13 +190,12 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.references :from, foreign_key: {to_table: :manifestations}
       t.references :ingest_model, foreign_key: true, null: false
 
-      t.index [:ingest_model_id, :name], unique: true
-      t.index [:ingest_model_id, :order], unique: true
+      t.index [:ingest_model_id, :position], unique: true
       t.index [:ingest_model_id, :label], unique: true
     end
 
     create_table :conversion_jobs do |t|
-      t.integer :order, null: false, index: true
+      t.integer :postion, null: false
       t.string :format_filter
       t.string :filename_filter
       t.jsonb :config
@@ -202,7 +203,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.references :manifestation, foreign_key: true
       t.references :converter, foreign_key: true
 
+      t.index [:manifestation_id, :postion], unique: true
       t.index :config, using: :gin
+
     end
 
     # Ingest Jobs

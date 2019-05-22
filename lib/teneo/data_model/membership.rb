@@ -7,6 +7,8 @@ module Teneo
     class Membership < Base
       self.table_name = 'memberships'
 
+      ROLE_LIST = %w'uploader ingester admin'
+
       belongs_to :user,
                  # class_name: 'Teneo::DataModel::User',
                  inverse_of: :memberships
@@ -14,6 +16,7 @@ module Teneo
                  # class_name: 'Teneo::DataModel::Organization',
                  inverse_of: :memberships
 
+      validates :role, inclusion: {in: ROLE_LIST}
       validate :unique_role
 
       def unique_role

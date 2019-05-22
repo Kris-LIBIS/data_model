@@ -5,7 +5,17 @@ module Teneo::DataModel
 
   class Format < Base
     self.table_name = 'formats'
-  end
 
+    CATEGORY_LIST = %w'ARCHIVE AUDIO EMAIL IMAGE PRESENTATION TABULAR TEXT VIDEO OTHER'
+
+    validates :name, :category, :mime_types, :extensions, presence: true
+    validates :name, uniqueness: true
+    validates :category, inclusion: {in: CATEGORY_LIST}
+
+    array_field :extensions
+    array_field :mime_types
+    array_field :puids
+
+  end
 
 end

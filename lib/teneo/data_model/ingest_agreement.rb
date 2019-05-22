@@ -20,6 +20,10 @@ module Teneo::DataModel
       model.belongs_to :producer, -> { where inst_code: self.organization.inst_code }
     end
 
+    array_field :contact_ingest
+    array_field :contact_collection
+    array_field :contact_system
+
   end
 
 end

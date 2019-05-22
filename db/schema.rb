@@ -25,7 +25,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   end
 
   create_table "conversion_jobs", force: :cascade do |t|
-    t.integer "order", null: false
+    t.integer "postion", null: false
     t.string "format_filter"
     t.string "filename_filter"
     t.jsonb "config"
@@ -33,16 +33,17 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.bigint "converter_id"
     t.index ["config"], name: "index_conversion_jobs_on_config", using: :gin
     t.index ["converter_id"], name: "index_conversion_jobs_on_converter_id"
+    t.index ["manifestation_id", "postion"], name: "index_conversion_jobs_on_manifestation_id_and_postion", unique: true
     t.index ["manifestation_id"], name: "index_conversion_jobs_on_manifestation_id"
-    t.index ["order"], name: "index_conversion_jobs_on_order"
   end
 
   create_table "converters", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.string "class_name"
+    t.string "script_name"
     t.jsonb "parameters"
-    t.index ["parameters"], name: "index_converters_on_parameters", using: :gin
+    t.integer "lock_version", default: 0, null: false
   end
 
   create_table "formats", force: :cascade do |t|
@@ -126,8 +127,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   end
 
   create_table "manifestations", force: :cascade do |t|
-    t.integer "order", null: false
-    t.string "name", null: false
+    t.integer "position", null: false
     t.string "label", null: false
     t.boolean "optional", default: false
     t.bigint "access_right_id"
@@ -137,10 +137,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["access_right_id"], name: "index_manifestations_on_access_right_id"
     t.index ["from_id"], name: "index_manifestations_on_from_id"
     t.index ["ingest_model_id", "label"], name: "index_manifestations_on_ingest_model_id_and_label", unique: true
-    t.index ["ingest_model_id", "name"], name: "index_manifestations_on_ingest_model_id_and_name", unique: true
-    t.index ["ingest_model_id", "order"], name: "index_manifestations_on_ingest_model_id_and_order", unique: true
+    t.index ["ingest_model_id", "position"], name: "index_manifestations_on_ingest_model_id_and_position", unique: true
     t.index ["ingest_model_id"], name: "index_manifestations_on_ingest_model_id"
-    t.index ["order"], name: "index_manifestations_on_order"
     t.index ["representation_info_id"], name: "index_manifestations_on_representation_info_id"
   end
 
@@ -199,7 +197,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "representation_infos", force: :cascade do |t|
     t.string "name", null: false
     t.string "preservation_type", null: false
-    t.string "usage_type"
+    t.string "usage_type", null: false
     t.string "representation_code"
     t.integer "lock_version", default: 0, null: false
     t.index ["name"], name: "index_representation_infos_on_name", unique: true
@@ -252,6 +250,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "description"
     t.jsonb "tasks", array: true
     t.jsonb "inputs", array: true
+    t.integer "lock_version", default: 0, null: false
     t.index ["inputs"], name: "index_workflows_on_inputs", using: :gin
     t.index ["tasks"], name: "index_workflows_on_tasks", using: :gin
   end

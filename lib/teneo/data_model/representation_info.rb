@@ -6,7 +6,7 @@ module Teneo::DataModel
   class RepresentationInfo < Base
     self.table_name = 'representation_infos'
 
-    PRESERVATION_TYPES = %w'PRESERVATION_MASTER MODIFIED_MASTER DERIVED_COPY'
+    PRESERVATION_TYPES = %w'PRESERVATION_MASTER MODIFIED_MASTER DERIVATIVE_COPY'
     USAGE_TYPES = %w'VIEW THUMBNAIL'
 
     validates :name, :preservation_type, :usage_type, presence: true

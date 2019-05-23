@@ -7,7 +7,7 @@ module Teneo::DataModel
   class IngestModel < Base
     self.table_name = 'ingest_models'
 
-    belongs_to :ingest_agreement, inverse_of: :ingest_model
+    belongs_to :ingest_agreement, inverse_of: :ingest_models
 
     has_many :manifestations, dependent: :destroy
 

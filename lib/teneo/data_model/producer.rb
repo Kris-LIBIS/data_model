@@ -7,8 +7,9 @@ module Teneo::DataModel
   class Producer < Base
     self.table_name = 'producers'
 
-    def self.for_institution(id)
-      self.where(inst_id: id)
+    scope :for_organization, -> (id) do
+      org = id.is_a?(Teneo::DataModel::Organization) ? id : Teneo::DataModel::Organization.find(id)
+      where(inst_code: org.inst_code)
     end
 
     has_many :ingest_agreements,

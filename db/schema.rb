@@ -28,7 +28,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.integer "postion", null: false
     t.string "format_filter"
     t.string "filename_filter"
-    t.jsonb "config"
+    t.jsonb "config", default: {}
     t.bigint "manifestation_id"
     t.bigint "converter_id"
     t.index ["config"], name: "index_conversion_jobs_on_config", using: :gin
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "description"
     t.string "class_name"
     t.string "script_name"
-    t.jsonb "parameters"
+    t.jsonb "parameters", default: {}
     t.integer "lock_version", default: 0, null: false
   end
 
@@ -83,7 +83,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "ingest_jobs", force: :cascade do |t|
     t.integer "stage", null: false
-    t.jsonb "config"
+    t.jsonb "config", default: {}
     t.bigint "ingest_agreement_id"
     t.bigint "workflow_id"
     t.index ["config"], name: "index_ingest_jobs_on_config", using: :gin
@@ -175,7 +175,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "stage"
     t.string "status"
     t.string "base_dir"
-    t.jsonb "config"
+    t.jsonb "config", default: {}
     t.bigint "ingest_agreement_id", null: false
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -226,7 +226,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "storages", force: :cascade do |t|
     t.string "name", null: false
     t.string "protocol", null: false
-    t.jsonb "options"
+    t.jsonb "options", default: {}
+    t.integer "lock_version", default: 0, null: false
     t.bigint "organization_id", null: false
     t.index ["organization_id", "name"], name: "index_storages_on_organization_id_and_name", unique: true
     t.index ["organization_id"], name: "index_storages_on_organization_id"
@@ -248,8 +249,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "stage"
     t.string "name"
     t.string "description"
-    t.jsonb "tasks", array: true
-    t.jsonb "inputs", array: true
+    t.jsonb "tasks", default: [], array: true
+    t.jsonb "inputs", default: [], array: true
     t.integer "lock_version", default: 0, null: false
     t.index ["inputs"], name: "index_workflows_on_inputs", using: :gin
     t.index ["tasks"], name: "index_workflows_on_tasks", using: :gin

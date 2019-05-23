@@ -19,6 +19,7 @@ module Teneo
 
       accepts_nested_attributes_for :memberships, allow_destroy: true
       accepts_nested_attributes_for :storages, allow_destroy: true
+      accepts_nested_attributes_for :ingest_agreements, allow_destroy: true
 
       def to_s
         name

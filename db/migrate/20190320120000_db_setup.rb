@@ -34,7 +34,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
     create_table :storages do |t|
       t.string :name, null: false
       t.string :protocol, null: false
-      t.jsonb :options
+      t.jsonb :options, default: {}
+
+      t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:organization_id, :name], unique: true
 
@@ -111,7 +113,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :description
       t.string :class_name
       t.string :script_name
-      t.jsonb :parameters
+      t.jsonb :parameters, default: {}
 
       t.column :lock_version, :integer, null: false, default: 0
     end
@@ -123,8 +125,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :stage
       t.string :name
       t.string :description
-      t.jsonb :tasks, array: true
-      t.jsonb :inputs, array: true
+      t.jsonb :tasks, array: true, default: []
+      t.jsonb :inputs, array: true, default: []
 
       t.index :tasks, using: :gin
       t.index :inputs, using: :gin
@@ -198,7 +200,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.integer :postion, null: false
       t.string :format_filter
       t.string :filename_filter
-      t.jsonb :config
+      t.jsonb :config, default: {}
 
       t.references :manifestation, foreign_key: true
       t.references :converter, foreign_key: true
@@ -213,7 +215,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :ingest_jobs do |t|
       t.integer :stage, null: false
-      t.jsonb :config
+      t.jsonb :config, default: {}
 
       t.references :ingest_agreement, foreign_key: true
       t.references :workflow, foreign_key: true
@@ -230,7 +232,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :stage
       t.string :status
       t.string :base_dir
-      t.jsonb :config
+      t.jsonb :config, default: {}
 
       t.references :ingest_agreement, foreign_key: true, null: false
 

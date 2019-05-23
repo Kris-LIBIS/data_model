@@ -10,9 +10,14 @@ module Teneo
     class Storage < Base
       self.table_name = 'storages'
 
+      PROTOCOL_LIST = %w'NFS FTP SFTP GDRIVE'
+
       belongs_to :organization, inverse_of: :storages
 
       serialize :options, Teneo::DataModel::Serializers::HashSerializer
+
+      validates :name, uniqueness: {scope: :organization_id}
+      validates :protocol, inclusion: {in: PROTOCOL_LIST}
 
     end
   end

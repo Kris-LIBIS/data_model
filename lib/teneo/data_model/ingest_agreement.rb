@@ -32,6 +32,21 @@ module Teneo::DataModel
       record.errors.add attr, 'organization does not match' unless value.nil? || value.inst_code == record.organization.inst_code
     end
 
+    def self.from_hash(hash)
+      organization = hash.delete('organization')
+      organization = Teneo::DataModel::Organization.find_by(name: organization)
+      hash['organization_id'] = organization.id
+      producer = hash.delete('producer')
+      producer = Teneo::DataModel::Producer.find_by(inst_code: organization.inst_code, name: producer) if producer
+      material_flow = hash.delete('material_flow')
+      material_flow = Teneo::DataModel::MaterialFlow.find_by(inst_code: organization.inst_code, name: material_flow) if material_flow
+      item = super(hash, [:organization_id, :name])
+      item.producer = producer if producer
+      item.material_flow = material_flow if material_flow
+      item.save!
+    end
+
+
   end
 
 end

@@ -17,14 +17,15 @@ module Teneo
       private
 
       def load
-        load_data :organization
-        load_data :user
-        load_data :format
         load_data :access_right
         load_data :retention_policy
+        load_data :representation_info
         load_data :producer
         load_data :material_flow
-        load_data :representation_info
+        load_data :organization
+        load_data :user
+        load_data :ingest_agreement
+        load_data :format
       end
 
       def load_data(klass_name)

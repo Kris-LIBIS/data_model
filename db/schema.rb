@@ -107,8 +107,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.bigint "template_id"
     t.integer "lock_version", default: 0, null: false
     t.index ["access_right_id"], name: "index_ingest_models_on_access_right_id"
+    t.index ["ingest_agreement_id", "name"], name: "index_ingest_models_on_ingest_agreement_id_and_name", unique: true
     t.index ["ingest_agreement_id"], name: "index_ingest_models_on_ingest_agreement_id"
-    t.index ["name"], name: "index_ingest_models_on_name", unique: true
     t.index ["retention_policy_id"], name: "index_ingest_models_on_retention_policy_id"
     t.index ["template_id"], name: "index_ingest_models_on_template_id"
   end

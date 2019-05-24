@@ -162,7 +162,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     # ################################################
 
     create_table :ingest_models do |t|
-      t.string :name, null: false, index: {unique: true}
+      t.string :name, null: false
       t.string :description
       t.string :entity_type
       t.string :user_a
@@ -177,6 +177,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.references :ingest_agreement, foreign_key: true, null: true
 
       t.references :template, foreign_key: {to_table: :ingest_models}
+
+      t.index [:ingest_agreement_id, :name], unique: true
 
       t.column :lock_version, :integer, null: false, default: 0
     end

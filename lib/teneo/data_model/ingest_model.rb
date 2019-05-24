@@ -22,6 +22,15 @@ module Teneo::DataModel
     belongs_to :retention_policy
     belongs_to :access_right
 
+    validates :name, uniqueness: {scope: :ingest_agreement_id}
+    validates :access_right_id, :retention_policy_id, presence: true
+    validate :template_reference
+
+    def template_reference
+      return if template.nil?
+      errors.add(:template_id, 'should be a template') unless template.ingest_agreement.nil?
+    end
+
   end
 
 end

@@ -1,0 +1,27 @@
+- name: 'default'
+  ingest_agreement: 'DIGI0017'
+  description: 'CBA Boek in de kijker'
+  entity_type: 'CBA_BOEK_IN_DE_KIJKER'
+  user_a: 'a'
+  user_b: 'b'
+  user_c: 'c'
+  identifier: 'CBA_BIK'
+  access_right: 'public'
+  retention_policy: 'NoRetentionPolicy'
+  manifestations:
+    - label: 'Origineel'
+      representation_info: 'ARCHIVE'
+      access_right:  'private'
+      conversion_jobs:
+        - name: 'copy originals'
+          format_filter: 'TIFF'
+    - label: 'Hoge kwaliteit'
+      representation_info: 'VIEW_MAIN'
+      access_right:  'restricted'
+      from: 'Origineel'
+      conversion_jobs:
+        - name: 'convert to JPEG2000'
+          converter: 'image converter'
+          config:
+            target_format: 'JP2'
+            quality: '85%'

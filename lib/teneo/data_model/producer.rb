@@ -19,6 +19,9 @@ module Teneo::DataModel
     validates :name, :ext_id, :inst_code, :agent, :password, presence: true
     validates :name, uniqueness: {scope: :inst_code, message: 'already taken for this inst_code'}
 
+    def self.from_hash(hash, id_tags = [:inst_code, :name])
+      super(hash, id_tags)
+    end
   end
 
 end

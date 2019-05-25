@@ -1,4 +1,5 @@
 require "teneo/data_model/version"
+require 'yaml'
 
 module Teneo
   module DataModel
@@ -31,6 +32,15 @@ module Teneo
 
     def self.migrations_path
       File.join(root, 'db', 'migrate')
+    end
+
+    def self.connect_db(environment = nil)
+      environment ||= ENV['RUBY_ENV'] || "development"
+      db_config_file  = File.join(root, 'config', 'database.yml')
+      db_config       = YAML::load_file(db_config_file)[environment.to_s]
+      # noinspection RubyStringKeysInHashInspection
+      db_config_admin = db_config.merge({'database' => 'postgres', 'schema_search_path' => 'public'})
+      ActiveRecord::Base.establish_connection(db_config_admin)
     end
   end
 end

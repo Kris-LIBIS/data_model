@@ -22,9 +22,11 @@ module Teneo
         load_data :representation_info
         load_data :producer
         load_data :material_flow
+        load_data :converter
         load_data :organization
         load_data :user
         load_data :ingest_agreement
+        load_data :ingest_model
         load_data :format
       end
 

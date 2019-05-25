@@ -1,0 +1,54 @@
+- name: 'image converter'
+  class_name: 'Libis::Format::Converter::ImageConverter'
+  description: 'Imagemagick: converts any image format into another'
+  parameters:
+    quiet:
+      type: 'bool'
+      default: false
+      description: 'suppress output'
+    page:
+      type: 'integer'
+      description: 'the page to use for multi-page image formats'
+    scale:
+      type: 'string'
+      description: 'minify / magnify the image'
+      note: 'geometry value'
+      ref: 'https://imagemagick.org/script/command-line-options.php#scale'
+    resize:
+      type: 'string'
+      description: 'resize the image'
+      note: 'geometry value'
+      ref: 'https://imagemagick.org/script/command-line-options.php#resize'
+    quality:
+      type: 'string'
+      description: 'set the image compression level'
+      note: 'number from 1 to 100, optionally appended with %'
+      ref: 'https://imagemagick.org/script/command-line-options.php#quality'
+    dpi:
+      type: 'string'
+      description: 'set the horizontal and vertical resolution of an image for rendering to devices'
+      note: 'width or widthxheight'
+      ref: 'https://imagemagick.org/script/command-line-options.php#density'
+    resample:
+      type: 'string'
+      description: 'resample image to specified horizontal and vertical resolution'
+      note: 'horizontalxvertical'
+      ref: 'https://imagemagick.org/script/command-line-options.php#resample'
+    flatten:
+      type: 'bool'
+      default: false
+      description: 'flatten multiple layers into one'
+      ref: 'https://imagemagick.org/script/command-line-options.php#flatten'
+    colorspace:
+      type: 'string'
+      description: 'set the image colorspace'
+      note: 'The converter will always convert to RGB before conversion in order for the conversions to work correctly. This option tells the converter what colorspace to convert the output image to.'
+      ref: 'https://imagemagick.org/script/command-line-options.php#colorspace'
+    profile:
+      type: 'string'
+      description: 'set the ICC profile of the output image'
+      ref: 'https://imagemagick.org/script/command-line-options.php#profile'
+    delete_date:
+      type: 'bool'
+      default: false
+      description: 'removes the modify-date and create-date image attributes from the output image'

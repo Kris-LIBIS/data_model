@@ -115,6 +115,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :script_name
       t.jsonb :parameters, default: {}
 
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
     end
 
@@ -131,6 +132,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.index :tasks, using: :gin
       t.index :inputs, using: :gin
 
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
     end
 
@@ -153,6 +155,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.references :organization, foreign_key: true, null: false
 
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:organization_id, :name], unique: true
@@ -180,6 +183,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.index [:ingest_agreement_id, :name], unique: true
 
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
     end
 
@@ -194,12 +198,16 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.references :from, foreign_key: {to_table: :manifestations}
       t.references :ingest_model, foreign_key: true, null: false
 
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+
       t.index [:ingest_model_id, :position], unique: true
       t.index [:ingest_model_id, :label], unique: true
     end
 
     create_table :conversion_jobs do |t|
-      t.integer :postion, null: false
+      t.string :name, null: false
+      t.integer :position, null: false
       t.string :format_filter
       t.string :filename_filter
       t.jsonb :config, default: {}
@@ -207,7 +215,11 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.references :manifestation, foreign_key: true
       t.references :converter, foreign_key: true
 
-      t.index [:manifestation_id, :postion], unique: true
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+
+      t.index [:manifestation_id, :name], unique: true
+      t.index [:manifestation_id, :position], unique: true
       t.index :config, using: :gin
 
     end
@@ -221,6 +233,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.references :ingest_agreement, foreign_key: true
       t.references :workflow, foreign_key: true
+
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:ingest_agreement_id, :stage], unique: true
       t.index :config, using: :gin

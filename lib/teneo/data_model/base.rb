@@ -26,8 +26,7 @@ module Teneo
         hash = hash.deep_symbolize_keys
         id_tags = id_tags.map(&:to_sym)
         unless id_tags.empty? || id_tags.any? {|k| hash.include?(k)}
-          error "Could not create '#{self.name}' object from Hash since none of the id tags '#{id_tags.join(',')}' are present"
-          return nil
+          raise ArgumentError, "Could not create '#{self.name}' object from Hash since none of the id tags '#{id_tags.join(',')}' are present"
         end
         tags = id_tags.inject({}) do |h, k|
           v = hash.delete(k)

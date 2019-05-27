@@ -228,7 +228,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     # ###########
 
     create_table :ingest_jobs do |t|
-      t.integer :stage, null: false
+      t.string :stage, null: false
       t.jsonb :config, default: {}
 
       t.references :ingest_agreement, foreign_key: true

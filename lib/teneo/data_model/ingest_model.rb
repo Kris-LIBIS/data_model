@@ -31,11 +31,11 @@ module Teneo::DataModel
       errors.add(:template_id, 'should be a template') unless template.ingest_agreement.nil?
     end
 
-    def self.from_hash(hash)
+    def self.from_hash(hash, id_tags = [:ingest_agreement_id, :name])
       ingest_agreement = hash.delete('ingest_agreement')
       ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(name: ingest_agreement)
       hash['ingest_agreement_id'] = ingest_agreement.id
-      super(hash, [:ingest_agreement_id, :name]) do |item, h|
+      super(hash, id_tags) do |item, h|
         item.access_right = Teneo::DataModel::AccessRight.find_by!(name: h.delete(:access_right))
         item.retention_policy = Teneo::DataModel::RetentionPolicy.find_by!(name: h.delete(:retention_policy))
         item.save!

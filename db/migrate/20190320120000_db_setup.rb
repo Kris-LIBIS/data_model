@@ -34,7 +34,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     create_table :storages do |t|
       t.string :name, null: false
       t.string :protocol, null: false
-      t.jsonb :options, default: {}
+      # with_values
 
       t.column :lock_version, :integer, null: false, default: 0
 
@@ -105,6 +105,34 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
     end
 
+    # Inputs and configurations
+    # #########################
+
+    create_table :parameters do |t|
+      t.string :name, null: false
+      t.string :data_type, null: false
+      t.string :description
+      t.jsonb :default
+      t.jsonb :constraint
+      t.boolean :frozen, default: false
+      t.jsonb :delegation
+
+      t.references :with_parameters, polymorphic: true, index: true
+
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+    end
+
+    create_table :parameter_values do |t|
+      t.string :name, null :false
+      t.jsonb :value
+
+      t.references :with_values, polymorphic: true, index: true
+
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+    end
+
     # Converters
     # ##########
 
@@ -113,28 +141,46 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :description
       t.string :class_name
       t.string :script_name
-      t.jsonb :parameters, default: {}
+      # with_parameters
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
     end
 
-    # Workflows
-    # #########
+    # Tasks and Workflows
+    # ###################
+
+    create_table :tasks do |t|
+      t.string :name
+      t.string :class_name
+      t.string :description
+      t.string :help
+      # with_parameters
+
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+
+    end
 
     create_table :workflows do |t|
-      t.string :stage
+      t.string :stage, null: false
       t.string :name
       t.string :description
-      t.jsonb :tasks, array: true, default: []
-      t.jsonb :inputs, array: true, default: []
-
-      t.index :tasks, using: :gin
-      t.index :inputs, using: :gin
+      # with parameters
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
     end
+
+    create_table :workflow_tasks do |t|
+      t.integer :position
+      # with_values
+
+      t.references :worflows, foreign_key: true, null: false
+      t.references :tasks, foreign_key: true, null: false
+
+    end
+
 
     # Ingest Agreements
     # #################
@@ -210,7 +256,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.integer :position, null: false
       t.string :format_filter
       t.string :filename_filter
-      t.jsonb :config, default: {}
+      # with_values
 
       t.references :manifestation, foreign_key: true
       t.references :converter, foreign_key: true
@@ -220,7 +266,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.index [:manifestation_id, :name], unique: true
       t.index [:manifestation_id, :position], unique: true
-      t.index :config, using: :gin
 
     end
 
@@ -229,7 +274,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :ingest_jobs do |t|
       t.string :stage, null: false
-      t.jsonb :config, default: {}
+      # with_values
 
       t.references :ingest_agreement, foreign_key: true
       t.references :workflow, foreign_key: true
@@ -238,7 +283,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:ingest_agreement_id, :stage], unique: true
-      t.index :config, using: :gin
     end
 
     # Packages and Items
@@ -250,6 +294,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :status
       t.string :base_dir
       t.jsonb :config, default: {}
+      # or with_values ?
 
       t.references :ingest_agreement, foreign_key: true, null: false
 

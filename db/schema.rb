@@ -91,7 +91,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   end
 
   create_table "ingest_jobs", force: :cascade do |t|
-    t.integer "stage", null: false
+    t.string "stage", null: false
     t.jsonb "config", default: {}
     t.bigint "ingest_agreement_id"
     t.bigint "workflow_id"
@@ -263,11 +263,11 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   end
 
   create_table "workflows", force: :cascade do |t|
-    t.string "stage"
+    t.string "stage", null: false
     t.string "name"
     t.string "description"
-    t.jsonb "tasks", default: [], array: true
-    t.jsonb "inputs", default: [], array: true
+    t.jsonb "tasks", default: {}
+    t.jsonb "inputs", default: {}
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false

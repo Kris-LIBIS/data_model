@@ -22,6 +22,6 @@
       conversion_jobs:
         - name: 'convert to JPEG2000'
           converter: 'image converter'
-          config:
+          values:
             target_format: 'JP2'
             quality: '85%'

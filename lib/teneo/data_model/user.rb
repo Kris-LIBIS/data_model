@@ -37,7 +37,7 @@ module Teneo
           if (roles = h.delete(:roles))
             roles.each do |role|
               organization_name = role[:organization]
-              org = Organization.find_by(name: organization_name)
+              org = Teneo::DataModel::Organization.find_by(name: organization_name)
               puts "Could not find organization '#{organization_name}'" unless org
               role_code = role[:role]
               if %w(admin uploader ingester).include? role_code

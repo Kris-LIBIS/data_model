@@ -14,11 +14,10 @@ module Teneo::DataModel
       parameters = hash.delete('parameters')
       item = super(hash, id_tags)
       parameters.each do |name, definition|
-        definition['name'] = name
-        definition['with_parameter_id'] = item.id
-        definition['with_parameter_tyoe'] = item.class.name
-        item.parameter_defs << Teneo::DataModel::ParameterDef.from_hash(definition)
+        item.parameter_defs << Teneo::DataModel::ParameterDef.from_hash(definition.
+            merge('name' => name, 'with_parameters_id' => item.id, 'with_parameters_type' => item.class.name))
       end
+      item
     end
   end
 

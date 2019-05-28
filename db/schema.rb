@@ -199,9 +199,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "name", null: false
     t.string "data_type", null: false
     t.string "description"
+    t.string "help"
     t.jsonb "default"
     t.jsonb "constraint"
-    t.boolean "frozen", default: false
     t.string "delegation"
     t.string "with_parameters_type"
     t.bigint "with_parameters_id"

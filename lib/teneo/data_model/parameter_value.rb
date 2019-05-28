@@ -7,11 +7,11 @@ module Teneo::DataModel
   class ParameterValue < Base
     self.table_name = 'parameter_values'
 
-    belongs_to :with_value, polymorphic: true
+    belongs_to :with_values, polymorphic: true
 
     validates :name, presence: true
-    validates :with_value_id, presence: true
-    validates :with_value_type, presence: true
+    validates :with_values_id, presence: true
+    validates :with_values_type, presence: true
 
   end
 

@@ -112,9 +112,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :name, null: false
       t.string :data_type, null: false
       t.string :description
+      t.string :help
       t.jsonb :default
       t.jsonb :constraint
-      t.boolean :frozen, default: false
       t.string :delegation
 
       t.references :with_parameters, polymorphic: true, index: {name: :index_parameter_defs_on_with_parameters}

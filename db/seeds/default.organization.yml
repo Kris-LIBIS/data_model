@@ -5,7 +5,7 @@
   storages:
     download:
       protocol: 'FTP'
-      options:
+      values:
         host: 'ftp.teneo.be'
         port: '21'
         user: 'demo'
@@ -13,7 +13,7 @@
         location: '/upload'
     uploads:
       protocol: 'NFS'
-      options:
+      values:
         location: '/mounted/nas/teneo/ready_to_ingest'
 - name: 'ubd'
   description: 'KU Leuven bibliotheken'
@@ -22,12 +22,12 @@
   storages:
     download:
       protocol: 'GDRIVE'
-      options:
+      values:
         credentials_file: 'ubd.gdrive.credentials.json'
         location: '/data'
     uploads:
       protocol: 'NFS'
-      options:
+      values:
         location: '/nas/vol04/upload/ubd'
 - name: 'kadoc'
   description: 'KADOC'
@@ -36,5 +36,5 @@
   storages:
     uploads:
       protocol: 'NFS'
-      options:
+      values:
         location: '/nas/vol04/upload/kadoo'

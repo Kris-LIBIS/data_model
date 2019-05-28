@@ -18,18 +18,19 @@ module Teneo::DataModel
     validates :position, presence: true, uniqueness: {scope: :manifestation_id}
 
     def self.from_hash(hash, id_tags = [:manifestation_id, :name])
-      values = h.delete('values')
+      values = hash.delete(:values)
       item = super(hash, id_tags) do |item, h|
         item.position = (position = h.delete(:position)) ? position : item.position = item.manifestation.ingest_jobs.count
         if (converter = h.delete(:converter))
           item.converter = Teneo::DataModel::Converter.find_by!(name: converter)
         end
       end
-      values.each do |value|
-        value['with_value_id'] = item.id
-        value['with_value_type'] = item.class.name
-        item.values << Teneo::DataModel::ParameterValue.from_hash(value)
-      end
+      values.each do |name, value|
+        Teneo::DataModel::ParameterValue.from_hash('name' => name, 'value' => value,
+                                                                  'with_values_id' => item.id,
+                                                                  'with_values_type' => item.class.name)
+      end if values
+      item
     end
 
   end

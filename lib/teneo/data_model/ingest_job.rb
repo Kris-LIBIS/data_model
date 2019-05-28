@@ -36,11 +36,12 @@ module Teneo::DataModel
           end
         end
       end
-      values.each do |value|
-        value['with_value_id'] = item.id
-        value['with_value_type'] = item.class.name
-        item.values << Teneo::DataModel::ParameterValue.from_hash(value)
+      values.each do |name, value|
+        item.values << Teneo::DataModel::ParameterValue.from_hash('name' => name, 'value' => value,
+                                                                  'with_values_id' => item.id,
+                                                                  'with_values_type' => item.class.name)
       end
+      item
     end
 
   end

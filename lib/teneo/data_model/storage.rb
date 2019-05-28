@@ -2,7 +2,6 @@
 require 'active_support/core_ext/object/with_options'
 
 require_relative 'base'
-require_relative 'serializers/hash_serializer'
 
 module Teneo
   module DataModel
@@ -14,10 +13,21 @@ module Teneo
 
       belongs_to :organization, inverse_of: :storages
 
-      serialize :options, Teneo::DataModel::Serializers::HashSerializer
+      has_many :values, as: :with_values
 
       validates :name, uniqueness: {scope: :organization_id}
       validates :protocol, inclusion: {in: PROTOCOL_LIST}
+
+      def self.from_hash(hash, id_tags = [:manifestation_id, :name])
+        values = hash.delete(:values)
+        item = super(hash, id_tags)
+        values.each do |name, value|
+          Teneo::DataModel::ParameterValue.from_hash('name' => name, 'value' => value,
+                                                                    'with_values_id' => item.id,
+                                                                    'with_values_type' => item.class.name)
+        end
+        item
+      end
 
     end
   end

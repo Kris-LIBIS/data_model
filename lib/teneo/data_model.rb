@@ -14,6 +14,8 @@ module Teneo
     autoload :Converter, 'teneo/data_model/converter'
     autoload :IngestJob, 'teneo/data_model/ingest_job'
     autoload :Workflow, 'teneo/data_model/workflow'
+    autoload :Task, 'teneo/data_model/task'
+    autoload :WorkflowTask, 'teneo/data_model/workflow_task'
     autoload :Package, 'teneo/data_model/package'
     autoload :Item, 'teneo/data_model/item'
     autoload :StatusLog, 'teneo/data_model/status_log'
@@ -23,6 +25,8 @@ module Teneo
     autoload :RepresentationInfo, 'teneo/data_model/representation_info'
     autoload :MaterialFlow, 'teneo/data_model/material_flow'
     autoload :Producer, 'teneo/data_model/producer'
+    autoload :ParameterDef, 'teneo/data_model/parameter_def'
+    autoload :ParameterValue, 'teneo/data_model/parameter_value'
 
     autoload :SeedLoader, 'teneo/data_model/seed_loader'
 

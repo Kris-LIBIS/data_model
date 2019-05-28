@@ -20,7 +20,8 @@ module Teneo::DataModel
       ingest_agreement = hash.delete('ingest_agreement')
       ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(name: ingest_agreement)
       hash['ingest_agreement_id'] = ingest_agreement.id
-      super(hash, id_tags) do |item, h|
+      values = h.delete('values')
+      item = super(hash, id_tags) do |item, h|
         if (workflow = h.delete(:workflow))
           item.workflow = Teneo::DataModel::Workflow.find_by!(name: workflow)
         end
@@ -34,6 +35,11 @@ module Teneo::DataModel
             Teneo::DataModel::Manifestation.from_hash(manifestation)
           end
         end
+      end
+      values.each do |value|
+        value['with_value_id'] = item.id
+        value['with_value_type'] = item.class.name
+        item.values << Teneo::DataModel::ParameterValue.from_hash(value)
       end
     end
 

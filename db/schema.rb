@@ -29,13 +29,11 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.integer "position", null: false
     t.string "format_filter"
     t.string "filename_filter"
-    t.jsonb "config", default: {}
     t.bigint "manifestation_id"
     t.bigint "converter_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
-    t.index ["config"], name: "index_conversion_jobs_on_config", using: :gin
     t.index ["converter_id"], name: "index_conversion_jobs_on_converter_id"
     t.index ["manifestation_id", "name"], name: "index_conversion_jobs_on_manifestation_id_and_name", unique: true
     t.index ["manifestation_id", "position"], name: "index_conversion_jobs_on_manifestation_id_and_position", unique: true
@@ -47,7 +45,6 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "description"
     t.string "class_name"
     t.string "script_name"
-    t.jsonb "parameters", default: {}
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
@@ -92,13 +89,11 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "ingest_jobs", force: :cascade do |t|
     t.string "stage", null: false
-    t.jsonb "config", default: {}
     t.bigint "ingest_agreement_id"
     t.bigint "workflow_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
-    t.index ["config"], name: "index_ingest_jobs_on_config", using: :gin
     t.index ["ingest_agreement_id", "stage"], name: "index_ingest_jobs_on_ingest_agreement_id_and_stage", unique: true
     t.index ["ingest_agreement_id"], name: "index_ingest_jobs_on_ingest_agreement_id"
     t.index ["workflow_id"], name: "index_ingest_jobs_on_workflow_id"
@@ -200,6 +195,33 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["ingest_agreement_id"], name: "index_packages_on_ingest_agreement_id"
   end
 
+  create_table "parameter_defs", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "data_type", null: false
+    t.string "description"
+    t.jsonb "default"
+    t.jsonb "constraint"
+    t.boolean "frozen", default: false
+    t.string "delegation"
+    t.string "with_parameters_type"
+    t.bigint "with_parameters_id"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.integer "lock_version", default: 0, null: false
+    t.index ["with_parameters_type", "with_parameters_id"], name: "index_parameter_defs_on_with_parameters"
+  end
+
+  create_table "parameter_values", force: :cascade do |t|
+    t.string "name", null: false
+    t.jsonb "value"
+    t.string "with_values_type"
+    t.bigint "with_values_id"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.integer "lock_version", default: 0, null: false
+    t.index ["with_values_type", "with_values_id"], name: "index_parameter_values_on_with_values"
+  end
+
   create_table "producers", force: :cascade do |t|
     t.string "name", null: false
     t.string "ext_id", null: false
@@ -243,11 +265,21 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "storages", force: :cascade do |t|
     t.string "name", null: false
     t.string "protocol", null: false
-    t.jsonb "options", default: {}
     t.integer "lock_version", default: 0, null: false
     t.bigint "organization_id", null: false
     t.index ["organization_id", "name"], name: "index_storages_on_organization_id_and_name", unique: true
     t.index ["organization_id"], name: "index_storages_on_organization_id"
+  end
+
+  create_table "tasks", force: :cascade do |t|
+    t.string "stage", null: false
+    t.string "name", null: false
+    t.string "class_name", null: false
+    t.string "description"
+    t.string "help"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.integer "lock_version", default: 0, null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -262,17 +294,23 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["uuid"], name: "index_users_on_uuid", unique: true
   end
 
+  create_table "workflow_tasks", force: :cascade do |t|
+    t.integer "position"
+    t.bigint "workflow_id", null: false
+    t.bigint "task_id", null: false
+    t.index ["task_id"], name: "index_workflow_tasks_on_task_id"
+    t.index ["workflow_id", "position"], name: "index_workflow_tasks_on_workflow_id_and_position", unique: true
+    t.index ["workflow_id"], name: "index_workflow_tasks_on_workflow_id"
+  end
+
   create_table "workflows", force: :cascade do |t|
     t.string "stage", null: false
-    t.string "name"
+    t.string "name", null: false
     t.string "description"
-    t.jsonb "tasks", default: {}
-    t.jsonb "inputs", default: {}
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
-    t.index ["inputs"], name: "index_workflows_on_inputs", using: :gin
-    t.index ["tasks"], name: "index_workflows_on_tasks", using: :gin
+    t.index ["name"], name: "index_workflows_on_name", unique: true
   end
 
   add_foreign_key "conversion_jobs", "converters"
@@ -297,4 +335,6 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "packages", "ingest_agreements"
   add_foreign_key "status_logs", "items", on_delete: :cascade
   add_foreign_key "storages", "organizations"
+  add_foreign_key "workflow_tasks", "tasks"
+  add_foreign_key "workflow_tasks", "workflows"
 end

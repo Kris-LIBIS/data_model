@@ -108,26 +108,26 @@ class DbSetup < ActiveRecord::Migration[5.2]
     # Inputs and configurations
     # #########################
 
-    create_table :parameters do |t|
+    create_table :parameter_defs do |t|
       t.string :name, null: false
       t.string :data_type, null: false
       t.string :description
       t.jsonb :default
       t.jsonb :constraint
       t.boolean :frozen, default: false
-      t.jsonb :delegation
+      t.string :delegation
 
-      t.references :with_parameters, polymorphic: true, index: true
+      t.references :with_parameters, polymorphic: true, index: {name: :index_parameter_defs_on_with_parameters}
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
     end
 
     create_table :parameter_values do |t|
-      t.string :name, null :false
+      t.string :name, null: false
       t.jsonb :value
 
-      t.references :with_values, polymorphic: true, index: true
+      t.references :with_values, polymorphic: true, index: {name: :index_parameter_values_on_with_values}
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
@@ -151,8 +151,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
     # ###################
 
     create_table :tasks do |t|
-      t.string :name
-      t.string :class_name
+      t.string :stage, null: false
+      t.string :name, null: false
+      t.string :class_name, null: false
       t.string :description
       t.string :help
       # with_parameters
@@ -164,7 +165,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :workflows do |t|
       t.string :stage, null: false
-      t.string :name
+      t.string :name, null: false, index: {unique: true}
       t.string :description
       # with parameters
 
@@ -176,9 +177,10 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.integer :position
       # with_values
 
-      t.references :worflows, foreign_key: true, null: false
-      t.references :tasks, foreign_key: true, null: false
+      t.references :workflow, foreign_key: true, null: false
+      t.references :task, foreign_key: true, null: false
 
+      t.index [:workflow_id, :position], unique: true
     end
 
 

@@ -13,6 +13,8 @@ module Teneo::DataModel
     belongs_to :converter
     has_many :values, as: :with_values
 
+    accepts_nested_attributes_for :values, allow_destroy: true
+
     validates :manifestation_id, presence: true
     validates :name, presence: true, uniqueness: {scope: :manifestation_id}
     validates :position, presence: true, uniqueness: {scope: :manifestation_id}

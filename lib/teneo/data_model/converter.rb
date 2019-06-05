@@ -7,8 +7,13 @@ module Teneo::DataModel
   class Converter < Base
     self.table_name = 'converters'
 
+    attr_accessor :parameter_name
+    attr_accessor :parameter_type
+
     has_many :conversion_jobs
     has_many :parameter_defs, as: :with_parameters
+
+    accepts_nested_attributes_for :parameter_defs, allow_destroy: true
 
     def self.from_hash(hash, id_tags = [:name])
       parameters = hash.delete('parameters')

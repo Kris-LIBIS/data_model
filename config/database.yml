@@ -3,6 +3,9 @@ default: &default
   encoding: unicode
   pool: 3
 
+  host: localhost
+  port: 5432
+
   username: teneo
   password: teneo
 

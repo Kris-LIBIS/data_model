@@ -141,6 +141,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :description
       t.string :class_name
       t.string :script_name
+      t.string :input_types, array: true
+      t.string :output_types, array: true
       # with_parameters
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}

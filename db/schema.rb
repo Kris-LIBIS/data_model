@@ -45,6 +45,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "description"
     t.string "class_name"
     t.string "script_name"
+    t.string "input_types", array: true
+    t.string "output_types", array: true
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false

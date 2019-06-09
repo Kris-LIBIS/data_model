@@ -7,6 +7,8 @@ module Teneo
   module DataModel
     class Base < ActiveRecord::Base
 
+      self.abstract_class = true
+
       def self.array_field(name)
           # self.attr_internal_accessor("#{name}_list")
           self.define_method "#{name}_list" do

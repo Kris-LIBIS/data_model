@@ -1,6 +1,8 @@
 - name: 'image converter'
   class_name: 'Libis::Format::Converter::ImageConverter'
   description: 'Imagemagick: converts any image format into another'
+  input_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
+  output_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
   parameters:
     quiet:
       data_type: 'bool'
@@ -49,3 +51,48 @@
       data_type: 'bool'
       default: false
       description: 'removes the modify-date and create-date image attributes from the output image'
+- name: 'JPeg 2000 converter'
+  class_name: 'Libis::Format::Converter::Jp2Converter'
+  description: 'Convert images to JPEG 2000 format using j2kdriver'
+  input_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF']
+  output_types: ['JP2']
+  parameters:
+    color_xform:
+      data_type: 'bool'
+      default: true
+      description: 'Perform color rotation from RBG to YUV color spaces if input image is in RGB format'
+    error_resilience:
+      data_type: 'string'
+      default: 'ALL'
+      description: 'Activates all error resilience features: start and end-of packet markers + segmentation symbols'
+    lossless:
+      data_type: 'boolean'
+      default: true
+      description: 'Activates lossless or lossy compression'
+      help: 'This sets the configuration of the compression type and peak signal-to-noise ration like this:
+      - lossless: xform=R53 5, ratio=0
+      - lossy: xform=I97, psnr=46'
+    progression_order:
+      data_type: 'string'
+      default: 'RLCP'
+      description: 'Sets progression order'
+    tile_size_width:
+      data_type: 'integer'
+      default: 1024
+      description: 'Sets the width size of the tiles'
+      help: 'preferably a power of 2'
+    tile_size_height:
+      data_type: 'integer'
+      default: 1024
+      description: 'Sets the height size of the tiles'
+      help: 'preferably a power of 2'
+    code_block_width:
+      data_type: 'integer'
+      default: 6
+      description: 'Sets the width size of the code block'
+      help: 'the block size will be the base 2 logarithm of the input value (2^x)'
+    code_block_height:
+      data_type: 'integer'
+      default: 6
+      description: 'Sets the height size of the code block'
+      help: 'the block size will be the base 2 logarithm of the input value (2^x)'

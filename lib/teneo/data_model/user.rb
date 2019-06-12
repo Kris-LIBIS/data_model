@@ -32,22 +32,24 @@ module Teneo
 
       # @param [Hash] hash
       def self.from_hash(hash)
-        super(hash, [:email]) do |item, h|
-          item.memberships.clear
-          if (roles = h.delete(:roles))
-            roles.each do |role|
-              organization_name = role[:organization]
-              org = Teneo::DataModel::Organization.find_by(name: organization_name)
-              puts "Could not find organization '#{organization_name}'" unless org
-              role_code = role[:role]
-              if %w(admin uploader ingester).include? role_code
-                item.add_role(role_code, org) if org
-              else
-                puts "Invalid role '#{role_code}'"
-              end
+        roles = hash.delete(:roles)
+        item = super(hash, [:email])
+        item.memberships.clear
+        if roles
+          roles.each do |role|
+            organization_name = role[:organization]
+            org = Teneo::DataModel::Organization.find_by(name: organization_name)
+            puts "Could not find organization '#{organization_name}'" unless org
+            role_code = role[:role]
+            if Teneo::DataModel::Membership::ROLE_LIST.include? role_code
+              item.add_role(role_code, org) if org
+            else
+              puts "Invalid role '#{role_code}'"
             end
           end
+          item.save!
         end
+        item
       end
 
       # sanitize email and username

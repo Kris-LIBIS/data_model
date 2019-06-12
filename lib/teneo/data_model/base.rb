@@ -9,23 +9,24 @@ module Teneo
 
       self.abstract_class = true
 
+      # Creates a virtual attribute <name>_list that converts between internal array storage and a ',' joined string
       def self.array_field(name)
-          # self.attr_internal_accessor("#{name}_list")
-          self.define_method "#{name}_list" do
-            self.send(name).blank? ? '' : self.send(name).join(',')
-          end
-          self.define_method "#{name}_list=" do |values|
-            self.send("#{name}=", [])
-            self.send("#{name}=", values.split(',')) unless values.blank?
-          end
+        # reader as <name>_list
+        self.define_method "#{name}_list" do
+          self.send(name).blank? ? '' : self.send(name).join(',')
+        end
+        # writer as <name>_list=
+        self.define_method "#{name}_list=" do |values|
+          self.send("#{name}=", [])
+          self.send("#{name}=", values.split(',')) unless values.blank?
+        end
       end
 
       def self.from_hash(hash, id_tags = [:name], &block)
-        self.create_from_hash(hash.compact, id_tags, &block)
+        self.create_from_hash(hash, id_tags, &block)
       end
 
       def self.create_from_hash(hash, id_tags, &block)
-        hash = hash.deep_symbolize_keys
         id_tags = id_tags.map(&:to_sym)
         unless id_tags.empty? || id_tags.any? {|k| hash.include?(k)}
           raise ArgumentError, "Could not create '#{self.name}' object from Hash since none of the id tags '#{id_tags.join(',')}' are present"

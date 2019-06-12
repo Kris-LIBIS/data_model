@@ -47,12 +47,13 @@ module Teneo
           case data
           when Array
             data.each do |x|
-              (n = x[:name] || x['name'] || x[x.keys.first]) && spinner.update(name: "object '#{n}'")
+              x.deep_symbolize_keys!
+              (n = x[:name] || x[x.keys.first]) && spinner.update(name: "object '#{n}'")
               klass.from_hash(x)
               spinner.update(name: '')
             end
           when Hash
-            klass.from_hash(data)
+            klass.from_hash(data.deep_symbolize_keys)
           else
             prompt.error "Illegal file content: 'path' - either Array or Hash expected."
           end

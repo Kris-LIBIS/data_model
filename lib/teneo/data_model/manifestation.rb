@@ -24,7 +24,14 @@ module Teneo::DataModel
     end
 
     def self.from_hash(hash, id_tags = [:ingest_model_id, :label])
-      super(hash, id_tags) do |item, h|
+      model_name = hash.delete(:ingest_model)
+      query = model_name ? {name: model_name} : {id: hash[:ingest_model_id]}
+      ingest_model = Teneo::DataModel::IngestModel.find_by!(query)
+      hash[:ingest_model_id] = ingest_model.id
+
+      conversion_jobs = hash.delete(:conversion_jobs)
+
+      item = super(hash, id_tags) do |item, h|
         item.position = (position = h.delete(:position)) ? position : item.position = item.ingest_model.manifestations.count
         if (from = h.delete(:from))
           item.from = Teneo::DataModel::Manifestation.find_by!(ingest_model_id: hash[:ingest_model_id], label: from)
@@ -35,16 +42,19 @@ module Teneo::DataModel
         if (representation_info = h.delete(:representation_info))
           item.representation_info = Teneo::DataModel::RepresentationInfo.find_by!(name: representation_info)
         end
-        if (conversion_jobs = h.delete(:conversion_jobs))
-          item.conversion_jobs.clear
-          item.save!
-          conversion_jobs.each_with_index do |conversion_job, index|
-            conversion_job[:manifestation_id] = item.id
-            conversion_job[:position] = index + 1
-            Teneo::DataModel::ConversionJob.from_hash(conversion_job)
-          end
-        end
       end
+
+      if conversion_jobs
+        item.conversion_jobs.clear
+        conversion_jobs.each_with_index do |conversion_job, index|
+          item.conversion_jobs <<
+              Teneo::DataModel::ConversionJob.from_hash(conversion_job.merge(manifestation_id: item.id,
+                                                                             position: index + 1))
+        end
+        item.save!
+      end
+
+      item
     end
 
   end

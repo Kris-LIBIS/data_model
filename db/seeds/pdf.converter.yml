@@ -1,0 +1,75 @@
+- name: 'PDF converter'
+  class_name: 'Libis::Format::Converter::PdfConverter'
+  description: 'Convert PDF files, adding metadata, select range of pages and convert to PDF/A'
+  input_types: ['PDF']
+  output_types: ['PDF', 'PDFA']
+  parameters:
+    title:
+      data_type: 'string'
+      description: 'set title metadata in the PDF'
+    author:
+      data_type: 'string'
+      description: 'set author metadata in the PDF'
+    creator:
+      data_type: 'string'
+      description: 'set creator metadata in the PDF'
+    keywords:
+      data_type: 'string'
+      description: 'set keywords metadata in the PDF'
+    subject:
+      data_type: 'string'
+      description: 'set subject metadata in the PDF'
+    range:
+      data_type: 'string'
+      description: 'set the range of pages to select'
+      help: 'as described in com.itextpdf.text.pdf.SequenceList: [!][o][odd][e][even]start-end'
+- name: 'PDF Watermarker'
+  class_name: 'Libis::Format::Converter::PdfWatermarker'
+  description: 'Add watermarks to each page of a PDF'
+  input_types: ['PDF']
+  output_types: ['PDF']
+  parameters:
+    file:
+      data_type: 'text'
+      description: 'File name of a watermark image to use'
+    text:
+      data_type: 'string'
+      default: '© LIBIS'
+      description: 'Text to use for the watermark unless a file has been given'
+    rotation:
+      data_type: 'integer'
+      default: 15
+      description: 'slants the watermark text with the number of degrees counter-clockwise'
+    size:
+      data_type: 'integer'
+      default: 20
+      description: 'font size for the watermark text'
+    opacity:
+      data_type: 'float'
+      description: 'opacity of the watermark, expressed as a fraction: 0.0 <= n <= 1.0'
+      default: 0.3
+    gap:
+      data_type: 'float'
+      description: 'gap between repeated watermark tiles'
+      help: 'Either expressed as a fraction of the page size (0.0 < n < 1.0) or \n
+            as a positive integer for the blank padding in points (= 1/72 inch)'
+- name: 'PDF Optimizer'
+  class_name: 'Libis::Format::Converter::PdfOptimizer'
+  description: 'Optimize a PDF by shrinking the size of the images in it'
+  input_types: ['PDF']
+  output_types: ['PDF']
+  parameters:
+    quality:
+      data_type: 'integer'
+      default: 1
+      description: 'Reduce the graphics quality in order to decrease the file size'
+      help: "The quality parameter is a number from 0 to 4 meaning:\n
+            - 0 : lowest quality (Acrobat Distiller 'Screen Optimized' equivalent)\n
+            - 1 : medium quality (Acrobat Distiller 'eBook' equivalent)\n
+            - 2 : good quality\n
+            - 3 : high quality (Acrobat Distiller 'Print Optimized' equivalent)\n
+            - 4 : highest quality (Acrobat Distiller 'Prepress Optimized' equivalent)\n
+            \n
+            Note that the optimization is intended to be used with PDF's containing high-resolution images."
+- name: 'PDF Assembler'
+  class_name: 'Libis::Format::Converter::PdfAssembler'

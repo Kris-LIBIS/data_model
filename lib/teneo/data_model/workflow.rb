@@ -19,11 +19,17 @@ module Teneo::DataModel
     validates :stage, presence: true, inclusion: {in: STAGE_LIST}
 
     def self.from_hash(hash, id_tags = [:name])
-      parameters = hash.delete('parameters')
+      params = hash.delete(:parameters)
       item = super(hash, id_tags)
-      parameters.each do |name, definition|
-        item.parameter_defs << Teneo::DataModel::ParameterDef.from_hash(definition.
-            merge('name' => name, 'with_parameters_id => item.id' => item.id, 'with_parameters_type' => item.class.name))
+      if params
+        item.parameter_defs.clear
+        params.each do |name, definition|
+          item.parameter_defs <<
+              Teneo::DataModel::ParameterDef.from_hash(definition.merge(name: name,
+                                                                        with_parameters_id: item.id,
+                                                                        with_parameters_type: item.class.name))
+        end
+        item.save!
       end
       item
     end

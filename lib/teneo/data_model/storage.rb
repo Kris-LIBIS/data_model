@@ -21,10 +21,13 @@ module Teneo
       def self.from_hash(hash, id_tags = [:manifestation_id, :name])
         values = hash.delete(:values)
         item = super(hash, id_tags)
-        values.each do |name, value|
-          Teneo::DataModel::ParameterValue.from_hash('name' => name, 'value' => value,
-                                                                    'with_values_id' => item.id,
-                                                                    'with_values_type' => item.class.name)
+        if values
+          values.each do |name, value|
+            item.values << Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
+                                                                      with_values_id: item.id,
+                                                                      with_values_type: item.class.name)
+          end
+          item.save!
         end
         item
       end

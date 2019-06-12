@@ -17,30 +17,30 @@ module Teneo::DataModel
     validates :stage, presence: true, inclusion: {in: STAGE_LIST}
 
     def self.from_hash(hash, id_tags = [:ingest_agreement_id, :stage])
-      ingest_agreement = hash.delete('ingest_agreement')
-      ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(name: ingest_agreement)
-      hash['ingest_agreement_id'] = ingest_agreement.id
-      values = h.delete('values')
+      agreement_name = hash.delete(:ingest_agreement)
+      query = agreement_name ? {name: agreement_name} : {id: hash[:ingest_agreement_id]}
+      ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(query)
+      hash[:ingest_agreement_id] = ingest_agreement.id
+
+      values = hash.delete(:values)
+
       item = super(hash, id_tags) do |item, h|
         if (workflow = h.delete(:workflow))
           item.workflow = Teneo::DataModel::Workflow.find_by!(name: workflow)
         end
         item.retention_policy = Teneo::DataModel::RetentionPolicy.find_by!(name: h.delete(:retention_policy))
-        item.save!
-        if (manifestations = h.delete(:manifestations))
-          item.manifestations.clear
-          manifestations.each_with_index do |manifestation, index|
-            manifestation[:ingest_model_id] = item.id
-            manifestation[:position] = index + 1
-            Teneo::DataModel::Manifestation.from_hash(manifestation)
-          end
+      end
+
+      if values
+        item.values.clear
+        values.each do |name, value|
+          item.values << Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
+                                                                    with_values_id: item.id,
+                                                                    with_values_type: item.class.name)
         end
+        item.save!
       end
-      values.each do |name, value|
-        item.values << Teneo::DataModel::ParameterValue.from_hash('name' => name, 'value' => value,
-                                                                  'with_values_id' => item.id,
-                                                                  'with_values_type' => item.class.name)
-      end
+
       item
     end
 

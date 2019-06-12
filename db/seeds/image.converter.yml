@@ -51,6 +51,80 @@
       data_type: 'bool'
       default: false
       description: 'removes the modify-date and create-date image attributes from the output image'
+- name: 'image watermarker'
+  class_name: 'Libis::Format::Converter::ImageWatermarker'
+  description: 'Adds a watermark to an image'
+  input_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
+  output_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
+  parameters:
+    quiet:
+      data_type: 'bool'
+      default: false
+      description: 'suppress output'
+    page:
+      data_type: 'integer'
+      description: 'the page to use for multi-page image formats'
+    scale:
+      data_type: 'string'
+      description: 'minify / magnify the image'
+      help: 'value should be a geometry value; see also https://imagemagick.org/script/command-line-options.php#scale'
+    file:
+      data_type: 'string'
+      description: 'file name of a watermark image'
+      help: 'supply the path to the watermark image relative to the configuration folder'
+    text:
+      data_type: 'string'
+      default: '© LIBIS'
+      description: 'text to put on the watermark'
+      help: 'will not be used unless the file parameter is empty'
+    rotation:
+      data_type: 'integer'
+      default: 30
+      description: 'rotation of the watermark text'
+      help : 'the number represents the counter-clockwise rotation in degrees'
+    tiles:
+      data_type: 'integer'
+      default: 4
+      description: 'number of tiles of the watermark'
+      help: 'The meaning of the number:\n
+            - 0: no tiling, so only 1 watermark will be placed with the original size\n
+            - 1: 1 tile, so the watermark will be scaled up to fill the image\n
+            - n > 1: minimum n tiles in both directions\n
+            - n < 0: tile without scaling the watermark'
+    resize:
+      data_type: 'float'
+      default: 1.0
+      description: 'resize the watermark image fraction 0.0 - 1.0'
+    gap:
+      data_type: 'float'
+      default: 0.2
+      description: 'size of the gap between watermark instances'
+      help: 'The gap is expressed as a fraction expressed as percentage of width/height'
+    gravity:
+      data_type: 'string'
+      default: 'Center'
+      description: 'set the center point for the watermark overlay'
+      help: 'See https://imagemagick.org/script/command-line-options.php#gravity for the allowed values.'
+    composition:
+      data_type: 'string'
+      default: 'modulate'
+      description: 'the image composition method for merging the watermark image'
+      help: 'See https://imagemagick.org/script/compose.php for more information'
+    composition_args:
+      data_type: 'string'
+      default: '10'
+      description: 'the image composition method for merging the watermark image'
+      help: 'See https://imagemagick.org/script/compose.php for more information'
+- name: 'Image assembler'
+  class_name: 'Libis::Format::Converter::ImageAssembler'
+  description: 'Combines multiple images into one multipage file'
+  input_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
+  output_types: ['PDF', 'TIFF', 'GIF', 'PBM', 'PGM', 'PPM']
+  parameters:
+    quiet:
+      data_type: 'bool'
+      default: false
+      description: 'suppress output'
 - name: 'JPeg 2000 converter'
   class_name: 'Libis::Format::Converter::Jp2Converter'
   description: 'Convert images to JPEG 2000 format using j2kdriver'

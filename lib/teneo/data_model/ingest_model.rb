@@ -32,22 +32,29 @@ module Teneo::DataModel
     end
 
     def self.from_hash(hash, id_tags = [:ingest_agreement_id, :name])
-      ingest_agreement = hash.delete('ingest_agreement')
-      ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(name: ingest_agreement)
-      hash['ingest_agreement_id'] = ingest_agreement.id
-      super(hash, id_tags) do |item, h|
+      agreement_name = hash.delete(:ingest_agreement)
+      query = agreement_name ? {name: agreement_name} : {id: hash[:ingest_agreement_id]}
+      ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(query)
+      hash[:ingest_agreement_id] = ingest_agreement.id
+
+      manifestations = h.delete(:manifestations)
+
+      item = super(hash, id_tags) do |item, h|
         item.access_right = Teneo::DataModel::AccessRight.find_by!(name: h.delete(:access_right))
         item.retention_policy = Teneo::DataModel::RetentionPolicy.find_by!(name: h.delete(:retention_policy))
-        item.save!
-        if (manifestations = h.delete(:manifestations))
-          item.manifestations.clear
-          manifestations.each_with_index do |manifestation, index|
-            manifestation[:ingest_model_id] = item.id
-            manifestation[:position] = index + 1
-            Teneo::DataModel::Manifestation.from_hash(manifestation)
-          end
-        end
       end
+
+      if manifestations
+        item.manifestations.clear
+        manifestations.each_with_index do |manifestation, index|
+          manifestation[:ingest_model_id] = item.id
+          manifestation[:position] = index + 1
+          Teneo::DataModel::Manifestation.from_hash(manifestation)
+        end
+        item.save!
+      end
+
+      item
     end
 
   end

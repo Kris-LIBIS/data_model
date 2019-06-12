@@ -112,9 +112,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :name, null: false
       t.string :data_type, null: false
       t.string :description
-      t.string :help
-      t.jsonb :default
-      t.jsonb :constraint
+      t.text :help
+      t.string :default
+      t.string :constraint
       t.string :delegation
 
       t.references :with_parameters, polymorphic: true, index: {name: :index_parameter_defs_on_with_parameters}
@@ -125,7 +125,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :parameter_values do |t|
       t.string :name, null: false
-      t.jsonb :value
+      t.string :value
 
       t.references :with_values, polymorphic: true, index: {name: :index_parameter_values_on_with_values}
 
@@ -143,6 +143,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :script_name
       t.string :input_types, array: true
       t.string :output_types, array: true
+      t.string :category, null: false, default: 'converter'
       # with_parameters
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
@@ -256,20 +257,33 @@ class DbSetup < ActiveRecord::Migration[5.2]
     end
 
     create_table :conversion_jobs do |t|
-      t.string :name, null: false
       t.integer :position, null: false
-      t.string :format_filter
-      t.string :filename_filter
-      # with_values
+      t.string :name
+      t.string :description
+      t.string :input_formats, array: true
+      t.string :input_filename_regex
 
       t.references :manifestation, foreign_key: true
+
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+    end
+
+    create_table :conversion_tasks do |t|
+      t.integer :position, null: false
+      t.string :name, null: false
+      t.string :description
+      t.string :output_format
+      # with_values
+
+      t.references :conversion_job, foreign_key: true
       t.references :converter, foreign_key: true
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      t.index [:manifestation_id, :name], unique: true
-      t.index [:manifestation_id, :position], unique: true
+      t.index [:conversion_job_id, :name], unique: true
+      t.index [:conversion_job_id, :position], unique: true
 
     end
 

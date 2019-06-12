@@ -32,11 +32,14 @@ module Teneo::DataModel
       record.errors.add attr, 'organization does not match' unless value.nil? || value.inst_code == record.organization.inst_code
     end
 
-    def self.from_hash(hash)
-      organization = hash.delete('organization')
-      organization = Teneo::DataModel::Organization.find_by!(name: organization)
-      hash['organization_id'] = organization.id
-      super(hash, [:organization_id, :name]) do |item, h|
+    def self.from_hash(hash, id_tags = [:organization_id, :name])
+      org_name = hash.delete(:organization)
+      query = org_name ? {name: org_name} : {id: hash[:organization_id]}
+      organization = Teneo::DataModel::Organization.find_by!(query)
+      hash[:organization_id] = organization.id
+      ingest_models = hash.delete(:ingest_models)
+      ingest_jobs = hash.delete(:ingest_jobs)
+      item = super(hash, id_tags) do |item, h|
         if (producer = h.delete(:producer))
           item.producer = Teneo::DataModel::Producer.find_by!(inst_code: organization.inst_code, name: producer)
         end
@@ -44,6 +47,21 @@ module Teneo::DataModel
           item.material_flow = Teneo::DataModel::MaterialFlow.find_by!(inst_code: organization.inst_code, name: material_flow)
         end
       end
+      if ingest_models
+        item.ingest_models.clear
+        ingest_models.each do |ingest_model|
+          item.ingest_models << Teneo::DataModel::IngestModel.from_hash(ingest_model.merge(ingest_agreement_id: item.id))
+        end
+        item.save!
+      end
+      if ingest_jobs
+        item.ingest_jobs.clear
+        ingest_jobs.each do |ingest_job|
+          item.ingest_jobs << Teneo::DataModel::IngestJob.from_hash(ingest_job.merge(ingest_agreement_id: item.id))
+        end
+        item.save!
+      end
+      item
     end
 
   end

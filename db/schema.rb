@@ -25,19 +25,32 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   end
 
   create_table "conversion_jobs", force: :cascade do |t|
-    t.string "name", null: false
     t.integer "position", null: false
-    t.string "format_filter"
-    t.string "filename_filter"
+    t.string "name"
+    t.string "description"
+    t.string "input_formats", array: true
+    t.string "input_filename_regex"
     t.bigint "manifestation_id"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.integer "lock_version", default: 0, null: false
+    t.index ["manifestation_id"], name: "index_conversion_jobs_on_manifestation_id"
+  end
+
+  create_table "conversion_tasks", force: :cascade do |t|
+    t.integer "position", null: false
+    t.string "name", null: false
+    t.string "description"
+    t.string "output_format"
+    t.bigint "conversion_job_id"
     t.bigint "converter_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
-    t.index ["converter_id"], name: "index_conversion_jobs_on_converter_id"
-    t.index ["manifestation_id", "name"], name: "index_conversion_jobs_on_manifestation_id_and_name", unique: true
-    t.index ["manifestation_id", "position"], name: "index_conversion_jobs_on_manifestation_id_and_position", unique: true
-    t.index ["manifestation_id"], name: "index_conversion_jobs_on_manifestation_id"
+    t.index ["conversion_job_id", "name"], name: "index_conversion_tasks_on_conversion_job_id_and_name", unique: true
+    t.index ["conversion_job_id", "position"], name: "index_conversion_tasks_on_conversion_job_id_and_position", unique: true
+    t.index ["conversion_job_id"], name: "index_conversion_tasks_on_conversion_job_id"
+    t.index ["converter_id"], name: "index_conversion_tasks_on_converter_id"
   end
 
   create_table "converters", force: :cascade do |t|
@@ -47,6 +60,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "script_name"
     t.string "input_types", array: true
     t.string "output_types", array: true
+    t.string "category", default: "converter", null: false
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
@@ -201,9 +215,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "name", null: false
     t.string "data_type", null: false
     t.string "description"
-    t.string "help"
-    t.jsonb "default"
-    t.jsonb "constraint"
+    t.text "help"
+    t.string "default"
+    t.string "constraint"
     t.string "delegation"
     t.string "with_parameters_type"
     t.bigint "with_parameters_id"
@@ -215,7 +229,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "parameter_values", force: :cascade do |t|
     t.string "name", null: false
-    t.jsonb "value"
+    t.string "value"
     t.string "with_values_type"
     t.bigint "with_values_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -315,8 +329,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["name"], name: "index_workflows_on_name", unique: true
   end
 
-  add_foreign_key "conversion_jobs", "converters"
   add_foreign_key "conversion_jobs", "manifestations"
+  add_foreign_key "conversion_tasks", "conversion_jobs"
+  add_foreign_key "conversion_tasks", "converters"
   add_foreign_key "ingest_agreements", "material_flows"
   add_foreign_key "ingest_agreements", "organizations"
   add_foreign_key "ingest_agreements", "producers"

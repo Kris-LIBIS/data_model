@@ -8,6 +8,15 @@ module Teneo::DataModel
 
     CATEGORY_LIST = %w'ARCHIVE AUDIO EMAIL IMAGE PRESENTATION TABULAR TEXT VIDEO OTHER'
 
+    def self.all_tags
+      result = []
+      CATEGORY_LIST.each do |category|
+        result << category
+        result += self.where(category: category).pluck(:name)
+      end
+      result
+    end
+
     validates :name, :category, :mime_types, :extensions, presence: true
     validates :name, uniqueness: true
     validates :category, inclusion: {in: CATEGORY_LIST}

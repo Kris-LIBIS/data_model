@@ -12,18 +12,18 @@ module Teneo
       belongs_to :workflow
       belongs_to :task
 
-      has_many :values, as: :with_values
+      has_many :values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
 
       validates :position, uniqueness: {scope: :workflow_id}
 
       def self.from_hash(hash, id_tags = [:manifestation_id, :name])
-        values = hash.delete(:values)
+        params = hash.delete(:values)
         item = super(hash, id_tags) do |item, h|
           item.position = (position = h.delete(:position)) ? position : item.workflow.workflow_tasks.count
         end
-        if values
+        if params
           item.values.clear
-          values.each do |name, value|
+          params.each do |name, value|
             item.values <<
                 Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
                                                            with_values_id: item.id,

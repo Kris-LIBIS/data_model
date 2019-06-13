@@ -1,8 +1,8 @@
 - name: 'image converter'
   class_name: 'Libis::Format::Converter::ImageConverter'
   description: 'Imagemagick: converts any image format into another'
-  input_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
-  output_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
+  input_formats: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
+  output_formats: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
   parameters:
     quiet:
       data_type: 'bool'
@@ -54,8 +54,8 @@
 - name: 'image watermarker'
   class_name: 'Libis::Format::Converter::ImageWatermarker'
   description: 'Adds a watermark to an image'
-  input_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
-  output_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
+  input_formats: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
+  output_formats: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
   parameters:
     quiet:
       data_type: 'bool'
@@ -118,8 +118,8 @@
 - name: 'Image assembler'
   class_name: 'Libis::Format::Converter::ImageAssembler'
   description: 'Combines multiple images into one multipage file'
-  input_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
-  output_types: ['PDF', 'TIFF', 'GIF', 'PBM', 'PGM', 'PPM']
+  input_formats: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
+  output_formats: ['PDF', 'TIFF', 'GIF', 'PBM', 'PGM', 'PPM']
   parameters:
     quiet:
       data_type: 'bool'
@@ -128,8 +128,8 @@
 - name: 'JPeg 2000 converter'
   class_name: 'Libis::Format::Converter::Jp2Converter'
   description: 'Convert images to JPEG 2000 format using j2kdriver'
-  input_types: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF']
-  output_types: ['JP2']
+  input_formats: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF']
+  output_formats: ['JP2']
   parameters:
     color_xform:
       data_type: 'bool'

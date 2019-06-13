@@ -9,7 +9,7 @@ module Teneo::DataModel
 
     belongs_to :manifestation
 
-    has_many :conversion_tasks
+    has_many :conversion_tasks, inverse_of: :conversion_job
 
     array_field :input_formats
 
@@ -23,7 +23,7 @@ module Teneo::DataModel
       manifestation = Teneo::DataModel::Manifestation.find_by!(query)
       hash[:manifestation_id] = manifestation.id
 
-      conversion_tasks = hash.delete(:conversion_tasks)
+      conversion_tasks = hash.delete(:tasks)
 
       item = super(hash, id_tags) do |item, h|
         item.position = (position = h.delete(:position)) ? position : item.position = item.manifestation.conversion_jobs.count

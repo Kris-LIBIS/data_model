@@ -34,7 +34,7 @@ module Teneo::DataModel
       item = super(hash, id_tags) do |item, h|
         item.position = (position = h.delete(:position)) ? position : item.position = item.ingest_model.manifestations.count
         if (from = h.delete(:from))
-          item.from = Teneo::DataModel::Manifestation.find_by!(ingest_model_id: hash[:ingest_model_id], label: from)
+          item.from = Teneo::DataModel::Manifestation.find_by!(from_id: hash[:ingest_model_id], label: from)
         end
         if (access_right = h.delete(:access_right))
           item.access_right = Teneo::DataModel::AccessRight.find_by!(name: access_right)

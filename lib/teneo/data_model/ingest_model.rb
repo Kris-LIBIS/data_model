@@ -37,7 +37,7 @@ module Teneo::DataModel
       ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(query)
       hash[:ingest_agreement_id] = ingest_agreement.id
 
-      manifestations = h.delete(:manifestations)
+      manifestations = hash.delete(:manifestations)
 
       item = super(hash, id_tags) do |item, h|
         item.access_right = Teneo::DataModel::AccessRight.find_by!(name: h.delete(:access_right))

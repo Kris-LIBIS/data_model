@@ -14,6 +14,8 @@ module Teneo::DataModel
       model.belongs_to :workflow
     end
 
+    has_many :values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
+
     validates :stage, presence: true, inclusion: {in: STAGE_LIST}
 
     def self.from_hash(hash, id_tags = [:ingest_agreement_id, :stage])
@@ -22,7 +24,7 @@ module Teneo::DataModel
       ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(query)
       hash[:ingest_agreement_id] = ingest_agreement.id
 
-      values = hash.delete(:values)
+      params = hash.delete(:values)
 
       item = super(hash, id_tags) do |item, h|
         if (workflow = h.delete(:workflow))
@@ -31,9 +33,9 @@ module Teneo::DataModel
         item.retention_policy = Teneo::DataModel::RetentionPolicy.find_by!(name: h.delete(:retention_policy))
       end
 
-      if values
+      if params
         item.values.clear
-        values.each do |name, value|
+        params.each do |name, value|
           item.values << Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
                                                                     with_values_id: item.id,
                                                                     with_values_type: item.class.name)

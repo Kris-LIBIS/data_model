@@ -1,8 +1,8 @@
 - name: 'PDF converter'
   class_name: 'Libis::Format::Converter::PdfConverter'
   description: 'Convert PDF files, adding metadata, select range of pages and convert to PDF/A'
-  input_types: ['PDF']
-  output_types: ['PDF', 'PDFA']
+  input_formats: ['PDF']
+  output_formats: ['PDF', 'PDFA']
   parameters:
     title:
       data_type: 'string'
@@ -26,8 +26,8 @@
 - name: 'PDF Watermarker'
   class_name: 'Libis::Format::Converter::PdfWatermarker'
   description: 'Add watermarks to each page of a PDF'
-  input_types: ['PDF']
-  output_types: ['PDF']
+  input_formats: ['PDF']
+  output_formats: ['PDF']
   parameters:
     file:
       data_type: 'text'
@@ -56,8 +56,8 @@
 - name: 'PDF Optimizer'
   class_name: 'Libis::Format::Converter::PdfOptimizer'
   description: 'Optimize a PDF by shrinking the size of the images in it'
-  input_types: ['PDF']
-  output_types: ['PDF']
+  input_formats: ['PDF']
+  output_formats: ['PDF']
   parameters:
     quality:
       data_type: 'integer'
@@ -73,3 +73,6 @@
             Note that the optimization is intended to be used with PDF's containing high-resolution images."
 - name: 'PDF Assembler'
   class_name: 'Libis::Format::Converter::PdfAssembler'
+  description: 'Assemble multiple PDF files into a single PDF'
+  input_formats: ['PDF']
+  output_formats: ['PDF']

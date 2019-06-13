@@ -5,12 +5,12 @@ module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
   class ConversionTask < Base
-    self.table_name = 'conversion_jobs'
+    self.table_name = 'conversion_tasks'
 
     belongs_to :conversion_job
     belongs_to :converter
 
-    has_many :values, as: :with_values
+    has_many :values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
 
     validates :conversion_job_id, presence: true
     validates :name, presence: true, uniqueness: {scope: :conversion_job_id}
@@ -22,7 +22,7 @@ module Teneo::DataModel
       conversion_job = Teneo::DataModel::ConversionJob.find_by!(query)
       hash[:conversion_job_id] = conversion_job.id
 
-      values = hash.delete(:values)
+      params = hash.delete(:values)
 
       item = super(hash, id_tags) do |item, h|
         item.position = (position = h.delete(:position)) ? position : item.position = item.conversion_job.conversion_tasks.count
@@ -31,12 +31,13 @@ module Teneo::DataModel
         end
       end
 
-      if values
+      if params
         item.values.clear
-        values.each do |name, value|
-          Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
-                                                     with_values_id: item.id,
-                                                     with_values_type: item.class.name)
+        params.each do |name, value|
+          item.values <<
+              Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
+                                                         with_values_id: item.id,
+                                                         with_values_type: item.class.name)
         end
         item.save!
       end

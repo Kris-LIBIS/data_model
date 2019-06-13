@@ -23,7 +23,7 @@ module Teneo
         item = super(hash, id_tags)
         if values
           values.each do |name, value|
-            item.values << Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
+            Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
                                                                       with_values_id: item.id,
                                                                       with_values_type: item.class.name)
           end

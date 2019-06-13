@@ -10,7 +10,7 @@ module Teneo::DataModel
     CATEGORY_LIST = %w'converter assembler splitter'
 
     has_many :conversion_jobs
-    has_many :parameter_defs, as: :with_parameters
+    has_many :parameter_defs, as: :with_parameters, class_name: 'Teneo::DataModel::ParameterDef'
 
     array_field :input_formats
     array_field :output_formats

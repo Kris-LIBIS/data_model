@@ -12,7 +12,7 @@ module Teneo::DataModel
     has_many :workflow_tasks, inverse_of: :task
     has_many :workflows, through: :workflow_tasks
 
-    has_many :parameter_defs, as: :with_parameters
+    has_many :parameter_defs, as: :with_parameters, class_name: 'Teneo::DataModel::ParameterDef'
 
     validates :stage, presence: true, inclusion: {in: STAGE_LIST}
     validates :name, presence: true

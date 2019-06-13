@@ -14,14 +14,16 @@
       access_right:  'private'
       conversion_jobs:
         - name: 'copy originals'
-          format_filter: 'TIFF'
+          input_formats: ['TIFF']
     - label: 'Hoge kwaliteit'
       representation_info: 'VIEW_MAIN'
       access_right:  'restricted'
       from: 'Origineel'
       conversion_jobs:
         - name: 'convert to JPEG2000'
-          converter: 'image converter'
-          values:
-            target_format: 'JP2'
-            quality: '85%'
+          tasks:
+            - name: 'TiffToJP2'
+              converter: 'image converter'
+              output_format: 'JP2'
+              values:
+                quality: '85%'

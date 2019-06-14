@@ -10,7 +10,7 @@ module Teneo::DataModel
     belongs_to :conversion_job
     belongs_to :converter
 
-    has_many :values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
+    has_many :parameter_values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
 
     validates :conversion_job_id, presence: true
     validates :name, presence: true, uniqueness: {scope: :conversion_job_id}
@@ -32,9 +32,9 @@ module Teneo::DataModel
       end
 
       if params
-        item.values.clear
+        item.parameter_values.clear
         params.each do |name, value|
-          item.values <<
+          item.parameter_values <<
               Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
                                                          with_values_id: item.id,
                                                          with_values_type: item.class.name)

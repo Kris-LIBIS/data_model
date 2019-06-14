@@ -58,8 +58,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "description"
     t.string "class_name"
     t.string "script_name"
-    t.string "input_types", array: true
-    t.string "output_types", array: true
+    t.string "input_formats", array: true
+    t.string "output_formats", array: true
     t.string "category", default: "converter", null: false
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false

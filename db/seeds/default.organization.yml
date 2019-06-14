@@ -37,4 +37,4 @@
     uploads:
       protocol: 'NFS'
       values:
-        location: '/nas/vol04/upload/kadoo'
+        location: '/nas/vol04/upload/kadoc'

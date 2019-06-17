@@ -7,7 +7,7 @@ module Teneo::DataModel
   class ConversionTask < Base
     self.table_name = 'conversion_tasks'
 
-    belongs_to :conversion_job
+    belongs_to :conversion_job, inverse_of: :conversion_tasks
     belongs_to :converter
 
     has_many :parameter_values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
@@ -45,5 +45,4 @@ module Teneo::DataModel
     end
 
   end
-
 end

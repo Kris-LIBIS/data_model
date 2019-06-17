@@ -4,6 +4,3 @@
 - name: 'ubd_mf'
   ext_id: '222222'
   inst_code: 'INS02'
-- name: 'kadoc_mf'
-  ext_id: '333333'
-  inst_code: 'INS03'

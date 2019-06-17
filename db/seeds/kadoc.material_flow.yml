@@ -1,0 +1,6 @@
+- name: 'ingest without collections'
+  ext_id: '227712995'
+  inst_code: 'KADOC'
+- name: 'ingest with collection in dc:isPartOf'
+  ext_id: '475806825'
+  inst_code: 'KADOC'

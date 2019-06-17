@@ -1,0 +1,11 @@
+- name: 'Kerk en Leven'
+  contact_ingest:
+    - 'luc.schokkaert@kuleuven.be'
+  contact_collection:
+    - 'luc.schokkaert@kuleuven.be'
+  contact_system:
+    - 'dirk.kinnaes@kuleuven.be'
+  collection_description: 'Parochiebladen'
+  producer: 'ingester'
+  material_flow: 'ingest with collection in dc:isPartOf'
+  organization: 'kadoc'

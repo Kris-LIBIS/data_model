@@ -13,6 +13,10 @@ module Teneo::DataModel
     validates :with_values_id, presence: true
     validates :with_values_type, presence: true
 
+    def self.from_hash(hash, id_tags = [:with_values_type, :with_values_id, :name])
+      super(hash, id_tags)
+    end
+
   end
 
 end

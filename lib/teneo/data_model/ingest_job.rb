@@ -7,7 +7,7 @@ module Teneo::DataModel
   class IngestJob < Base
     self.table_name = 'ingest_jobs'
 
-    STAGE_LIST = %w'PreProcess PreIngest Ingest PostIngest'
+    STAGE_LIST = %w'Collect PreProcess PreIngest Ingest PostIngest'
 
     with_options inverse_of: :ingest_jobs do |model|
       model.belongs_to :ingest_agreement

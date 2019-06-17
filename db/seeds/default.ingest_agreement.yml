@@ -21,14 +21,3 @@
   producer: 'producer'
   material_flow: 'ubd_mf'
   organization: 'ubd'
-- name: 'KerkEnLeven'
-  project_name: 'Kerk en Leven prochiebladen'
-  contact_ingest:
-    - 'luc.schokkaert@kuleuven.be'
-  contact_collection:
-    - 'katrien.weyns@kuleuven.be'
-  contact_system:
-    - 'dirk.kinnaes@kuleuven.be'
-  producer: 'producer'
-  material_flow: 'kadoc_mf'
-  organization: 'kadoc'

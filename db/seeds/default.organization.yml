@@ -29,12 +29,3 @@
       protocol: 'NFS'
       values:
         location: '/nas/vol04/upload/ubd'
-- name: 'kadoc'
-  description: 'KADOC'
-  inst_code: 'INS03'
-  ingest_dir: '/tmp/ingest/INS03'
-  storages:
-    uploads:
-      protocol: 'NFS'
-      values:
-        location: '/nas/vol04/upload/kadoc'

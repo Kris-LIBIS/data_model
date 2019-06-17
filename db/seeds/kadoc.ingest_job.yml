@@ -6,8 +6,7 @@
   stage: 'PreProcess'
   workflow: 'Kerk en Leven - preprocessor'
   values:
-    checksum_type: :MD5
-
+    checksum_type: 'MD5'
 - ingest_agreement: 'Kerk en Leven'
   stage: 'PreIngest'
   workflow: 'PI-FileGroup_Alma'

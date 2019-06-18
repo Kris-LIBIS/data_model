@@ -17,6 +17,7 @@ module Teneo
       private
 
       def load
+        load_data :format
         load_data :access_right
         load_data :retention_policy
         load_data :representation_info
@@ -27,7 +28,9 @@ module Teneo
         load_data :user
         load_data :ingest_agreement
         load_data :ingest_model
-        load_data :format
+        load_data :task
+        load_data :workflow
+        load_data :ingest_job
       end
 
       def load_data(klass_name)

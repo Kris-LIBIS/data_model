@@ -1,7 +1,6 @@
 - name: 'libis'
   description: 'LIBIS organization'
   inst_code: 'INS01'
-  ingest_dir: '/tmp/ingest/INS01'
   storages:
     download:
       protocol: 'FTP'
@@ -18,7 +17,6 @@
 - name: 'ubd'
   description: 'KU Leuven bibliotheken'
   inst_code: 'INS02'
-  ingest_dir: '/tmp/ingest/INS02'
   storages:
     download:
       protocol: 'GDRIVE'
@@ -29,3 +27,11 @@
       protocol: 'NFS'
       values:
         location: '/nas/vol04/upload/ubd'
+- name: 'kadoc'
+  description: 'KADOC'
+  inst_code: 'INS03'
+  storages:
+    uploads:
+      protocol: 'NFS'
+      values:
+        location: '/nas/vol04/upload/kadoc'

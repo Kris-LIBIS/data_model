@@ -25,7 +25,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
     create_table :organizations do |t|
       t.string :name, null: false, index: {unique: true}
       t.string :inst_code, null: false
-      t.string :ingest_dir
       t.string :description
 
       t.column :lock_version, :integer, null: false, default: 0
@@ -61,6 +60,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :ext_id, null: false
       t.string :inst_code
       t.string :description
+      t.string :ingest_dir, null: false
+      t.string :ingest_type, null: false, default: 'METS'
 
       t.index [:inst_code, :name], unique: true
 

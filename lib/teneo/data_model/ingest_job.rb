@@ -30,7 +30,6 @@ module Teneo::DataModel
         if (workflow = h.delete(:workflow))
           item.workflow = Teneo::DataModel::Workflow.find_by!(name: workflow)
         end
-        item.retention_policy = Teneo::DataModel::RetentionPolicy.find_by!(name: h.delete(:retention_policy))
       end
 
       if params

@@ -175,6 +175,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "ext_id", null: false
     t.string "inst_code"
     t.string "description"
+    t.string "ingest_dir", null: false
+    t.string "ingest_type", default: "METS", null: false
     t.integer "lock_version", default: 0, null: false
     t.index ["inst_code", "name"], name: "index_material_flows_on_inst_code_and_name", unique: true
   end
@@ -192,7 +194,6 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "organizations", force: :cascade do |t|
     t.string "name", null: false
     t.string "inst_code", null: false
-    t.string "ingest_dir"
     t.string "description"
     t.integer "lock_version", default: 0, null: false
     t.index ["name"], name: "index_organizations_on_name", unique: true

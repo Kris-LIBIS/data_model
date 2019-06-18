@@ -1,6 +1,0 @@
-- name: 'ingester'
-  ext_id: '227712986'
-  inst_code: 'KADOC'
-  description: 'Ingester account for KADOC'
-  agent: 'ingester'
-  password: 'abc123'

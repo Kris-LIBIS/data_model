@@ -7,7 +7,7 @@ module Teneo::DataModel
   class Task < Base
     self.table_name = 'tasks'
 
-    STAGE_LIST = Teneo::DataModel::IngestJob::STAGE_LIST
+    STAGE_LIST = %w'Collect PreProcess PreIngest Ingest PostIngest'
 
     has_many :workflow_tasks, inverse_of: :task
     has_many :workflows, through: :workflow_tasks

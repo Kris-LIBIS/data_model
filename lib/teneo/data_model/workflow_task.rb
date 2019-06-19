@@ -16,10 +16,13 @@ module Teneo
 
       validates :position, uniqueness: {scope: :workflow_id}
 
-      def self.from_hash(hash, id_tags = [:manifestation_id, :name])
+      def self.from_hash(hash, id_tags = [:workflow_id, :position])
         params = hash.delete(:values)
         item = super(hash, id_tags) do |item, h|
           item.position = (position = h.delete(:position)) ? position : item.workflow.workflow_tasks.count
+          if (task = h.delete(:task))
+            item.task = Teneo::DataModel::Task.find_by!(name: task)
+          end
         end
         if params
           item.values.clear

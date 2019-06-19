@@ -34,11 +34,7 @@ module Teneo
       end
 
       def load_data(klass_name)
-        klass = begin
-          "Teneo::DataModel::#{klass_name.to_s.classify}".constantize
-        rescue NameError
-          "#{klass_name.to_s.classify}".constantize
-        end
+        klass = "Teneo::DataModel::#{klass_name.to_s.classify}".constantize
         spinner = TTY::Spinner::new("[:spinner] Loading #{klass_name}(s) :file :name", interval: 4)
         spinner.auto_spin
         spinner.update(file: '...', name: '')

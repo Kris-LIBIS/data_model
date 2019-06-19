@@ -9,11 +9,12 @@ module Teneo
     autoload :Storage, 'teneo/data_model/storage'
     autoload :IngestAgreement, 'teneo/data_model/ingest_agreement'
     autoload :IngestModel, 'teneo/data_model/ingest_model'
-    autoload :Manifestation, 'teneo/data_model/manifestation'
+    autoload :Representation, 'teneo/data_model/representation'
     autoload :ConversionJob, 'teneo/data_model/conversion_job'
     autoload :ConversionTask, 'teneo/data_model/conversion_task'
     autoload :Converter, 'teneo/data_model/converter'
     autoload :IngestJob, 'teneo/data_model/ingest_job'
+    autoload :IngestTask, 'teneo/data_model/ingest_task'
     autoload :Workflow, 'teneo/data_model/workflow'
     autoload :Task, 'teneo/data_model/task'
     autoload :WorkflowTask, 'teneo/data_model/workflow_task'
@@ -50,4 +51,4 @@ module Teneo
   end
 end
 
-require 'teneo/data_model/concept/autoload'
+# require 'teneo/data_model/concept/autoload'

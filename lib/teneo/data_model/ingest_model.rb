@@ -9,7 +9,7 @@ module Teneo::DataModel
 
     belongs_to :ingest_agreement, inverse_of: :ingest_models
 
-    has_many :manifestations, dependent: :destroy
+    has_many :representations, dependent: :destroy
 
     # self-reference #template
     has_many :derivatives, class_name: Teneo::DataModel::IngestModel.name, dependent: :destroy,
@@ -37,19 +37,19 @@ module Teneo::DataModel
       ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(query)
       hash[:ingest_agreement_id] = ingest_agreement.id
 
-      manifestations = hash.delete(:manifestations)
+      representations = hash.delete(:representations)
 
       item = super(hash, id_tags) do |item, h|
         item.access_right = Teneo::DataModel::AccessRight.find_by!(name: h.delete(:access_right))
         item.retention_policy = Teneo::DataModel::RetentionPolicy.find_by!(name: h.delete(:retention_policy))
       end
 
-      if manifestations
-        item.manifestations.clear
-        manifestations.each_with_index do |manifestation, index|
-          manifestation[:ingest_model_id] = item.id
-          manifestation[:position] = index + 1
-          Teneo::DataModel::Manifestation.from_hash(manifestation)
+      if representations
+        item.representations.clear
+        representations.each_with_index do |representation, index|
+          representation[:ingest_model_id] = item.id
+          representation[:position] = index + 1
+          Teneo::DataModel::Representation.from_hash(representation)
         end
         item.save!
       end

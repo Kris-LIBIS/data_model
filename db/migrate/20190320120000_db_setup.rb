@@ -116,7 +116,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.text :help
       t.string :default
       t.string :constraint
-      t.string :delegation
 
       t.references :with_parameters, polymorphic: true, index: {name: :index_parameter_defs_on_with_parameters}
 
@@ -129,6 +128,19 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :value
 
       t.references :with_values, polymorphic: true, index: {name: :index_parameter_values_on_with_values}
+
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+    end
+
+    create_table :parameter_refs do |t|
+      t.string :name, null: false
+      t.string :delegation
+      t.string :description
+      t.text :help
+      t.string :default
+
+      t.references :with_param_refs, polymorphic: true, index: {name: :index_parameter_refs_on_with_param_refs}
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
@@ -213,7 +225,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.index [:organization_id, :name], unique: true
     end
 
-    # Ingest Models, Manifestations and ConversionJobs
+    # Ingest Models, Representations and ConversionJobs
     # ################################################
 
     create_table :ingest_models do |t|
@@ -239,7 +251,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
     end
 
-    create_table :manifestations do |t|
+    create_table :representations do |t|
       t.integer :position, null: false
       t.string :label, null: false
       t.boolean :optional, default: false
@@ -247,7 +259,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.references :access_right, foreign_key: true
       t.references :representation_info, foreign_key: true, null: false
 
-      t.references :from, foreign_key: {to_table: :manifestations}
+      t.references :from, foreign_key: {to_table: :representations}
       t.references :ingest_model, foreign_key: true, null: false
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
@@ -264,7 +276,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :input_formats, array: true
       t.string :input_filename_regex
 
-      t.references :manifestation, foreign_key: true
+      t.references :representation, foreign_key: true
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
@@ -292,16 +304,29 @@ class DbSetup < ActiveRecord::Migration[5.2]
     # ###########
 
     create_table :ingest_jobs do |t|
-      t.string :stage, null: false
-      # with_values
+      t.string :name, null: false
+      t.string :description
+      # with_parameters
 
       t.references :ingest_agreement, foreign_key: true
+
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+
+      t.index [:ingest_agreement_id, :name], unique: true
+    end
+
+    create_table :ingest_tasks do |t|
+      t.string :stage
+      # with_values
+
+      t.references :ingest_job, foreign_key: true
       t.references :workflow, foreign_key: true
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      t.index [:ingest_agreement_id, :stage], unique: true
+      t.index [:ingest_job_id, :stage], unique: true
     end
 
     # Packages and Items

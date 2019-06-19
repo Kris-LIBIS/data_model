@@ -4,18 +4,18 @@ require_relative 'base'
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
-  class Manifestation < Base
-    self.table_name = 'manifestations'
+  class Representation < Base
+    self.table_name = 'representations'
 
     belongs_to :ingest_model
 
     belongs_to :representation_info
     belongs_to :access_right, optional: true
 
-    belongs_to :from, class_name: 'Manifestation', inverse_of: :dependencies
-    has_many :dependencies, class_name: 'Manifestation', foreign_key: :from_id, inverse_of: :from
+    belongs_to :from, class_name: 'Representation', inverse_of: :dependencies
+    has_many :dependencies, class_name: 'Representation', foreign_key: :from_id, inverse_of: :from
 
-    has_many :conversion_jobs, inverse_of: :manifestation
+    has_many :conversion_jobs, inverse_of: :representation
 
     validates :position, :label, presence: true, uniqueness: {scope: :ingest_model_id}
 
@@ -32,9 +32,9 @@ module Teneo::DataModel
       conversion_jobs = hash.delete(:conversion_jobs)
 
       item = super(hash, id_tags) do |item, h|
-        item.position = (position = h.delete(:position)) ? position : item.position = item.ingest_model.manifestations.count
+        item.position = (position = h.delete(:position)) ? position : item.position = item.ingest_model.representations.count
         if (from = h.delete(:from))
-          item.from = Teneo::DataModel::Manifestation.find_by!(from_id: hash[:ingest_model_id], label: from)
+          item.from = Teneo::DataModel::Representation.find_by!(from_id: hash[:ingest_model_id], label: from)
         end
         if (access_right = h.delete(:access_right))
           item.access_right = Teneo::DataModel::AccessRight.find_by!(name: access_right)
@@ -48,7 +48,7 @@ module Teneo::DataModel
         item.conversion_jobs.clear
         conversion_jobs.each_with_index do |conversion_job, index|
           item.conversion_jobs <<
-              Teneo::DataModel::ConversionJob.from_hash(conversion_job.merge(manifestation_id: item.id,
+              Teneo::DataModel::ConversionJob.from_hash(conversion_job.merge(representation_id: item.id,
                                                                              position: index + 1))
         end
         item.save!

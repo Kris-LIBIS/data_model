@@ -7,26 +7,26 @@ module Teneo::DataModel
   class ConversionJob < Base
     self.table_name = 'conversion_jobs'
 
-    belongs_to :manifestation
+    belongs_to :representation
 
     has_many :conversion_tasks, inverse_of: :conversion_job
 
     array_field :input_formats
 
-    validates :manifestation_id, presence: true
-    validates :name, presence: true, uniqueness: {scope: :manifestation_id}
-    validates :position, presence: true, uniqueness: {scope: :manifestation_id}
+    validates :representation_id, presence: true
+    validates :name, presence: true, uniqueness: {scope: :representation_id}
+    validates :position, presence: true, uniqueness: {scope: :representation_id}
 
-    def self.from_hash(hash, id_tags = [:manifestation_id, :name])
-      manifestation_label = hash.delete(:manifestation)
-      query = manifestation_label ? {label: manifestation_label} : {id: hash[:manifestation_id]}
-      manifestation = Teneo::DataModel::Manifestation.find_by!(query)
-      hash[:manifestation_id] = manifestation.id
+    def self.from_hash(hash, id_tags = [:representation_id, :name])
+      representation_label = hash.delete(:representation)
+      query = representation_label ? {label: representation_label} : {id: hash[:representation_id]}
+      representation = Teneo::DataModel::Representation.find_by!(query)
+      hash[:representation_id] = representation.id
 
       conversion_tasks = hash.delete(:tasks)
 
       item = super(hash, id_tags) do |item, h|
-        item.position = (position = h.delete(:position)) ? position : item.position = item.manifestation.conversion_jobs.count
+        item.position = (position = h.delete(:position)) ? position : item.position = item.representation.conversion_jobs.count
       end
 
       if conversion_tasks

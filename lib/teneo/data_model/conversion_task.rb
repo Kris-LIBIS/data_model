@@ -17,7 +17,7 @@ module Teneo::DataModel
     validates :position, presence: true, uniqueness: {scope: :conversion_job_id}
 
     def self.from_hash(hash, id_tags = [:conversion_job_id, :name])
-      job_name = hash.delete(:manifestation)
+      job_name = hash.delete(:conversion_job)
       query = job_name ? {name: job_name} : {id: hash[:conversion_job_id]}
       conversion_job = Teneo::DataModel::ConversionJob.find_by!(query)
       hash[:conversion_job_id] = conversion_job.id

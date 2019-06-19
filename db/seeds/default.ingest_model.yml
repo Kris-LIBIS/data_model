@@ -8,7 +8,7 @@
   identifier: 'CBA_BIK'
   access_right: 'public'
   retention_policy: 'NoRetentionPolicy'
-  manifestations:
+  representations:
     - label: 'Origineel'
       representation_info: 'ARCHIVE'
       access_right:  'private'

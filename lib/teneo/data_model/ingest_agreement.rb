@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require_relative 'base'
-require 'active_support/core_ext/object/with_options'
 
 module Teneo::DataModel
 

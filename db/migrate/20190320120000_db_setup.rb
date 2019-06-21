@@ -325,6 +325,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :ingest_tasks do |t|
       t.string :stage
+      t.boolean :autorun, null: false, default: true
       # with_values
 
       t.references :ingest_job, foreign_key: true

@@ -34,9 +34,9 @@ module Teneo
           end
         end
         if params
-          item.values.clear
+          item.parameter_values.clear
           params.each do |name, value|
-            item.values <<
+            item.parameter_values <<
                 Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
                                                            with_values_id: item.id,
                                                            with_values_type: item.class.name)

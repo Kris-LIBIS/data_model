@@ -3,6 +3,7 @@ require 'active_record'
 require 'active_support/core_ext/hash/compact'
 require 'active_support/core_ext/hash/keys'
 require 'active_support/core_ext/object/with_options'
+require 'acts_as_list'
 
 module Teneo
   module DataModel
@@ -58,7 +59,7 @@ module Teneo
       protected
 
       def volatile_attributes
-        %w'id created_at updated_at'
+        %w'id created_at updated_at lock_version'
       end
 
       def copy_attributes(other)
@@ -72,6 +73,12 @@ module Teneo
         self
       end
 
+      def self.record_finder(model, query)
+        return model.where(query).take!
+      rescue ActiveRecord::RecordNotFound => e
+        e.message.gsub!(/with .*$/, "with #{query}")
+        raise e
+      end
 
     end
   end

@@ -34,6 +34,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
+    t.index ["representation_id", "name"], name: "index_conversion_jobs_on_representation_id_and_name", unique: true
+    t.index ["representation_id", "position"], name: "index_conversion_jobs_on_representation_id_and_position", unique: true
     t.index ["representation_id"], name: "index_conversion_jobs_on_representation_id"
   end
 
@@ -196,7 +198,6 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "stage"
     t.string "status"
     t.string "base_dir"
-    t.jsonb "config", default: {}
     t.bigint "ingest_agreement_id", null: false
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -211,13 +212,26 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.text "help"
     t.string "default"
     t.string "constraint"
-    t.string "delegation"
     t.string "with_parameters_type"
     t.bigint "with_parameters_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
     t.index ["with_parameters_type", "with_parameters_id"], name: "index_parameter_defs_on_with_parameters"
+  end
+
+  create_table "parameter_refs", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "delegation"
+    t.string "description"
+    t.text "help"
+    t.string "default"
+    t.string "with_param_refs_type"
+    t.bigint "with_param_refs_id"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.integer "lock_version", default: 0, null: false
+    t.index ["with_param_refs_type", "with_param_refs_id"], name: "index_parameter_refs_on_with_param_refs"
   end
 
   create_table "parameter_values", force: :cascade do |t|

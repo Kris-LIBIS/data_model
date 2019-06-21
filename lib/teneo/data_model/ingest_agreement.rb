@@ -34,16 +34,16 @@ module Teneo::DataModel
     def self.from_hash(hash, id_tags = [:organization_id, :name])
       org_name = hash.delete(:organization)
       query = org_name ? {name: org_name} : {id: hash[:organization_id]}
-      organization = Teneo::DataModel::Organization.find_by!(query)
+      organization = record_finder Teneo::DataModel::Organization, query
       hash[:organization_id] = organization.id
       ingest_models = hash.delete(:ingest_models)
       ingest_jobs = hash.delete(:ingest_jobs)
       item = super(hash, id_tags) do |item, h|
         if (producer = h.delete(:producer))
-          item.producer = Teneo::DataModel::Producer.find_by!(inst_code: organization.inst_code, name: producer)
+          item.producer = record_finder Teneo::DataModel::Producer, inst_code: organization.inst_code, name: producer
         end
         if (material_flow = h.delete(:material_flow))
-          item.material_flow = Teneo::DataModel::MaterialFlow.find_by!(inst_code: organization.inst_code, name: material_flow)
+          item.material_flow =record_finder Teneo::DataModel::MaterialFlow, inst_code: organization.inst_code, name: material_flow
         end
       end
       if ingest_models

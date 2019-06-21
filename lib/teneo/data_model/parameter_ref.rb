@@ -7,7 +7,7 @@ module Teneo::DataModel
   class ParameterRef < Base
     self.table_name = 'parameter_refs'
 
-    belongs_to :with_parameters, polymorphic: true
+    belongs_to :with_param_refs, polymorphic: true
 
     validates :name, presence: true
     validates :delegation, presence: true

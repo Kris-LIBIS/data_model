@@ -196,6 +196,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.references :workflow, foreign_key: true, null: false
       t.references :task, foreign_key: true, null: false
 
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+
       t.index [:workflow_id, :position], unique: true
     end
 
@@ -280,6 +283,10 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
+
+      t.index [:representation_id, :name], unique: true
+      t.index [:representation_id, :position], unique: true
+
     end
 
     create_table :conversion_tasks do |t|
@@ -337,8 +344,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :stage
       t.string :status
       t.string :base_dir
-      t.jsonb :config, default: {}
-      # or with_values ?
+      # with_values
 
       t.references :ingest_agreement, foreign_key: true, null: false
 

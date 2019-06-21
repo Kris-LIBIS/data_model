@@ -28,6 +28,7 @@ module Teneo
     autoload :MaterialFlow, 'teneo/data_model/material_flow'
     autoload :Producer, 'teneo/data_model/producer'
     autoload :ParameterDef, 'teneo/data_model/parameter_def'
+    autoload :ParameterRef, 'teneo/data_model/parameter_ref'
     autoload :ParameterValue, 'teneo/data_model/parameter_value'
 
     autoload :SeedLoader, 'teneo/data_model/seed_loader'

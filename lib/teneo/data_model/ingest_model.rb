@@ -9,14 +9,14 @@ module Teneo::DataModel
 
     belongs_to :ingest_agreement, inverse_of: :ingest_models
 
-    has_many :representations, dependent: :destroy
+    has_many :representations, -> { order(position: :asc) }, dependent: :destroy
 
     # self-reference #template
     has_many :derivatives, class_name: Teneo::DataModel::IngestModel.name, dependent: :destroy,
              inverse_of: :template,
              foreign_key: :template_id
     belongs_to :template, class_name: Teneo::DataModel::IngestModel.name,
-               inverse_of: :derivatives
+               inverse_of: :derivatives, optional: true
 
     # code tables
     belongs_to :retention_policy
@@ -34,14 +34,14 @@ module Teneo::DataModel
     def self.from_hash(hash, id_tags = [:ingest_agreement_id, :name])
       agreement_name = hash.delete(:ingest_agreement)
       query = agreement_name ? {name: agreement_name} : {id: hash[:ingest_agreement_id]}
-      ingest_agreement = Teneo::DataModel::IngestAgreement.find_by!(query)
+      ingest_agreement = record_finder Teneo::DataModel::IngestAgreement, query
       hash[:ingest_agreement_id] = ingest_agreement.id
 
       representations = hash.delete(:representations)
 
       item = super(hash, id_tags) do |item, h|
-        item.access_right = Teneo::DataModel::AccessRight.find_by!(name: h.delete(:access_right))
-        item.retention_policy = Teneo::DataModel::RetentionPolicy.find_by!(name: h.delete(:retention_policy))
+        item.access_right = record_finder Teneo::DataModel::AccessRight, name: h.delete(:access_right)
+        item.retention_policy = record_finder Teneo::DataModel::RetentionPolicy, name: h.delete(:retention_policy)
       end
 
       if representations

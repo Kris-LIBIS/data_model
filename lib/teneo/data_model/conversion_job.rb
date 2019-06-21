@@ -8,8 +8,9 @@ module Teneo::DataModel
     self.table_name = 'conversion_jobs'
 
     belongs_to :representation
+    acts_as_list scope: :representation, add_new_at: :bottom
 
-    has_many :conversion_tasks, inverse_of: :conversion_job
+    has_many :conversion_tasks, -> { order(position: :asc) }, inverse_of: :conversion_job
 
     array_field :input_formats
 
@@ -17,10 +18,18 @@ module Teneo::DataModel
     validates :name, presence: true, uniqueness: {scope: :representation_id}
     validates :position, presence: true, uniqueness: {scope: :representation_id}
 
+    before_validation :init_position
+
+    def init_position
+      # noinspection RubyResolve
+      self.position ||= self.class.where(representation_id: representation_id).pluck(:position).max + 1
+    end
+
+
     def self.from_hash(hash, id_tags = [:representation_id, :name])
       representation_label = hash.delete(:representation)
       query = representation_label ? {label: representation_label} : {id: hash[:representation_id]}
-      representation = Teneo::DataModel::Representation.find_by!(query)
+      representation = record_finder Teneo::DataModel::Representation, query
       hash[:representation_id] = representation.id
 
       conversion_tasks = hash.delete(:tasks)

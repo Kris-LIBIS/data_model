@@ -340,6 +340,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.integer "position"
     t.bigint "workflow_id", null: false
     t.bigint "task_id", null: false
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.integer "lock_version", default: 0, null: false
     t.index ["task_id"], name: "index_workflow_tasks_on_task_id"
     t.index ["workflow_id", "position"], name: "index_workflow_tasks_on_workflow_id_and_position", unique: true
     t.index ["workflow_id"], name: "index_workflow_tasks_on_workflow_id"

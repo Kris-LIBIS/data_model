@@ -29,8 +29,8 @@ module Teneo
         load_data :ingest_agreement
         load_data :ingest_model
         load_data :task
-        load_data :workflow
-        load_data :ingest_job
+        load_data :stage_workflow
+        load_data :ingest_workflow
       end
 
       def load_data(klass_name)

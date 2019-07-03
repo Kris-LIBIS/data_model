@@ -4,10 +4,10 @@ require_relative 'base'
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
-  class IngestJob < Base
-    self.table_name = 'ingest_jobs'
+  class IngestWorkflow < Base
+    self.table_name = 'ingest_workflows'
 
-    belongs_to :ingest_agreement, inverse_of: :ingest_jobs
+    belongs_to :ingest_agreement, inverse_of: :ingest_workflows
 
     has_many :ingest_tasks
     has_many :workflows, through: :ingest_tasks
@@ -59,7 +59,7 @@ module Teneo::DataModel
       if tasks
         item.ingest_tasks.clear
         tasks.each do |task|
-          task[:ingest_job_id] = item.id
+          task[:ingest_workflow_id] = item.id
           item.ingest_tasks << Teneo::DataModel::IngestTask.from_hash(task)
         end
         item.save!

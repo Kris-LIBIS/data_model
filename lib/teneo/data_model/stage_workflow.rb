@@ -4,15 +4,15 @@ require_relative 'base'
 module Teneo::DataModel
 
   # noinspection ALL
-  class Workflow < Base
-    self.table_name = 'workflows'
+  class StageWorkflow < Base
+    self.table_name = 'stage_workflows'
 
     STAGE_LIST = Teneo::DataModel::Task::STAGE_LIST
 
-    has_many :workflow_tasks, -> { order(position: :asc) }, inverse_of: :workflow
-    has_many :tasks, through: :workflow_tasks
+    has_many :stage_tasks, -> { order(position: :asc) }, inverse_of: :stage_workflow
+    has_many :tasks, through: :stage_tasks
 
-    has_many :ingest_tasks, inverse_of: :workfow
+    has_many :ingest_tasks, inverse_of: :stage_workfow
 
     has_many :parameter_refs, as: :with_param_refs, class_name: 'Teneo::DataModel::ParameterRef'
 
@@ -25,11 +25,11 @@ module Teneo::DataModel
       delegation = ref.delegation
       target, name = delegation.split(/[,\s]+/).first.split('#')
       task = tasks.find_by(name: target)
-      workflow_task = workflow_tasks.find_by(task_id: task.id)
+      stage_task = stage_tasks.find_by(task_id: task.id)
       result = task.parameter_defs.find_by(name: name)&.to_hash
       result.delete(:with_parameters_type)
       result.delete(:with_parameters_id)
-      if (param_value = workflow_task.parameter_values.find_by(name: name))
+      if (param_value = stage_task.parameter_values.find_by(name: name))
         result[:default] = param_value.value
       end
       result.merge(ref.to_hash.select {|k,_| [:description, :help, :default].include?(k)})
@@ -50,11 +50,11 @@ module Teneo::DataModel
         item.save!
       end
       if tasks
-        item.workflow_tasks.clear
+        item.stage_tasks.clear
         tasks.each_with_index do |task, index|
-          task[:workflow_id] = item.id
+          task[:stage_workflow_id] = item.id
           task[:position] = index + 1
-          item.workflow_tasks << Teneo::DataModel::WorkflowTask.from_hash(task)
+          item.stage_tasks << Teneo::DataModel::StageTask.from_hash(task)
         end
         item.save!
       end

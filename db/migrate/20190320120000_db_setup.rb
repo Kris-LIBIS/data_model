@@ -163,8 +163,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
     end
 
-    # Tasks and Workflows
-    # ###################
+    # Stage Tasks and Workflows
+    # #########################
 
     create_table :tasks do |t|
       t.string :stage, null: false
@@ -179,7 +179,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     end
 
-    create_table :workflows do |t|
+    create_table :stage_workflows do |t|
       t.string :stage, null: false
       t.string :name, null: false, index: {unique: true}
       t.string :description
@@ -189,17 +189,17 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
     end
 
-    create_table :workflow_tasks do |t|
+    create_table :stage_tasks do |t|
       t.integer :position
       # with_values
 
-      t.references :workflow, foreign_key: true, null: false
+      t.references :stage_workflow, foreign_key: true, null: false
       t.references :task, foreign_key: true, null: false
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      t.index [:workflow_id, :position], unique: true
+      t.index [:stage_workflow_id, :position], unique: true
     end
 
 
@@ -214,7 +214,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :contact_collection, array: true
       t.string :contact_system, array: true
       t.string :collection_description
-      t.string :ingest_job_name
+      t.string :ingest_run_name
       t.string :collector
 
       t.references :producer, foreign_key: true
@@ -228,8 +228,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.index [:organization_id, :name], unique: true
     end
 
-    # Ingest Models, Representations and ConversionJobs
-    # ################################################
+    # Ingest Models, Representations and Conversions
+    # ##############################################
 
     create_table :ingest_models do |t|
       t.string :name, null: false
@@ -272,7 +272,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.index [:ingest_model_id, :label], unique: true
     end
 
-    create_table :conversion_jobs do |t|
+    create_table :conversion_workflows do |t|
       t.integer :position, null: false
       t.string :name
       t.string :description
@@ -296,21 +296,21 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :output_format
       # with_values
 
-      t.references :conversion_job, foreign_key: true
+      t.references :conversion_workflow, foreign_key: true
       t.references :converter, foreign_key: true
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      t.index [:conversion_job_id, :name], unique: true
-      t.index [:conversion_job_id, :position], unique: true
+      t.index [:conversion_workflow_id, :name], unique: true
+      t.index [:conversion_workflow_id, :position], unique: true
 
     end
 
-    # Ingest Jobs
-    # ###########
+    # Ingest Workflows
+    # ################
 
-    create_table :ingest_jobs do |t|
+    create_table :ingest_workflows do |t|
       t.string :name, null: false
       t.string :description
       # with_parameters
@@ -328,13 +328,13 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.boolean :autorun, null: false, default: true
       # with_values
 
-      t.references :ingest_job, foreign_key: true
-      t.references :workflow, foreign_key: true
+      t.references :ingest_workflow, foreign_key: true
+      t.references :stage_workflow, foreign_key: true
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      t.index [:ingest_job_id, :stage], unique: true
+      t.index [:ingest_workflow_id, :stage], unique: true
     end
 
     # Packages and Items

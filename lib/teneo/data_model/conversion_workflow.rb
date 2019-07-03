@@ -4,13 +4,13 @@ require_relative 'base'
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
-  class ConversionJob < Base
-    self.table_name = 'conversion_jobs'
+  class ConversionWorkflow < Base
+    self.table_name = 'conversion_workflows'
 
     belongs_to :representation
     acts_as_list scope: :representation, add_new_at: :bottom
 
-    has_many :conversion_tasks, -> { order(position: :asc) }, inverse_of: :conversion_job
+    has_many :conversion_tasks, -> { order(position: :asc) }, inverse_of: :conversion_workflow
 
     array_field :input_formats
 
@@ -35,14 +35,14 @@ module Teneo::DataModel
       conversion_tasks = hash.delete(:tasks)
 
       item = super(hash, id_tags) do |item, h|
-        item.position = (position = h.delete(:position)) ? position : item.position = item.representation.conversion_jobs.count
+        item.position = (position = h.delete(:position)) ? position : item.position = item.representation.conversion_workflows.count
       end
 
       if conversion_tasks
         item.conversion_tasks.clear
         conversion_tasks.each_with_index do |conversion_task, index|
           item.conversion_tasks <<
-              Teneo::DataModel::ConversionTask.from_hash(conversion_task.merge(conversion_job_id: item.id,
+              Teneo::DataModel::ConversionTask.from_hash(conversion_task.merge(conversion_workflow_id: item.id,
                                                                                position: index + 1))
         end
         item.save!

@@ -16,7 +16,7 @@ module Teneo::DataModel
     belongs_to :from, class_name: 'Representation', inverse_of: :dependencies, optional: true
     has_many :dependencies, class_name: 'Representation', foreign_key: :from_id, inverse_of: :from
 
-    has_many :conversion_jobs, -> { order(position: :asc) }, inverse_of: :representation
+    has_many :conversion_workflows, -> { order(position: :asc) }, inverse_of: :representation
 
     validates :position, :label, presence: true, uniqueness: {scope: :ingest_model_id}
 
@@ -38,7 +38,7 @@ module Teneo::DataModel
       ingest_model = record_finder Teneo::DataModel::IngestModel, query
       hash[:ingest_model_id] = ingest_model.id
 
-      conversion_jobs = hash.delete(:conversion_jobs)
+      conversion_workflows = hash.delete(:conversion_workflows)
 
       item = super(hash, id_tags) do |item, h|
         item.position = (position = h.delete(:position)) ? position : item.position = item.ingest_model.representations.count
@@ -53,11 +53,11 @@ module Teneo::DataModel
         end
       end
 
-      if conversion_jobs
-        item.conversion_jobs.clear
-        conversion_jobs.each_with_index do |conversion_job, index|
-          item.conversion_jobs <<
-              Teneo::DataModel::ConversionJob.from_hash(conversion_job.merge(representation_id: item.id,
+      if conversion_workflows
+        item.conversion_workflows.clear
+        conversion_workflows.each_with_index do |conversion_workflow, index|
+          item.conversion_workflows <<
+              Teneo::DataModel::ConversionWorkflow.from_hash(conversion_workflow.merge(representation_id: item.id,
                                                                              position: index + 1))
         end
         item.save!

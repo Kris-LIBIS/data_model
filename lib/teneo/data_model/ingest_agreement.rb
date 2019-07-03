@@ -9,7 +9,7 @@ module Teneo::DataModel
 
     with_options dependent: :destroy, inverse_of: :ingest_agreement do |model|
       model.has_many :ingest_models
-      model.has_many :ingest_jobs
+      model.has_many :ingest_workflows
       model.has_many :packages
     end
 
@@ -37,7 +37,7 @@ module Teneo::DataModel
       organization = record_finder Teneo::DataModel::Organization, query
       hash[:organization_id] = organization.id
       ingest_models = hash.delete(:ingest_models)
-      ingest_jobs = hash.delete(:ingest_jobs)
+      ingest_workflows = hash.delete(:ingest_workflows)
       item = super(hash, id_tags) do |item, h|
         if (producer = h.delete(:producer))
           item.producer = record_finder Teneo::DataModel::Producer, inst_code: organization.inst_code, name: producer
@@ -53,10 +53,10 @@ module Teneo::DataModel
         end
         item.save!
       end
-      if ingest_jobs
-        item.ingest_jobs.clear
-        ingest_jobs.each do |ingest_job|
-          item.ingest_jobs << Teneo::DataModel::IngestJob.from_hash(ingest_job.merge(ingest_agreement_id: item.id))
+      if ingest_workflows
+        item.ingest_workflows.clear
+        ingest_workflows.each do |ingest_workflow|
+          item.ingest_workflows << Teneo::DataModel::IngestWorkflow.from_hash(ingest_workflow.merge(ingest_agreement_id: item.id))
         end
         item.save!
       end

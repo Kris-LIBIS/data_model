@@ -199,11 +199,11 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "stage"
     t.string "status"
     t.string "base_dir"
-    t.bigint "ingest_agreement_id", null: false
+    t.bigint "ingest_workflow_id", null: false
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
-    t.index ["ingest_agreement_id"], name: "index_packages_on_ingest_agreement_id"
+    t.index ["ingest_workflow_id"], name: "index_packages_on_ingest_workflow_id"
   end
 
   create_table "parameter_defs", force: :cascade do |t|
@@ -376,7 +376,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "items", "packages", on_delete: :cascade
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
-  add_foreign_key "packages", "ingest_agreements"
+  add_foreign_key "packages", "ingest_workflows"
   add_foreign_key "representations", "access_rights"
   add_foreign_key "representations", "ingest_models"
   add_foreign_key "representations", "representation_infos"

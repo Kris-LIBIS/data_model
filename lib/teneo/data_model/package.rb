@@ -7,7 +7,7 @@ module Teneo::DataModel
   class Package < Base
     self.table_name = 'packages'
 
-    belongs_to :ingest_agreement
+    belongs_to :ingest_workflow
 
     has_many :items, as: :parent
 

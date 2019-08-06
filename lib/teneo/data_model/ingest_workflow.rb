@@ -10,7 +10,7 @@ module Teneo::DataModel
     belongs_to :ingest_agreement, inverse_of: :ingest_workflows
 
     has_many :ingest_tasks
-    has_many :workflows, through: :ingest_tasks
+    has_many :stage_workflows, through: :ingest_tasks
 
     has_many :parameter_refs, as: :with_param_refs, class_name: 'Teneo::DataModel::ParameterRef'
 
@@ -22,8 +22,8 @@ module Teneo::DataModel
       delegation = ref.delegation
       target, name = delegation.split(/[,\s]+/).first.split('#')
       task = ingest_tasks.find_by(stage: target)
-      workflow = task.workflow
-      result = workflow.parameter_def(name)
+      stage_workflow = task.stage_workflow
+      result = stage_workflow.parameter_def(name)
       if (param_value = task.parameter_values.find_by(name: name))
         result[:default] = param_value.value
       end
@@ -39,11 +39,7 @@ module Teneo::DataModel
       params = hash.delete(:parameters)
       tasks = hash.delete(:tasks)
 
-      item = super(hash, id_tags) do |item, h|
-        if (workflow = h.delete(:workflow))
-          item.workflow = record_finder Teneo::DataModel::Workflow, name: workflow
-        end
-      end
+      item = super(hash, id_tags)
 
       if params
         item.parameter_refs.clear

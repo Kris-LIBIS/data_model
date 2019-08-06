@@ -10,7 +10,6 @@ module Teneo::DataModel
     with_options dependent: :destroy, inverse_of: :ingest_agreement do |model|
       model.has_many :ingest_models
       model.has_many :ingest_workflows
-      model.has_many :packages
     end
 
     with_options inverse_of: :ingest_agreements do |model|

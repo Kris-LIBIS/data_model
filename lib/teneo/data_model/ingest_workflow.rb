@@ -9,6 +9,7 @@ module Teneo::DataModel
 
     belongs_to :ingest_agreement, inverse_of: :ingest_workflows
 
+    has_many :packages
     has_many :ingest_tasks
     has_many :stage_workflows, through: :ingest_tasks
 

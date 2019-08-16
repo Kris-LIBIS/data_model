@@ -16,14 +16,6 @@ module Teneo::DataModel
 
     validates :conversion_workflow_id, presence: true
     validates :name, presence: true, uniqueness: {scope: :conversion_workflow_id}
-    validates :position, presence: true, uniqueness: {scope: :conversion_workflow_id}
-
-    before_validation :init_position
-
-    def init_position
-      # noinspection RubyResolve
-      self.position ||= self.class.where(conversion_workflow_id: conversion_workflow_id).pluck(:position).max + 1
-    end
 
     def self.from_hash(hash, id_tags = [:conversion_workflow_id, :name])
       workflow_name = hash.delete(:conversion_workflow)
@@ -34,7 +26,6 @@ module Teneo::DataModel
       params = hash.delete(:values)
 
       item = super(hash, id_tags) do |item, h|
-        item.position = (position = h.delete(:position)) ? position : item.position = item.conversion_workflow.conversion_tasks.count
         if (converter = h.delete(:converter))
           item.converter = record_finder Teneo::DataModel::Converter, name: converter
         end

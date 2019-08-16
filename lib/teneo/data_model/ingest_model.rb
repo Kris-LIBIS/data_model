@@ -46,9 +46,8 @@ module Teneo::DataModel
 
       if representations
         item.representations.clear
-        representations.each_with_index do |representation, index|
+        representations.each do |representation|
           representation[:ingest_model_id] = item.id
-          representation[:position] = index + 1
           Teneo::DataModel::Representation.from_hash(representation)
         end
         item.save!

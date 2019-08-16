@@ -8,7 +8,7 @@ module Teneo::DataModel
     self.table_name = 'representations'
 
     belongs_to :ingest_model
-    acts_as_list scope: :ingest_model
+    acts_as_list scope: :ingest_model, add_new_at: :bottom
 
     belongs_to :representation_info
     belongs_to :access_right, optional: true
@@ -17,16 +17,6 @@ module Teneo::DataModel
     has_many :dependencies, class_name: 'Representation', foreign_key: :from_id, inverse_of: :from
 
     has_many :conversion_workflows, -> { order(position: :asc) }, inverse_of: :representation
-
-    validates :position, :label, presence: true, uniqueness: {scope: :ingest_model_id}
-
-    before_validation :init_position
-
-    def init_position
-      # noinspection RubyResolve
-      self.position ||= self.class.where(ingest_model_id: ingest_model_id).pluck(:position).max + 1
-    end
-
 
     def name
       label
@@ -41,7 +31,6 @@ module Teneo::DataModel
       conversion_workflows = hash.delete(:conversion_workflows)
 
       item = super(hash, id_tags) do |item, h|
-        item.position = (position = h.delete(:position)) ? position : item.position = item.ingest_model.representations.count
         if (from = h.delete(:from))
           item.from = record_finder Teneo::DataModel::Representation, from_id: hash[:ingest_model_id], label: from
         end
@@ -55,10 +44,9 @@ module Teneo::DataModel
 
       if conversion_workflows
         item.conversion_workflows.clear
-        conversion_workflows.each_with_index do |conversion_workflow, index|
+        conversion_workflows.each do |conversion_workflow|
           item.conversion_workflows <<
-              Teneo::DataModel::ConversionWorkflow.from_hash(conversion_workflow.merge(representation_id: item.id,
-                                                                             position: index + 1))
+              Teneo::DataModel::ConversionWorkflow.from_hash(conversion_workflow.merge(representation_id: item.id))
         end
         item.save!
       end

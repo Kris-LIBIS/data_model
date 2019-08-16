@@ -16,15 +16,6 @@ module Teneo::DataModel
 
     validates :representation_id, presence: true
     validates :name, presence: true, uniqueness: {scope: :representation_id}
-    validates :position, presence: true, uniqueness: {scope: :representation_id}
-
-    before_validation :init_position
-
-    def init_position
-      # noinspection RubyResolve
-      self.position ||= self.class.where(representation_id: representation_id).pluck(:position).max + 1
-    end
-
 
     def self.from_hash(hash, id_tags = [:representation_id, :name])
       representation_label = hash.delete(:representation)
@@ -34,16 +25,13 @@ module Teneo::DataModel
 
       conversion_tasks = hash.delete(:tasks)
 
-      item = super(hash, id_tags) do |item, h|
-        item.position = (position = h.delete(:position)) ? position : item.position = item.representation.conversion_workflows.count
-      end
+      item = super(hash, id_tags)
 
       if conversion_tasks
         item.conversion_tasks.clear
-        conversion_tasks.each_with_index do |conversion_task, index|
+        conversion_tasks.each do |conversion_task|
           item.conversion_tasks <<
-              Teneo::DataModel::ConversionTask.from_hash(conversion_task.merge(conversion_workflow_id: item.id,
-                                                                               position: index + 1))
+              Teneo::DataModel::ConversionTask.from_hash(conversion_task.merge(conversion_workflow_id: item.id))
         end
         item.save!
       end

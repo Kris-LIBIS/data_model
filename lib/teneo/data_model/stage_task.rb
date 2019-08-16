@@ -16,19 +16,9 @@ module Teneo
 
       has_many :parameter_values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
 
-      validates :position, uniqueness: {scope: :stage_workflow_id}
-
-      before_validation :init_position
-
-      def init_position
-        # noinspection RubyResolve
-        self.position ||= self.class.where(stage_workflow_id: stage_workflow_id).pluck(:position).max + 1
-      end
-
       def self.from_hash(hash, id_tags = [:stage_workflow_id, :position])
         params = hash.delete(:values)
         item = super(hash, id_tags) do |item, h|
-          item.position = (position = h.delete(:position)) ? position : item.stage_workflow.stage_tasks.count
           if (task = h.delete(:task))
             item.task = record_finder Teneo::DataModel::Task, name: task
           end

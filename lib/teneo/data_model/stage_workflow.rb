@@ -51,9 +51,8 @@ module Teneo::DataModel
       end
       if tasks
         item.stage_tasks.clear
-        tasks.each_with_index do |task, index|
+        tasks.each do |task|
           task[:stage_workflow_id] = item.id
-          task[:position] = index + 1
           item.stage_tasks << Teneo::DataModel::StageTask.from_hash(task)
         end
         item.save!

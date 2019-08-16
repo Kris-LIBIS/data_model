@@ -10,7 +10,7 @@ module Teneo::DataModel
     belongs_to :ingest_agreement, inverse_of: :ingest_workflows
 
     has_many :packages
-    has_many :ingest_tasks
+    has_many :ingest_tasks, -> { order_as_specified(stage: Teneo::DataModel::IngestTask::STAGE_LIST) }
     has_many :stage_workflows, through: :ingest_tasks
 
     has_many :parameter_refs, as: :with_param_refs, class_name: 'Teneo::DataModel::ParameterRef'

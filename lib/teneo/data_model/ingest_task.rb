@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 require_relative 'base'
+require 'order_as_specified'
 
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
   class IngestTask < Base
+    extend OrderAsSpecified
     self.table_name = 'ingest_tasks'
 
     STAGE_LIST = Teneo::DataModel::StageWorkflow::STAGE_LIST

@@ -16,6 +16,7 @@ module Teneo::DataModel
     has_many :parameter_refs, as: :with_param_refs, class_name: 'Teneo::DataModel::ParameterRef'
 
     validates :name, presence: true
+    validate :safe_name
 
     def parameter_def(param_name)
       ref = parameter_refs.find_by(name: param_name)

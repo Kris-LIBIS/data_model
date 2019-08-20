@@ -19,9 +19,7 @@ module Teneo
 
       accepts_nested_attributes_for :memberships, allow_destroy: true
 
-      def to_s
-        name
-      end
+      validate :safe_name
 
       def self.from_hash(hash)
         storages = hash.delete(:storages)

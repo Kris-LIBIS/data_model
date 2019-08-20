@@ -26,6 +26,7 @@ module Teneo::DataModel
     array_field :contact_system
 
     validates :name, presence: true
+    validate :safe_name
     validates_each :producer, :material_flow do |record, attr, value|
       record.errors.add attr, 'organization does not match' unless value.nil? || value.inst_code == record.organization.inst_code
     end

@@ -56,6 +56,11 @@ module Teneo
         (self.name rescue nil) || "#{self.class.name}_#{self.id}"
       end
 
+      def safe_name
+        positions = self.name.gsub(/[^\w\d_.]/).map { Regexp.last_match.begin(0) + 1}
+        errors.add(:name, "Name contains illegal character(s) at #{positions}") unless positions.empty?
+      end
+
       protected
 
       def volatile_attributes

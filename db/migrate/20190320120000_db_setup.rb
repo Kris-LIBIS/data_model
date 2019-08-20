@@ -33,6 +33,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     create_table :storages do |t|
       t.string :name, null: false
       t.string :protocol, null: false
+      t.boolean :is_upload, default: false
       # with_values
 
       t.column :lock_version, :integer, null: false, default: 0

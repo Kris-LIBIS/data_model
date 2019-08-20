@@ -330,6 +330,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "storages", force: :cascade do |t|
     t.string "name", null: false
     t.string "protocol", null: false
+    t.boolean "is_upload", default: false
     t.integer "lock_version", default: 0, null: false
     t.bigint "organization_id", null: false
     t.index ["organization_id", "name"], name: "index_storages_on_organization_id_and_name", unique: true

@@ -18,6 +18,12 @@ module Teneo
         end
       end
 
+      def parameter_values
+        parameter_defs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param_def, result|
+          result[param_def.name] = param_def.default
+        end
+      end
+
       def params_from_hash(params)
         return unless params
         parameter_defs.clear

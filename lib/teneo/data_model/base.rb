@@ -58,7 +58,7 @@ module Teneo
 
       def safe_name
         positions = self.name.gsub(/[^\w.-]/).map { Regexp.last_match.begin(0) + 1 }
-        errors.add(:name, "Name contains illegal character(s) at #{positions}") unless positions.empty?
+        errors.add(:name, "'#{self.name}' contains illegal character(s) at #{positions}") unless positions.empty?
       end
 
       protected

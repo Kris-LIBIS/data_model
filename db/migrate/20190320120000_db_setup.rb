@@ -34,6 +34,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :protocol, null: false, index: {unique: true}
       t.string :description
       # with_parameters
+
+      t.column :lock_version, :integer, null: false, default: 0
     end
 
     create_table :storages do |t|
@@ -205,6 +207,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :ingest_agreements do |t|
       t.string :name, null: false
+      t.string :description
       t.string :project_name
       t.string :collection_name
       t.string :contact_ingest, array: true

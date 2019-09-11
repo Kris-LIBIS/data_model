@@ -85,6 +85,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "ingest_agreements", force: :cascade do |t|
     t.string "name", null: false
+    t.string "description"
     t.string "project_name"
     t.string "collection_name"
     t.string "contact_ingest", array: true

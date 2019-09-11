@@ -3,10 +3,14 @@ require 'yaml'
 
 module Teneo
   module DataModel
+    autoload :WithParameterDefs, 'teneo/data_model/with_parameter_defs'
+    autoload :WithParameterRefs, 'teneo/data_model/with_parameter_refs'
+
     autoload :User, 'teneo/data_model/user'
     autoload :Organization, 'teneo/data_model/organization'
     autoload :Membership, 'teneo/data_model/membership'
     autoload :Storage, 'teneo/data_model/storage'
+    autoload :StorageType, 'teneo/data_model/storage_type'
     autoload :IngestAgreement, 'teneo/data_model/ingest_agreement'
     autoload :IngestModel, 'teneo/data_model/ingest_model'
     autoload :Representation, 'teneo/data_model/representation'
@@ -14,7 +18,7 @@ module Teneo
     autoload :ConversionTask, 'teneo/data_model/conversion_task'
     autoload :Converter, 'teneo/data_model/converter'
     autoload :IngestWorkflow, 'teneo/data_model/ingest_workflow'
-    autoload :IngestTask, 'teneo/data_model/ingest_task'
+    autoload :IngestStage, 'teneo/data_model/ingest_stage'
     autoload :StageWorkflow, 'teneo/data_model/stage_workflow'
     autoload :Task, 'teneo/data_model/task'
     autoload :StageTask, 'teneo/data_model/stage_task'
@@ -29,7 +33,6 @@ module Teneo
     autoload :Producer, 'teneo/data_model/producer'
     autoload :ParameterDef, 'teneo/data_model/parameter_def'
     autoload :ParameterRef, 'teneo/data_model/parameter_ref'
-    autoload :ParameterValue, 'teneo/data_model/parameter_value'
 
     autoload :SeedLoader, 'teneo/data_model/seed_loader'
 

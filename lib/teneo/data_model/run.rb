@@ -4,11 +4,8 @@ require_relative 'base'
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
-  class StatusLog < Base
-    self.table_name = 'status_logs'
-
-    belongs_to :item
-    belongs_to :run
+  class Run < Base
+    self.table_name = 'runs'
 
   end
 

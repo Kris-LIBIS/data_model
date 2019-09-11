@@ -7,12 +7,12 @@ module Teneo::DataModel
   class Task < Base
     self.table_name = 'tasks'
 
+    include WithParameterDefs
+
     STAGE_LIST = %w'Collect PreProcess PreIngest Ingest PostIngest'
 
     has_many :workflow_tasks, inverse_of: :task
     has_many :workflows, through: :workflow_tasks
-
-    has_many :parameter_defs, as: :with_parameters, class_name: 'Teneo::DataModel::ParameterDef'
 
     validates :stage, presence: true, inclusion: {in: STAGE_LIST}
     validates :name, presence: true
@@ -20,18 +20,7 @@ module Teneo::DataModel
 
     def self.from_hash(hash, id_tags = [:name])
       params = hash.delete(:parameters)
-      item = super(hash, id_tags)
-      if params
-        item.parameter_defs.clear
-        params.each do |name, definition|
-          item.parameter_defs <<
-              Teneo::DataModel::ParameterDef.from_hash(definition.merge(name: name,
-                                                                        with_parameters_id: item.id,
-                                                                        with_parameters_type: item.class.name))
-        end
-        item.save!
-      end
-      item
+      super(hash, id_tags).params_from_hash(params)
     end
 
   end

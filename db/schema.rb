@@ -128,7 +128,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["template_id"], name: "index_ingest_models_on_template_id"
   end
 
-  create_table "ingest_tasks", force: :cascade do |t|
+  create_table "ingest_stages", force: :cascade do |t|
     t.string "stage"
     t.boolean "autorun", default: true, null: false
     t.bigint "ingest_workflow_id"
@@ -136,9 +136,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
-    t.index ["ingest_workflow_id", "stage"], name: "index_ingest_tasks_on_ingest_workflow_id_and_stage", unique: true
-    t.index ["ingest_workflow_id"], name: "index_ingest_tasks_on_ingest_workflow_id"
-    t.index ["stage_workflow_id"], name: "index_ingest_tasks_on_stage_workflow_id"
+    t.index ["ingest_workflow_id", "stage"], name: "index_ingest_stages_on_ingest_workflow_id_and_stage", unique: true
+    t.index ["ingest_workflow_id"], name: "index_ingest_stages_on_ingest_workflow_id"
+    t.index ["stage_workflow_id"], name: "index_ingest_stages_on_stage_workflow_id"
   end
 
   create_table "ingest_workflows", force: :cascade do |t|
@@ -156,6 +156,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "type", null: false
     t.string "name", null: false
     t.string "label"
+    t.json "properties"
     t.bigint "parent_id"
     t.bigint "package_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -209,10 +210,10 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "parameter_defs", force: :cascade do |t|
     t.string "name", null: false
     t.string "data_type", null: false
+    t.string "constraint"
+    t.string "default"
     t.string "description"
     t.text "help"
-    t.string "default"
-    t.string "constraint"
     t.string "with_parameters_type"
     t.bigint "with_parameters_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -223,27 +224,17 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "parameter_refs", force: :cascade do |t|
     t.string "name", null: false
-    t.string "delegation"
+    t.string "delegation", null: false
+    t.string "value"
+    t.string "default"
     t.string "description"
     t.text "help"
-    t.string "default"
     t.string "with_param_refs_type"
     t.bigint "with_param_refs_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
     t.index ["with_param_refs_type", "with_param_refs_id"], name: "index_parameter_refs_on_with_param_refs"
-  end
-
-  create_table "parameter_values", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "value"
-    t.string "with_values_type"
-    t.bigint "with_values_id"
-    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
-    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
-    t.integer "lock_version", default: 0, null: false
-    t.index ["with_values_type", "with_values_id"], name: "index_parameter_values_on_with_values"
   end
 
   create_table "producers", force: :cascade do |t|
@@ -294,6 +285,19 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["name"], name: "index_retention_policies_on_name", unique: true
   end
 
+  create_table "runs", force: :cascade do |t|
+    t.datetime "start_date"
+    t.boolean "log_to_file", default: false
+    t.string "log_level", default: "INFO"
+    t.string "log_filename"
+    t.json "config"
+    t.bigint "package_id"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.integer "lock_version", default: 0, null: false
+    t.index ["package_id"], name: "index_runs_on_package_id"
+  end
+
   create_table "stage_tasks", force: :cascade do |t|
     t.integer "position"
     t.bigint "stage_workflow_id", null: false
@@ -322,19 +326,28 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.integer "progess"
     t.integer "max"
     t.bigint "item_id"
+    t.bigint "run_id", null: false
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["item_id"], name: "index_status_logs_on_item_id"
+    t.index ["run_id"], name: "index_status_logs_on_run_id"
+  end
+
+  create_table "storage_types", force: :cascade do |t|
+    t.string "protocol", null: false
+    t.string "description"
+    t.index ["protocol"], name: "index_storage_types_on_protocol", unique: true
   end
 
   create_table "storages", force: :cascade do |t|
     t.string "name", null: false
-    t.string "protocol", null: false
     t.boolean "is_upload", default: false
     t.integer "lock_version", default: 0, null: false
+    t.bigint "storage_type_id", null: false
     t.bigint "organization_id", null: false
     t.index ["organization_id", "name"], name: "index_storages_on_organization_id_and_name", unique: true
     t.index ["organization_id"], name: "index_storages_on_organization_id"
+    t.index ["storage_type_id"], name: "index_storages_on_storage_type_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -370,8 +383,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "ingest_models", "ingest_agreements"
   add_foreign_key "ingest_models", "ingest_models", column: "template_id"
   add_foreign_key "ingest_models", "retention_policies"
-  add_foreign_key "ingest_tasks", "ingest_workflows"
-  add_foreign_key "ingest_tasks", "stage_workflows"
+  add_foreign_key "ingest_stages", "ingest_workflows"
+  add_foreign_key "ingest_stages", "stage_workflows"
   add_foreign_key "ingest_workflows", "ingest_agreements"
   add_foreign_key "items", "items", column: "parent_id", on_delete: :cascade
   add_foreign_key "items", "packages", on_delete: :cascade
@@ -382,8 +395,11 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "representations", "ingest_models"
   add_foreign_key "representations", "representation_infos"
   add_foreign_key "representations", "representations", column: "from_id"
+  add_foreign_key "runs", "packages", on_delete: :cascade
   add_foreign_key "stage_tasks", "stage_workflows"
   add_foreign_key "stage_tasks", "tasks"
   add_foreign_key "status_logs", "items", on_delete: :cascade
+  add_foreign_key "status_logs", "runs"
   add_foreign_key "storages", "organizations"
+  add_foreign_key "storages", "storage_types"
 end

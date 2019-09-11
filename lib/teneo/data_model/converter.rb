@@ -10,7 +10,8 @@ module Teneo::DataModel
     CATEGORY_LIST = %w'converter assembler splitter'
 
     has_many :conversion_jobs
-    has_many :parameter_defs, as: :with_parameters, class_name: 'Teneo::DataModel::ParameterDef'
+
+    include WithParameterDefs
 
     array_field :input_formats
     array_field :output_formats
@@ -19,18 +20,7 @@ module Teneo::DataModel
 
     def self.from_hash(hash, id_tags = [:name])
       params = hash.delete(:parameters)
-      item = super(hash, id_tags)
-      if params
-        item.parameter_defs.clear
-        params.each do |name, definition|
-          item.parameter_defs <<
-              Teneo::DataModel::ParameterDef.from_hash(definition.merge(name: name,
-                                                                        with_parameters_id: item.id,
-                                                                        with_parameters_type: item.class.name))
-        end
-        item.save!
-      end
-      item
+      super(hash, id_tags).params_from_hash(params)
     end
   end
 

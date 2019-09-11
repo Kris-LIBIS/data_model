@@ -7,9 +7,10 @@ module Teneo::DataModel
   class Item < Base
     self.table_name = 'items'
 
-    belongs_to :parent, polymorphic: true
+    belongs_to :package
+    has_many :status_logs
 
-    has_many :items, as: :parent
+    belongs_to :parent, polymorphic: true
 
   end
 

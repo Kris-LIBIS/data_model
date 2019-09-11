@@ -14,7 +14,7 @@ module Teneo::DataModel
     validates :with_param_refs_id, presence: true
     validates :with_param_refs_type, presence: true
 
-    def self.from_hash(hash, id_tags = [:with_param_refss_type, :with_param_refs_id, :name])
+    def self.from_hash(hash, id_tags = [:with_param_refs_type, :with_param_refs_id, :name])
       super(hash, id_tags)
     end
 

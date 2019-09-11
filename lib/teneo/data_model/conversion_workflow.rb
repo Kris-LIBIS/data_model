@@ -17,25 +17,27 @@ module Teneo::DataModel
     validates :representation_id, presence: true
     validates :name, presence: true, uniqueness: {scope: :representation_id}
 
+    include WithParameterRefs
+
     def self.from_hash(hash, id_tags = [:representation_id, :name])
       representation_label = hash.delete(:representation)
       query = representation_label ? {label: representation_label} : {id: hash[:representation_id]}
       representation = record_finder Teneo::DataModel::Representation, query
       hash[:representation_id] = representation.id
 
-      conversion_tasks = hash.delete(:tasks)
+      params = hash.delete(:parameters) || {}
+      tasks = hash.delete(:tasks)
 
-      item = super(hash, id_tags)
-
-      if conversion_tasks
+      super(hash, id_tags).tap do |item|
         item.conversion_tasks.clear
-        conversion_tasks.each do |conversion_task|
-          item.conversion_tasks <<
-              Teneo::DataModel::ConversionTask.from_hash(conversion_task.merge(conversion_workflow_id: item.id))
+        if (tasks)
+          tasks.each_with_object(params) do |task, result|
+            result.merge!(params_from_values(task[:name], task.delete(:values)))
+            task[:conversion_workflow_id] = item.id
+            item.conversion_tasks << Teneo::DataModel::ConversionTask.from_hash(task)
+          end
         end
-        item.save!
-      end
-      item
+      end.params_from_hash(params)
     end
 
   end

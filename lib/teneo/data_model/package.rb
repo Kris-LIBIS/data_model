@@ -14,25 +14,21 @@ module Teneo::DataModel
 
     validate :safe_name
 
+    WithParameterRefs
+
+    def parameter_children
+      [ingest_workflow]
+    end
+
     def self.from_hash(hash, id_tags = [:ingest_workflow_id, :name])
       ingest_workflow_name = hash.delete(:ingest_workflow)
       query = ingest_workflow_name ? {name: ingest_workflow_name} : {id: hash[:ingest_workflow_id]}
       ingest_workflow = record_finder Teneo::DataModel::IngestWorkflow, query
       hash[:ingest_workflow_id] = ingest_workflow.id
-      params = hash.delete(:values)
-      item = super(hash, id_tags)
-      if params
-        item.parameter_values.clear
-        params.each do |name, value|
-          item.parameter_values <<
-              Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
-                                                         with_values_id: item.id,
-                                                         with_values_type: item.class.name)
-        end
-        item.save!
-      end
-      item
 
+      params = params_from_values(hash.delete(:values))
+
+      super(hash, id_tags).params_from_hash(params)
     end
 
   end

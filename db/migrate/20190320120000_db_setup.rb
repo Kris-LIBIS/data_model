@@ -30,16 +30,22 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
     end
 
+    create_table :storage_types do |t|
+      t.string :protocol, null: false, index: {unique: true}
+      t.string :description
+      # with_parameters
+    end
+
     create_table :storages do |t|
       t.string :name, null: false
-      t.string :protocol, null: false
       t.boolean :is_upload, default: false
-      # with_values
+      # with_parameter_refs
 
       t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:organization_id, :name], unique: true
 
+      t.references :storage_type, foreign_key: true, null: false
       t.references :organization, foreign_key: true, null: false
     end
 
@@ -113,10 +119,10 @@ class DbSetup < ActiveRecord::Migration[5.2]
     create_table :parameter_defs do |t|
       t.string :name, null: false
       t.string :data_type, null: false
+      t.string :constraint
+      t.string :default
       t.string :description
       t.text :help
-      t.string :default
-      t.string :constraint
 
       t.references :with_parameters, polymorphic: true, index: {name: :index_parameter_defs_on_with_parameters}
 
@@ -124,22 +130,13 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
     end
 
-    create_table :parameter_values do |t|
-      t.string :name, null: false
-      t.string :value
-
-      t.references :with_values, polymorphic: true, index: {name: :index_parameter_values_on_with_values}
-
-      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
-      t.column :lock_version, :integer, null: false, default: 0
-    end
-
     create_table :parameter_refs do |t|
       t.string :name, null: false
-      t.string :delegation
+      t.string :delegation, null: false
+      t.string :value
+      t.string :default
       t.string :description
       t.text :help
-      t.string :default
 
       t.references :with_param_refs, polymorphic: true, index: {name: :index_parameter_refs_on_with_param_refs}
 
@@ -173,7 +170,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :class_name, null: false
       t.string :description
       t.string :help
-      # with_parameters
+      # with_parameter_defs
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
@@ -184,7 +181,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :stage, null: false
       t.string :name, null: false, index: {unique: true}
       t.string :description
-      # with parameters
+      # with parameter_refs
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
@@ -192,7 +189,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :stage_tasks do |t|
       t.integer :position
-      # with_values
 
       t.references :stage_workflow, foreign_key: true, null: false
       t.references :task, foreign_key: true, null: false
@@ -324,7 +320,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.index [:ingest_agreement_id, :name], unique: true
     end
 
-    create_table :ingest_tasks do |t|
+    create_table :ingest_stages do |t|
       t.string :stage
       t.boolean :autorun, null: false, default: true
       # with_values
@@ -338,8 +334,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.index [:ingest_workflow_id, :stage], unique: true
     end
 
-    # Packages and Items
-    # ##################
+    # Packages, Runs and Items
+    # ########################
 
     create_table :packages do |t|
       t.string :name, null: false
@@ -354,10 +350,24 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
     end
 
+    create_table :runs do |t|
+      t.datetime :start_date
+      t.boolean :log_to_file, default: false
+      t.string :log_level, default: 'INFO'
+      t.string :log_filename
+      t.json :config
+
+      t.references :package, foreign_key: {on_delete: :cascade}
+
+      t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.column :lock_version, :integer, null: false, default: 0
+    end
+
     create_table :items do |t|
       t.string :type, null: false
       t.string :name, null: false
       t.string :label
+      t.json :properties
 
       t.references :parent, foreign_key: {to_table: :items, on_delete: :cascade}
       t.references :package, foreign_key: {on_delete: :cascade}
@@ -373,6 +383,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.integer :max
 
       t.references :item, foreign_key: {on_delete: :cascade}
+      t.references :run, foreign_key: true, null: false
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
     end

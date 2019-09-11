@@ -1,25 +1,25 @@
 - name: 'default'
-  ingest_agreement: 'DIGI0017'
-  description: 'CBA Boek in de kijker'
-  entity_type: 'CBA_BOEK_IN_DE_KIJKER'
+  ingest_agreement: 'IA2'
+  description: 'IA2 model'
+  entity_type: 'IA2_ET'
   user_a: 'a'
   user_b: 'b'
   user_c: 'c'
-  identifier: 'CBA_BIK'
+  identifier: 'IA2'
   access_right: 'public'
   retention_policy: 'NoRetentionPolicy'
   representations:
-    - label: 'Origineel'
+    - label: 'original'
       representation_info: 'ARCHIVE'
       access_right:  'private'
-      conversion_jobs:
+      conversion_workflows:
         - name: 'copy originals'
           input_formats: ['TIFF']
-    - label: 'Hoge kwaliteit'
+    - label: 'high quality derived copy'
       representation_info: 'VIEW_MAIN'
       access_right:  'restricted'
-      from: 'Origineel'
-      conversion_jobs:
+      from: 'original'
+      conversion_workflows:
         - name: 'convert to JPEG2000'
           tasks:
             - name: 'TiffToJP2'

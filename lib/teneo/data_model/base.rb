@@ -30,7 +30,7 @@ module Teneo
 
       def self.create_from_hash(hash, id_tags, &block)
         id_tags = id_tags.map(&:to_sym)
-        unless id_tags.empty? || id_tags.any? {|k| hash.include?(k)}
+        unless id_tags.empty? || id_tags.any? { |k| hash.include?(k) }
           raise ArgumentError, "Could not create '#{self.name}' object from Hash since none of the id tags '#{id_tags.join(',')}' are present"
         end
         tags = id_tags.inject({}) do |h, k|
@@ -47,7 +47,7 @@ module Teneo
       end
 
       def to_hash
-        result = self.attributes.reject {|k, v| v.blank? || volatile_attributes.include?(k)}
+        result = self.attributes.reject { |k, v| v.blank? || volatile_attributes.include?(k) }
         result = result.to_yaml
         YAML.safe_load(result, symbolize_names: true, permitted_classes: [Time])
       end
@@ -57,7 +57,7 @@ module Teneo
       end
 
       def safe_name
-        positions = self.name.gsub(/[^\w\d_.]/).map { Regexp.last_match.begin(0) + 1}
+        positions = self.name.gsub(/[^\w.-]/).map { Regexp.last_match.begin(0) + 1 }
         errors.add(:name, "Name contains illegal character(s) at #{positions}") unless positions.empty?
       end
 
@@ -86,5 +86,6 @@ module Teneo
       end
 
     end
+
   end
 end

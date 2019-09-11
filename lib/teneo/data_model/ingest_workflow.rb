@@ -10,26 +10,18 @@ module Teneo::DataModel
     belongs_to :ingest_agreement, inverse_of: :ingest_workflows
 
     has_many :packages
-    has_many :ingest_tasks, -> { order_as_specified(stage: Teneo::DataModel::IngestTask::STAGE_LIST) }
-    has_many :stage_workflows, through: :ingest_tasks
+    has_many :ingest_stages, -> { order_as_specified(stage: Teneo::DataModel::IngestStage::STAGE_LIST) }
+    has_many :stage_workflows, through: :ingest_stages
 
     has_many :parameter_refs, as: :with_param_refs, class_name: 'Teneo::DataModel::ParameterRef'
 
     validates :name, presence: true
     validate :safe_name
 
-    def parameter_def(param_name)
-      ref = parameter_refs.find_by(name: param_name)
-      return nil unless ref
-      delegation = ref.delegation
-      target, name = delegation.split(/[,\s]+/).first.split('#')
-      task = ingest_tasks.find_by(stage: target)
-      stage_workflow = task.stage_workflow
-      result = stage_workflow.parameter_def(name)
-      if (param_value = task.parameter_values.find_by(name: name))
-        result[:default] = param_value.value
-      end
-      result.merge(ref.to_hash.select {|k,_| [:description, :help, :default].include?(k)})
+    include WithParameterRefs
+
+    def parameter_children
+      stage_workflows
     end
 
     def self.from_hash(hash, id_tags = [:ingest_agreement_id, :name])
@@ -38,32 +30,17 @@ module Teneo::DataModel
       ingest_agreement = record_finder Teneo::DataModel::IngestAgreement, query
       hash[:ingest_agreement_id] = ingest_agreement.id
 
-      params = hash.delete(:parameters)
-      tasks = hash.delete(:tasks)
+      params = hash.delete(:parameters) || {}
+      stages = hash.delete(:stages) || []
 
-      item = super(hash, id_tags)
-
-      if params
-        item.parameter_refs.clear
-        params.each do |name, definition|
-          item.parameter_refs <<
-              Teneo::DataModel::ParameterRef.from_hash(definition.merge(name: name,
-                                                                        with_param_refs_id: item.id,
-                                                                        with_param_refs_type: item.class.name))
+      super(hash, id_tags).tap do |item|
+        item.ingest_stages.clear
+        stages.each do |stage|
+          params.merge!(params_from_values(stage[:stage], stage.delete(:values)))
+          stage[:ingest_workflow_id] = item.id
+          item.ingest_stages << Teneo::DataModel::IngestStage.from_hash(stage)
         end
-        item.save!
-      end
-
-      if tasks
-        item.ingest_tasks.clear
-        tasks.each do |task|
-          task[:ingest_workflow_id] = item.id
-          item.ingest_tasks << Teneo::DataModel::IngestTask.from_hash(task)
-        end
-        item.save!
-      end
-
-      item
+      end.params_from_hash(params)
     end
 
   end

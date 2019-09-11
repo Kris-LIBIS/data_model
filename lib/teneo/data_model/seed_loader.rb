@@ -24,6 +24,7 @@ module Teneo
         load_data :producer
         load_data :material_flow
         load_data :converter
+        load_data :storage_type
         load_data :organization
         load_data :user
         load_data :ingest_agreement
@@ -31,6 +32,7 @@ module Teneo
         load_data :task
         load_data :stage_workflow
         load_data :ingest_workflow
+        load_data :package
       end
 
       def load_data(klass_name)

@@ -1,23 +1,23 @@
-- name: 'Modelovereenkomst'
+- name: 'IA1'
   contact_ingest:
-    - 'bruno.vandermeulen@kuleuven.be'
-    - 'nele.garbriels@kuleuven.be'
+    - 'person1@org2.org'
+    - 'person2@org2.org'
   contact_collection:
-    - 'an.smets@kuleuven.be'
+    - 'person3@org2.org'
   contact_system:
-    - 'dirk.kinnaes@kuleuven.be'
-  collection_description: 'Manuscripten, handschriften, oude drukken - Complexe objecten'
+    - 'admin@org1.org'
+  collection_description: 'Ingest agreement 1'
   producer: 'producer'
-  material_flow: 'ubd_mf'
-  organization: 'ubd'
-- name: 'DIGI0017'
-  project_name: 'Boek in de Kijker'
+  material_flow: 'org2_mf'
+  organization: 'org2'
+- name: 'IA2'
+  project_name: 'Project 2'
   contact_ingest:
-    - 'nele.garbriels@kuleuven.be'
+    - 'person2@org2.org'
   contact_collection:
-    - 'tim.therry@kuleuven.be'
+    - 'person1@org2.org'
   contact_system:
-    - 'dirk.kinnaes@kuleuven.be'
+    - 'admin@org1.org'
   producer: 'producer'
-  material_flow: 'ubd_mf'
-  organization: 'ubd'
+  material_flow: 'org2_mf'
+  organization: 'org2'

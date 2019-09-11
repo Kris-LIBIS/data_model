@@ -1,6 +1,6 @@
 - name: 'image converter'
-  class_name: 'Libis::Format::Converter::ImageConverter'
-  description: 'Imagemagick: converts any image format into another'
+  class_name: 'ImageConverter'
+  description: 'Converts any image format into another'
   input_formats: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
   output_formats: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']
   parameters:
@@ -14,40 +14,9 @@
     scale:
       data_type: 'string'
       description: 'minify / magnify the image'
-      help: 'value should be a geometry value; see also https://imagemagick.org/script/command-line-options.php#scale'
     resize:
       data_type: 'string'
       description: 'resize the image'
-      help: 'value should be a geometry value; see also https://imagemagick.org/script/command-line-options.php#resize'
     quality:
       data_type: 'string'
       description: 'set the image compression level'
-      help: 'number from 1 to 100, optionally appended with %;
-          see also https://imagemagick.org/script/command-line-options.php#quality'
-    dpi:
-      data_type: 'string'
-      description: 'set the horizontal and vertical resolution of an image for rendering to devices'
-      help : 'value is width or widthxheight; see also https://imagemagick.org/script/command-line-options.php#density'
-    resample:
-      data_type: 'string'
-      description: 'resample image to specified horizontal and vertical resolution'
-      help: 'value is horizontalxvertical; see also https://imagemagick.org/script/command-line-options.php#resample'
-    flatten:
-      data_type: 'bool'
-      default: false
-      description: 'flatten multiple layers into one'
-      help: 'see also https://imagemagick.org/script/command-line-options.php#flatten'
-    colorspace:
-      data_type: 'string'
-      description: 'set the image colorspace'
-      help: 'The converter will always convert to RGB before conversion in order for the conversions to work correctly.
-          This option tells the converter what colorspace to convert the output image to.
-          See also https://imagemagick.org/script/command-line-options.php#colorspace'
-    profile:
-      data_type: 'string'
-      description: 'set the ICC profile of the output image'
-      help: 'See also https://imagemagick.org/script/command-line-options.php#profile'
-    delete_date:
-      data_type: 'bool'
-      default: false
-      description: 'removes the modify-date and create-date image attributes from the output image'

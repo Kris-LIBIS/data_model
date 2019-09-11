@@ -6,31 +6,21 @@ module Teneo::DataModel
   class Storage < Base
     self.table_name = 'storages'
 
-    PROTOCOL_LIST = %w'NFS FTP SFTP GDRIVE'
-
     belongs_to :organization, inverse_of: :storages
+    belongs_to :storage_type, inverse_of: :storages
 
-    has_many :parameter_values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
+    include WithParameterRefs
 
-    validates :name, uniqueness: {scope: :organization_id}
-    validates :protocol, inclusion: {in: PROTOCOL_LIST}
+    def parameter_children
+      [storage_type]
+    end
 
-    def self.from_hash(hash, id_tags = [:manifestation_id, :name])
-      params = hash.delete(:values)
+    def self.from_hash(hash, id_tags = [:name, :organization_id])
+      params = params_from_values(hash.delete(:values))
 
-      item = super(hash, id_tags)
-
-      if params
-        item.parameter_values.clear
-        params.each do |name, value|
-          item.parameter_values <<
-              Teneo::DataModel::ParameterValue.from_hash(name: name, value: value,
-                                                         with_values_id: item.id,
-                                                         with_values_type: item.class.name)
-        end
-        item.save!
-      end
-      item
+      super(hash, id_tags) do |item, h|
+        item.storage_type = record_finder(Teneo::DataModel::StorageType, protocol: hash.delete(:protocol))
+      end.params_from_hash(params)
     end
 
   end

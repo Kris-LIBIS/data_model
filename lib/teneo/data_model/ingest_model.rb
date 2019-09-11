@@ -39,21 +39,20 @@ module Teneo::DataModel
 
       representations = hash.delete(:representations)
 
-      item = super(hash, id_tags) do |item, h|
+      super(hash, id_tags) do |item, h|
         item.access_right = record_finder Teneo::DataModel::AccessRight, name: h.delete(:access_right)
         item.retention_policy = record_finder Teneo::DataModel::RetentionPolicy, name: h.delete(:retention_policy)
-      end
-
-      if representations
-        item.representations.clear
-        representations.each do |representation|
-          representation[:ingest_model_id] = item.id
-          Teneo::DataModel::Representation.from_hash(representation)
+      end.tap do |item|
+        if representations
+          item.representations.clear
+          representations.each_with_index do |representation, i|
+            representation[:ingest_model_id] = item.id
+            representation[:position] = i + 1
+            Teneo::DataModel::Representation.from_hash(representation)
+          end
+          item.save!
         end
-        item.save!
       end
-
-      item
     end
 
   end

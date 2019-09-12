@@ -51,6 +51,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'symbolized'
   spec.add_runtime_dependency 'acts_as_list'
   spec.add_runtime_dependency 'order_as_specified'
+  spec.add_runtime_dependency 'globalid'
 
   spec.add_runtime_dependency 'pg'
 end

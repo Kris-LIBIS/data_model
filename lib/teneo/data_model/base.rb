@@ -4,10 +4,12 @@ require 'active_support/core_ext/hash/compact'
 require 'active_support/core_ext/hash/keys'
 require 'active_support/core_ext/object/with_options'
 require 'acts_as_list'
+require 'global_id'
 
 module Teneo
   module DataModel
     class Base < ActiveRecord::Base
+      include GlobalID::Identification
 
       self.abstract_class = true
 

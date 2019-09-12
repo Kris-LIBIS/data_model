@@ -13,13 +13,10 @@ module Teneo::DataModel
     has_many :tasks, through: :stage_tasks
 
     has_many :ingest_stages, inverse_of: :stage_workfow
+    has_many :ingest_workflows, through: :ingest_stages
 
     validates :name, presence: true
     validates :stage, presence: true, inclusion: {in: STAGE_LIST}
-
-    def name
-      stage
-    end
 
     include WithParameterRefs
 

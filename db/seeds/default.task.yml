@@ -74,7 +74,7 @@
       description: 'A Ruby expression for the label of the files; default: file name.'
     file_name:
       data_type: 'string'
-      description: "A Ruby expression for the name of the files; default: don\'t change."
+      description: 'A Ruby expression for the name of the files; default: do not change.'
 - name: 'IeBuilder'
   stage: 'PreIngest'
   class_name: 'IeBuilder'

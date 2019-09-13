@@ -28,7 +28,7 @@
         export_dir: '/export/org2'
   parameters:
     location:
-      delegation: 'Collect#location'
+      delegation: 'Collect#location, PreProcess#location'
       default: '/upload/org2'
     selection:
       delegation: 'Collect#selection'

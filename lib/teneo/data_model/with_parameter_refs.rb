@@ -24,10 +24,12 @@ module Teneo
         end
       end
 
-      def parameter_values
+      def parameter_values(include_export = false)
         parameter_refs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param_ref, result|
-          next if param_ref.value.blank?
-          result[param_ref.name] = param_ref.default || child_parameter(param_ref.delegation).value
+          next unless include_export || !param_ref.export
+          param_ref.delegation.split(ParameterRef::DELEGATION_TERMINATOR).each do |delegation|
+            result[delegation] = param_ref.default || child_parameter(delegation).default
+          end
         end
       end
 
@@ -38,7 +40,7 @@ module Teneo
           definition[:name] = name
           definition[:with_param_refs_type] = self.class.name
           definition[:with_param_refs_id] = self.id
-          definition[:export] = true
+          definition[:export] = true unless definition.has_key?(:export)
           parameter_refs << Teneo::DataModel::ParameterRef.from_hash(definition)
         end
         save!

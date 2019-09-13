@@ -26,7 +26,7 @@ module Teneo
 
       def parameter_values
         parameter_refs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param_ref, result|
-          next if param_ref.value
+          next if param_ref.value.blank?
           result[param_ref.name] = param_ref.default || child_parameter(param_ref.delegation).value
         end
       end
@@ -38,6 +38,7 @@ module Teneo
           definition[:name] = name
           definition[:with_param_refs_type] = self.class.name
           definition[:with_param_refs_id] = self.id
+          definition[:export] = true
           parameter_refs << Teneo::DataModel::ParameterRef.from_hash(definition)
         end
         save!
@@ -53,7 +54,7 @@ module Teneo
           return {} unless values
           values.each_with_object(Hash.new { |h, k| h[k] = {} }) do |(name, value), result|
             delegation = "#{delegate}#{ParameterRef::DELEGATION_JOINER}#{name}"
-            result[delegation] = {delegation: delegation, value: value}
+            result[delegation] = {delegation: delegation, default: value, export: false}
           end
         end
       end
@@ -69,7 +70,11 @@ module Teneo
           if (x = @ref_params[d])
             result << x
           else
-            @ref_params.each { |param| result << param if /%^#{d}/ =~ param[:delegation] }
+            @ref_params.each do |name, param|
+              if /%^#{d}/ =~ name or param.delegation.split(ParameterRef::DELEGATION_TERMINATOR).any? {|x| /%^#{d}/ =~ x }
+                result << param
+              end
+            end
           end
         end
       end

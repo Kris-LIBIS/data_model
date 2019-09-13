@@ -226,7 +226,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "parameter_refs", force: :cascade do |t|
     t.string "name", null: false
     t.string "delegation", null: false
-    t.string "value"
+    t.boolean "export", null: false
     t.string "default"
     t.string "description"
     t.text "help"
@@ -337,6 +337,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "storage_types", force: :cascade do |t|
     t.string "protocol", null: false
     t.string "description"
+    t.integer "lock_version", default: 0, null: false
     t.index ["protocol"], name: "index_storage_types_on_protocol", unique: true
   end
 

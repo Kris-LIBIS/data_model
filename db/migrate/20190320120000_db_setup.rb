@@ -135,7 +135,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     create_table :parameter_refs do |t|
       t.string :name, null: false
       t.string :delegation, null: false
-      t.string :value
+      t.boolean :export, null: false
       t.string :default
       t.string :description
       t.text :help

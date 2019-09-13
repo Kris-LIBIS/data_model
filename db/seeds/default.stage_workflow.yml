@@ -81,7 +81,7 @@
       default: 120
     retry_interval:
       delegation: 'SubmissionChecker#retry_interval'
-      value: 30
+      default: 30
 - name: 'CSV export'
   description: 'Create CSV file with report of ingested IEs'
   stage: 'PostIngest'
@@ -90,7 +90,7 @@
   parameters:
     export_format:
       delegation: 'Exporter#export_dir'
-      value: 'csv'
+      default: 'csv'
     export_dir:
       delegation: 'Exporter#export_dir'
     export_key:

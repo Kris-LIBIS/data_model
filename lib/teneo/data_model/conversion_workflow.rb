@@ -11,13 +11,12 @@ module Teneo::DataModel
     acts_as_list scope: :representation, add_new_at: :bottom
 
     has_many :conversion_tasks, -> { order(position: :asc) }, inverse_of: :conversion_workflow
+    has_many :conversions, through: :conversion_tasks
 
     array_field :input_formats
 
     validates :representation_id, presence: true
     validates :name, presence: true, uniqueness: {scope: :representation_id}
-
-    include WithParameterRefs
 
     def self.from_hash(hash, id_tags = [:representation_id, :name])
       representation_label = hash.delete(:representation)
@@ -25,19 +24,17 @@ module Teneo::DataModel
       representation = record_finder Teneo::DataModel::Representation, query
       hash[:representation_id] = representation.id
 
-      params = hash.delete(:parameters) || {}
-      tasks = hash.delete(:tasks)
+      tasks = hash.delete(:tasks) || []
 
       super(hash, id_tags).tap do |item|
         item.conversion_tasks.clear
-        if (tasks)
-          tasks.each_with_object(params) do |task, result|
-            result.merge!(params_from_values(task[:name], task.delete(:values)))
+        if tasks
+          tasks.each do |task|
             task[:conversion_workflow_id] = item.id
             item.conversion_tasks << Teneo::DataModel::ConversionTask.from_hash(task)
           end
         end
-      end.params_from_hash(params)
+      end
     end
 
   end

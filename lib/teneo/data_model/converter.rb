@@ -16,6 +16,7 @@ module Teneo::DataModel
     array_field :input_formats
     array_field :output_formats
 
+    validate :safe_name
     validates :category, inclusion: {in: CATEGORY_LIST}
 
     def self.from_hash(hash, id_tags = [:name])

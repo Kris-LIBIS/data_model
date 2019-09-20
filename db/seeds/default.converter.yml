@@ -1,4 +1,4 @@
-- name: 'image converter'
+- name: 'ImageConverter'
   class_name: 'ImageConverter'
   description: 'Converts any image format into another'
   input_formats: ['TIFF', 'JPG', 'PNG', 'BMP', 'GIF', 'PDF', 'JP2']

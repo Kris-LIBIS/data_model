@@ -23,7 +23,7 @@
         - name: 'convert to JPEG2000'
           tasks:
             - name: 'TiffToJP2'
-              converter: 'image converter'
+              converter: 'ImageConverter'
               output_format: 'JP2'
               values:
                 quality: '85%'

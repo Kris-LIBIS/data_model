@@ -225,8 +225,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "parameter_refs", force: :cascade do |t|
     t.string "name", null: false
-    t.string "delegation", null: false
+    t.string "delegation", null: false, array: true
     t.boolean "export", null: false
+    t.string "constraint"
     t.string "default"
     t.string "description"
     t.text "help"

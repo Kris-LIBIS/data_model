@@ -7,6 +7,8 @@ require 'acts_as_list'
 
 require 'active_support/concern'
 
+require_relative 'parameter_ref'
+
 module Teneo
   module DataModel
     module WithParameterRefs
@@ -27,7 +29,7 @@ module Teneo
       def parameter_values(include_export = false)
         parameter_refs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param_ref, result|
           next unless include_export || !param_ref.export
-          param_ref.delegation.split(ParameterRef::DELEGATION_TERMINATOR).each do |delegation|
+          param_ref.delegation.each do |delegation|
             result[delegation] = param_ref.default || child_parameter(delegation).default
           end
         end
@@ -55,8 +57,8 @@ module Teneo
         def params_from_values(delegate, values = {})
           return {} unless values
           values.each_with_object(Hash.new { |h, k| h[k] = {} }) do |(name, value), result|
-            delegation = "#{delegate}#{ParameterRef::DELEGATION_JOINER}#{name}"
-            result[delegation] = {delegation: delegation, default: value, export: false}
+            delegation = "#{delegate}#{Teneo::DataModel::ParameterRef::DELEGATION_JOINER}#{name}"
+            result[delegation] = {delegation: [delegation], default: value, export: false}
           end
         end
       end
@@ -68,12 +70,13 @@ module Teneo
           end
         end
         return @ref_params unless delegation
-        delegation.split(ParameterRef::DELEGATION_TERMINATOR).each_with_object([]) do |d, result|
+        delegation = [delegation] unless delegation.is_a?(Array)
+        delegation.each_with_object([]) do |d, result|
           if (x = @ref_params[d])
             result << x
           else
             @ref_params.each do |name, param|
-              if /%^#{d}/ =~ name or param.delegation.split(ParameterRef::DELEGATION_TERMINATOR).any? {|x| /%^#{d}/ =~ x }
+              if /%^#{d}/ =~ name or param.delegation.any? {|x| /%^#{d}/ =~ x }
                 result << param
               end
             end

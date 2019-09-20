@@ -7,6 +7,8 @@ module Teneo::DataModel
   class ParameterRef < Base
     self.table_name = 'parameter_refs'
 
+    array_field(:delegation)
+
     DELEGATION_TERMINATOR = /[\s,;]+/
     DELEGATION_JOINER = '#'
 

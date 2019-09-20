@@ -134,8 +134,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :parameter_refs do |t|
       t.string :name, null: false
-      t.string :delegation, null: false
+      t.string :delegation, null: false, array:  true
       t.boolean :export, null: false
+      t.string :constraint
       t.string :default
       t.string :description
       t.text :help
@@ -157,7 +158,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :input_formats, array: true
       t.string :output_formats, array: true
       t.string :category, null: false, default: 'converter'
-      # with_parameters
+      # with_parameter_defs
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0

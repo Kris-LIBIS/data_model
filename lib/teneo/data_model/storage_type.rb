@@ -8,6 +8,10 @@ module Teneo::DataModel
 
     include WithParameterDefs
 
+    def name
+      protocol
+    end
+
     PROTOCOL_LIST = %w'NFS FTP SFTP GDRIVE'
 
     has_many :storages, inverse_of: :storage_type

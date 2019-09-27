@@ -16,10 +16,12 @@ module Teneo::DataModel
     end
 
     def self.from_hash(hash, id_tags = [:name, :organization_id])
-      params = params_from_values(hash.delete(:values))
+      params = {}
 
       super(hash, id_tags) do |item, h|
-        item.storage_type = record_finder(Teneo::DataModel::StorageType, protocol: hash.delete(:protocol))
+        protocol = h.delete(:protocol)
+        item.storage_type = record_finder(Teneo::DataModel::StorageType, protocol: protocol)
+        params.merge!(params_from_values(protocol, h.delete(:values)))
       end.params_from_hash(params)
     end
 

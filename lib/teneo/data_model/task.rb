@@ -11,8 +11,8 @@ module Teneo::DataModel
 
     STAGE_LIST = %w'Collect PreProcess PreIngest Ingest PostIngest'
 
-    has_many :workflow_tasks, inverse_of: :task
-    has_many :workflows, through: :workflow_tasks
+    has_many :stage_tasks, inverse_of: :task
+    has_many :stage_workflows, through: :stage_tasks
 
     validates :stage, presence: true, inclusion: {in: STAGE_LIST}
     validates :name, presence: true

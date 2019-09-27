@@ -36,7 +36,7 @@ module Teneo::DataModel
       super(hash, id_tags).tap do |item|
         item.ingest_stages.clear
         stages.each do |stage|
-          params.merge!(params_from_values(stage[:stage], stage.delete(:values)))
+          params.merge!(params_from_values(stage[:workflow], stage.delete(:values)))
           stage[:ingest_workflow_id] = item.id
           item.ingest_stages << Teneo::DataModel::IngestStage.from_hash(stage)
         end

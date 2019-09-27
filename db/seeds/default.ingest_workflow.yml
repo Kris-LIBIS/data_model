@@ -28,11 +28,11 @@
         export_dir: '/export/org2'
   parameters:
     location:
-      delegation: ['Collect#location', 'PreProcess#location']
+      delegation: ['Simple file collect#location', 'checksum + format#location']
       default: '/upload/org2'
     selection:
-      delegation: ['Collect#selection']
+      delegation: ['Simple file collect#selection']
       default: '^ABC[0-9]+_[^_]+_[^_]+_.+\.(JPG|jpg)$'
     collection:
-      delegation: ['PreIngest#collection']
+      delegation: ['group + metadata + collection#collection']
       default: 'A/B/C'

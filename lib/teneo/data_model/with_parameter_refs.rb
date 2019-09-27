@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 require 'active_record'
-require 'active_support/core_ext/hash/compact'
-require 'active_support/core_ext/hash/keys'
-require 'active_support/core_ext/object/with_options'
-require 'acts_as_list'
+require 'active_support/core_ext/hash/reverse_merge'
 
 require 'active_support/concern'
 
@@ -20,26 +17,82 @@ module Teneo
         self.has_many :parameter_refs, as: :with_param_refs, class_name: 'Teneo::DataModel::ParameterRef'
       end
 
-      def parameters
-        parameter_refs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param_ref, result|
-          result[param_ref.name] = child_parameter(param_ref.delegation).to_hash.merge(param_ref.to_hash)
-        end
+      def parameter_name(name)
+        name =~ /#/ ? name : "#{self.name}##{name}"
       end
 
       def parameter_values(include_export = false)
         parameter_refs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param_ref, result|
           next unless include_export || !param_ref.export
           param_ref.delegation.each do |delegation|
-            result[delegation] = param_ref.default || child_parameter(delegation).default
+            result[delegation] = param_ref.default || child_parameter(delegation)[:default]
           end
         end
+      end
+
+      def parameters(recursive: false, algo: nil)
+        result = parameter_refs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param_ref, result|
+          result[parameter_name(param_ref.name)] = param_ref.to_hash
+        end
+        parameter_children.each do |param_child|
+          param_child.parameters(recursive: true, algo: algo).each do |name, param|
+            case algo
+            when :tree
+              matches = result.select { |_k, v| v[:delegation]&.include?(name) }
+              matches.each { |_k, v| (v[:delegates] ||= {})[name] = param }
+              result[name] = param if matches.empty?
+            when :collapse
+              matches = result.select { |_k, v| v[:delegation]&.include?(name) }
+              matches.each do |_k, v|
+                v[:delegation] += param[:delegation] || []
+                v[:with_param_refs] ||= []
+                v[:with_param_refs] += param[:with_param_refs] || []
+                v[:with_parameters] ||= []
+                v[:with_parameters] += param[:with_parameters] || []
+                v.reverse_merge! param
+              end
+              result[name] = param if matches.empty?
+            else
+              result[name].reverse_merge! param
+            end
+          end
+        end if recursive
+        result
+      end
+
+      def parameters_for(delegation, recursive: true, algo: :collapse)
+        regex = ParameterRef.delegation_search(delegation)
+        parameters(recursive: recursive, algo: algo).each_with_object({}) do |(_k, v), result|
+          if v[:delegation]&.any? { |x| x =~ regex }
+            result[$1] = v
+          end
+        end
+      rescue RuntimeError
+        {}
+      end
+
+      def child_parameters(delegation = nil, recursive: true, algo: :collapse)
+        regex = delegation ?
+                    ParameterRef.delegation_search(delegation) :
+                    Regexp.new("^((#{parameter_children.map { |c| Regexp.escape(c.name) }.join('|')})#\\K(.*))$")
+        puts regex
+        parameter_children.each_with_object({}) do |child, result|
+          child.parameters(recursive: recursive, algo: algo).each do |name, param|
+            next unless name =~ regex
+            result[$1] = param
+          end
+        end
+      end
+
+      def child_parameter(delegation = nil)
+        child_parameters(delegation).first
       end
 
       def params_from_hash(params)
         return unless params
         parameter_refs.clear
         params.each do |name, definition|
-          definition[:name] = name
+          definition[:name] ||= name
           definition[:with_param_refs_type] = self.class.name
           definition[:with_param_refs_id] = self.id
           definition[:export] = true unless definition.has_key?(:export)
@@ -57,35 +110,10 @@ module Teneo
         def params_from_values(delegate, values = {})
           return {} unless values
           values.each_with_object(Hash.new { |h, k| h[k] = {} }) do |(name, value), result|
-            delegation = "#{delegate}#{Teneo::DataModel::ParameterRef::DELEGATION_JOINER}#{name}"
-            result[delegation] = {delegation: [delegation], default: value, export: false}
+            delegation = "#{delegate}##{name}"
+            result[delegation] = {name: name, delegation: [delegation], default: value, export: false}
           end
         end
-      end
-
-      def child_parameters(delegation = nil)
-        @ref_params = parameter_children.each_with_object(Hash.new { |h, k| h[k] = {} }) do |child, result|
-          child.parameters.each do |name, param|
-            result[name] = param
-          end
-        end
-        return @ref_params unless delegation
-        delegation = [delegation] unless delegation.is_a?(Array)
-        delegation.each_with_object([]) do |d, result|
-          if (x = @ref_params[d])
-            result << x
-          else
-            @ref_params.each do |name, param|
-              if /%^#{d}/ =~ name or param.delegation.any? {|x| /%^#{d}/ =~ x }
-                result << param
-              end
-            end
-          end
-        end
-      end
-
-      def child_parameter(delegation = nil)
-        child_parameters(delegation).first
       end
 
     end

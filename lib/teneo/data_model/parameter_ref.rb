@@ -7,15 +7,29 @@ module Teneo::DataModel
   class ParameterRef < Base
     self.table_name = 'parameter_refs'
 
-    array_field(:delegation)
+    DELEGATION_REGEX = /^([^#]+)#?(.*)$/
 
-    DELEGATION_TERMINATOR = /[\s,;]+/
-    DELEGATION_JOINER = '#'
+    def self.delegation_search(delegation)
+      raise RuntimeError.new('Bad parameter delegation string') unless delegation =~ DELEGATION_REGEX
+      Regexp.new "^#{Regexp.escape($1)}#(#{$2.empty? ? '.*' : Regexp.escape($2)})$"
+    end
+
+    def self.delegation_host(delegation)
+      delegation.gsub(DELEGATION_REGEX) {|_| $1}
+    end
+
+    def self.delegation_param(delegation)
+      delegation.gsub(DELEGATION_REGEX) {|_| $2}
+    end
+
+    array_field(:delegation)
 
     belongs_to :with_param_refs, polymorphic: true
 
+
+
     validates :name, presence: true
-    validates :delegation, presence: true
+    # validates :delegation, presence: true
     validates :with_param_refs_id, presence: true
     validates :with_param_refs_type, presence: true
 
@@ -31,18 +45,24 @@ module Teneo::DataModel
       referenced_parameters(delegation).first
     end
 
-    def reference_tree
-      delegation.split(DELEGATION_TERMINATOR)
-      referenced_parameters.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param, result|
-        case param
-        when ParameterRef
-          result
-        else # ParameterDef
-
-        end
-        result[param_ref.name] = child_parameter(param_ref.delegation).to_hash.merge(param_ref.to_hash)
-      end
+    def delegation_name
+      "#{with_param_refs.name}##{name}"
     end
+
+    def to_hash
+      # noinspection RubyResolve
+        super.tap do |h|
+          h[:with_param_refs] = [[with_param_refs_type, with_param_refs_id]]
+          h[:export] ||= false
+        end
+    end
+
+    protected
+
+    def volatile_attributes
+      super + %w'with_param_refs_id with_param_refs_type'
+    end
+
 
   end
 

@@ -19,6 +19,21 @@ module Teneo::DataModel
       super(hash, id_tags)
     end
 
+    def delegation_name
+      "#{with_parameters.name}##{name}"
+    end
+
+    def to_hash
+      # noinspection RubyResolve
+      super.tap {|h| h[:with_parameters] = [[with_parameters_type, with_parameters_id]] }
+    end
+
+    protected
+
+    def volatile_attributes
+      super + %w'with_parameters_id with_parameters_type'
+    end
+
   end
 
 end

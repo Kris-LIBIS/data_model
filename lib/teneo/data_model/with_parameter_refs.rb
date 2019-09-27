@@ -30,6 +30,10 @@ module Teneo
         end
       end
 
+      def parameter_objects
+        parameter_refs
+      end
+
       def parameters(recursive: false, algo: nil)
         result = parameter_refs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param_ref, result|
           result[parameter_name(param_ref.name)] = param_ref.to_hash
@@ -96,7 +100,24 @@ module Teneo
           definition[:with_param_refs_type] = self.class.name
           definition[:with_param_refs_id] = self.id
           definition[:export] = true unless definition.has_key?(:export)
-          parameter_refs << Teneo::DataModel::ParameterRef.from_hash(definition)
+          delegates = []
+          definition[:delegation].each do |delegation|
+            host, param = ParameterRef::delegation_split(delegation)
+            delegation_host = parameter_children.find { |child| child.name == host }
+            begin
+              delegate = delegation_host.parameter_objects.find_by!(name: param)
+            rescue ActiveRecord::RecordNotFound
+              raise RuntimeError, "parameter #{param} not found in #{delegation_host.name} for #{self.name}"
+            end
+            delegates << delegate
+          end
+          param_ref = Teneo::DataModel::ParameterRef.from_hash(definition)
+          delegates.each do |delegate|
+            delegation = ParameterDelegation.new(delegate: delegate, parameter_ref: param_ref)
+            delegate.parameter_delegations << delegation
+            delegate.save!
+          end
+          parameter_refs << param_ref
         end
         save!
         self

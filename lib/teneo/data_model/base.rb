@@ -13,6 +13,10 @@ module Teneo
 
       self.abstract_class = true
 
+      def self.name_method
+        :name
+      end
+
       # Creates a virtual attribute <name>_list that converts between internal array storage and a ',' joined string
       def self.array_field(name)
         # reader as <name>_list

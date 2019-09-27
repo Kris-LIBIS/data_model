@@ -8,6 +8,10 @@ module Teneo::DataModel
 
     include WithParameterDefs
 
+    def self.name_method
+      :protocol
+    end
+
     def name
       protocol
     end

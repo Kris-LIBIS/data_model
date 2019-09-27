@@ -147,6 +147,11 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
     end
 
+    create_table :parameter_delegations do |t|
+      t.references :parameter_ref, foreign_key: true, null: false, index: true
+      t.references :delegate, polymorphic: true, null: false, index: true
+    end
+
     # Converters
     # ##########
 

@@ -14,6 +14,11 @@ module Teneo::DataModel
       Regexp.new "^#{Regexp.escape($1)}#(#{$2.empty? ? '.*' : Regexp.escape($2)})$"
     end
 
+    def self.delegation_split(delegation)
+      return [] unless delegation =~ DELEGATION_REGEX
+      [$1, $2]
+    end
+
     def self.delegation_host(delegation)
       delegation.gsub(DELEGATION_REGEX) {|_| $1}
     end
@@ -26,7 +31,8 @@ module Teneo::DataModel
 
     belongs_to :with_param_refs, polymorphic: true
 
-
+    has_many :parameter_delegations, as: :delegate
+    has_many :parameter_refs, through: :parameter_delegations
 
     validates :name, presence: true
     # validates :delegation, presence: true

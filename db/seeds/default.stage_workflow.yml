@@ -24,7 +24,6 @@
   tasks:
     - task: 'ChecksumTester'
       values:
-        recursive: true
         checksum_type: 'MD5'
     - task: 'FormatIdentifier'
   parameters:
@@ -41,7 +40,7 @@
     - task: 'FormatIdentifier'
   parameters:
     location:
-      delegation: ['VirusChecker#folder', 'FormatIdentifier#folder']
+      delegation: ['VirusChecker#location', 'FormatIdentifier#folder']
 - name: 'group + metadata + collection'
   description: 'Group files into IEs, get metadata and create collections'
   stage: 'PreIngest'

@@ -12,6 +12,10 @@ module Teneo
         self.has_many :parameter_defs, as: :with_parameters, class_name: 'Teneo::DataModel::ParameterDef'
       end
 
+      def parameter_objects
+        parameter_defs
+      end
+
       def parameters(recursive: false, algo: nil)
         parameter_defs.each_with_object({}) do |param_def, result|
           result[param_def.delegation_name] = param_def.to_hash

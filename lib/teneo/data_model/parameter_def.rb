@@ -11,6 +11,9 @@ module Teneo::DataModel
 
     belongs_to :with_parameters, polymorphic: true
 
+    has_many :parameter_delegations, as: :delegate
+    has_many :parameter_refs, through: :parameter_delegations
+
     validates :name, presence: true
     validates :with_parameters_id, presence: true
     validates :with_parameters_type, presence: true

@@ -223,6 +223,14 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["with_parameters_type", "with_parameters_id"], name: "index_parameter_defs_on_with_parameters"
   end
 
+  create_table "parameter_delegations", force: :cascade do |t|
+    t.bigint "parameter_ref_id", null: false
+    t.string "delegate_type", null: false
+    t.bigint "delegate_id", null: false
+    t.index ["delegate_type", "delegate_id"], name: "index_parameter_delegations_on_delegate_type_and_delegate_id"
+    t.index ["parameter_ref_id"], name: "index_parameter_delegations_on_parameter_ref_id"
+  end
+
   create_table "parameter_refs", force: :cascade do |t|
     t.string "name", null: false
     t.string "delegation", null: false, array: true
@@ -394,6 +402,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
   add_foreign_key "packages", "ingest_workflows"
+  add_foreign_key "parameter_delegations", "parameter_refs"
   add_foreign_key "representations", "access_rights"
   add_foreign_key "representations", "ingest_models"
   add_foreign_key "representations", "representation_infos"

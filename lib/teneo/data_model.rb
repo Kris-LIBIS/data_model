@@ -33,6 +33,7 @@ module Teneo
     autoload :Producer, 'teneo/data_model/producer'
     autoload :ParameterDef, 'teneo/data_model/parameter_def'
     autoload :ParameterRef, 'teneo/data_model/parameter_ref'
+    autoload :ParameterDelegation, 'teneo/data_model/parameter_delegation'
 
     autoload :SeedLoader, 'teneo/data_model/seed_loader'
 

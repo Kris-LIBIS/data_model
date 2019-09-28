@@ -20,11 +20,11 @@ module Teneo::DataModel
     end
 
     def self.delegation_host(delegation)
-      delegation.gsub(DELEGATION_REGEX) {|_| $1}
+      delegation.gsub(DELEGATION_REGEX) { |_| $1 }
     end
 
     def self.delegation_param(delegation)
-      delegation.gsub(DELEGATION_REGEX) {|_| $2}
+      delegation.gsub(DELEGATION_REGEX) { |_| $2 }
     end
 
     array_field(:delegation)
@@ -33,6 +33,18 @@ module Teneo::DataModel
 
     has_many :parameter_delegations, as: :delegate
     has_many :parameter_refs, through: :parameter_delegations
+
+    def delegates
+      ParameterDelegation.where(parameter_ref: self).map(&:delegate)
+    end
+
+    def <<(param)
+      ParameterDelegation.create(parameter_ref: self, delegate: param).save!
+    end
+
+    def >>(param)
+      param.parameter_delegations.where(parameter_ref: self).delete
+    end
 
     validates :name, presence: true
     # validates :delegation, presence: true
@@ -43,24 +55,21 @@ module Teneo::DataModel
       super(hash, id_tags)
     end
 
-    def referenced_parameters(delegation = nil)
-      with_param_refs.child_parameters(delegation || self.delegation)
-    end
-
-    def referenced_parameter(delegation = nil)
-      referenced_parameters(delegation).first
-    end
-
     def delegation_name
       "#{with_param_refs.name}##{name}"
     end
 
     def to_hash
       # noinspection RubyResolve
-        super.tap do |h|
-          h[:with_param_refs] = [[with_param_refs_type, with_param_refs_id]]
-          h[:export] ||= false
-        end
+      super.tap do |h|
+        h[:host] = [[with_param_refs_type, with_param_refs_id]]
+        h[:export] ||= false
+        h[:delegation] = delegates.map(&:delegation_name)
+      end
+    end
+
+    def value
+      default.nil? ? delegates.map { |d| d.value }.compact.first : default
     end
 
     protected

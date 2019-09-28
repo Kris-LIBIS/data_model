@@ -1,31 +1,21 @@
 # frozen_string_literal: true
 require 'active_support/concern'
+require_relative 'with_parameter'
 
 module Teneo
   module DataModel
     module WithParameterDefs
+      include WithParameter
 
       extend ActiveSupport::Concern
 
       included do
         # noinspection RailsParamDefResolve
-        self.has_many :parameter_defs, as: :with_parameters, class_name: 'Teneo::DataModel::ParameterDef'
+        self.has_many :parameter_defs, as: :with_param_defs, class_name: 'Teneo::DataModel::ParameterDef'
       end
 
-      def parameter_objects
+      def parameters
         parameter_defs
-      end
-
-      def parameters(recursive: false, algo: nil)
-        parameter_defs.each_with_object({}) do |param_def, result|
-          result[param_def.delegation_name] = param_def.to_hash
-        end
-      end
-
-      def parameter_values
-        parameter_defs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |param_def, result|
-          result[param_def.name] = param_def.default
-        end
       end
 
       def params_from_hash(params)
@@ -33,8 +23,8 @@ module Teneo
         parameter_defs.clear
         params.each do |name, definition|
           definition[:name] = name
-          definition[:with_parameters_type] = self.class.name
-          definition[:with_parameters_id] = self.id
+          definition[:with_param_defs_type] = self.class.name
+          definition[:with_param_defs_id] = self.id
           parameter_defs << Teneo::DataModel::ParameterDef.from_hash(definition)
         end
         save!

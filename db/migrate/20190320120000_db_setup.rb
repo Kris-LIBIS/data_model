@@ -126,7 +126,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :description
       t.text :help
 
-      t.references :with_parameters, polymorphic: true, index: {name: :index_parameter_defs_on_with_parameters}
+      t.references :with_param_defs, polymorphic: true, index: {name: :index_parameter_defs_on_with_param_defs}
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
@@ -134,7 +134,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :parameter_refs do |t|
       t.string :name, null: false
-      t.string :delegation, null: false, array:  true
       t.boolean :export, null: false
       t.string :constraint
       t.string :default

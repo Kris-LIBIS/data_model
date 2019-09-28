@@ -41,6 +41,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'awesome_print', '~> 1.8'
   spec.add_development_dependency 'tty-prompt'
   spec.add_development_dependency 'tty-spinner'
+  spec.add_development_dependency 'pry'
 
   spec.add_runtime_dependency 'activerecord', '~> 5.2'
   spec.add_runtime_dependency 'activesupport', '~> 5.2'

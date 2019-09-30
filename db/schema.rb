@@ -214,7 +214,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
+    t.index ["source_id", "target_id"], name: "index_parameter_references_on_source_id_and_target_id", unique: true
     t.index ["source_id"], name: "index_parameter_references_on_source_id"
+    t.index ["target_id", "source_id"], name: "index_parameter_references_on_target_id_and_source_id", unique: true
     t.index ["target_id"], name: "index_parameter_references_on_target_id"
   end
 

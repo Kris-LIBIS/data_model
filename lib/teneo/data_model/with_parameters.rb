@@ -105,7 +105,7 @@ module Teneo
           return {} unless values
           values.each_with_object(Hash.new { |h, k| h[k] = {} }) do |(name, value), result|
             reference = "#{target_host}##{name}"
-            ref_name = "#{target_host}:#{name}"
+            ref_name = "#{target_host}##{name}"
             result[ref_name] = {name: ref_name, targets: [reference], default: value, export: false}
           end
         end

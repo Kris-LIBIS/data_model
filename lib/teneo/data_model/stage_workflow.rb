@@ -18,7 +18,7 @@ module Teneo::DataModel
     validates :name, presence: true
     validates :stage, presence: true, inclusion: {in: STAGE_LIST}
 
-    include WithParameterRefs
+    include WithParameters
 
     def parameter_children
       tasks

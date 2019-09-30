@@ -3,9 +3,6 @@ require 'yaml'
 
 module Teneo
   module DataModel
-    autoload :WithParameterDefs, 'teneo/data_model/with_parameter_defs'
-    autoload :WithParameterRefs, 'teneo/data_model/with_parameter_refs'
-
     autoload :User, 'teneo/data_model/user'
     autoload :Organization, 'teneo/data_model/organization'
     autoload :Membership, 'teneo/data_model/membership'
@@ -31,9 +28,10 @@ module Teneo
     autoload :RepresentationInfo, 'teneo/data_model/representation_info'
     autoload :MaterialFlow, 'teneo/data_model/material_flow'
     autoload :Producer, 'teneo/data_model/producer'
-    autoload :ParameterDef, 'teneo/data_model/parameter_def'
-    autoload :ParameterRef, 'teneo/data_model/parameter_ref'
-    autoload :ParameterDelegation, 'teneo/data_model/parameter_delegation'
+
+    autoload :Parameter, 'teneo/data_model/parameter'
+    autoload :ParameterReference, 'teneo/data_model/parameter_reference'
+    autoload :WithParameters, 'teneo/data_model/with_parameters'
 
     autoload :SeedLoader, 'teneo/data_model/seed_loader'
 

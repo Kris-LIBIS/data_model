@@ -14,7 +14,7 @@ module Teneo::DataModel
 
     validate :safe_name
 
-    WithParameterRefs
+    WithParameters
 
     def parameter_children
       [ingest_workflow]

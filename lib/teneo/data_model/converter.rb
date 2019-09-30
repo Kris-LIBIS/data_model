@@ -11,7 +11,7 @@ module Teneo::DataModel
 
     has_many :conversion_tasks
 
-    include WithParameterDefs
+    include WithParameters
 
     array_field :input_formats
     array_field :output_formats

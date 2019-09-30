@@ -7,7 +7,7 @@ module Teneo::DataModel
   class Task < Base
     self.table_name = 'tasks'
 
-    include WithParameterDefs
+    include WithParameters
 
     STAGE_LIST = %w'Collect PreProcess PreIngest Ingest PostIngest'
 

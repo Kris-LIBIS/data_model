@@ -15,7 +15,7 @@ module Teneo::DataModel
     validates :conversion_workflow_id, presence: true
     validates :name, presence: true, uniqueness: {scope: :conversion_workflow_id}
 
-    include WithParameterRefs
+    include WithParameters
 
     def parameter_children
       [converter]

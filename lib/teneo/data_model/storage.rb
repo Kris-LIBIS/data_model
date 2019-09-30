@@ -9,7 +9,7 @@ module Teneo::DataModel
     belongs_to :organization, inverse_of: :storages
     belongs_to :storage_type, inverse_of: :storages
 
-    include WithParameterRefs
+    include WithParameters
 
     def parameter_children
       [storage_type]

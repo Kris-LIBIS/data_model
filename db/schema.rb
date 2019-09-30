@@ -208,49 +208,14 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["ingest_workflow_id"], name: "index_packages_on_ingest_workflow_id"
   end
 
-  create_table "parameter_defs", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "data_type", null: false
-    t.string "constraint"
-    t.string "default"
-    t.string "description"
-    t.text "help"
-    t.string "with_param_defs_type"
-    t.bigint "with_param_defs_id"
-    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
-    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
-    t.integer "lock_version", default: 0, null: false
-    t.index ["with_param_defs_type", "with_param_defs_id"], name: "index_parameter_defs_on_with_param_defs"
-  end
-
-  create_table "parameter_delegations", force: :cascade do |t|
-    t.bigint "parameter_ref_id", null: false
-    t.string "delegate_type", null: false
-    t.bigint "delegate_id", null: false
-    t.index ["delegate_type", "delegate_id"], name: "index_parameter_delegations_on_delegate_type_and_delegate_id"
-    t.index ["parameter_ref_id"], name: "index_parameter_delegations_on_parameter_ref_id"
-  end
-
   create_table "parameter_references", force: :cascade do |t|
     t.bigint "source_id"
     t.bigint "target_id"
-    t.index ["source_id"], name: "index_parameter_references_on_source_id"
-    t.index ["target_id"], name: "index_parameter_references_on_target_id"
-  end
-
-  create_table "parameter_refs", force: :cascade do |t|
-    t.string "name", null: false
-    t.boolean "export", null: false
-    t.string "constraint"
-    t.string "default"
-    t.string "description"
-    t.text "help"
-    t.string "with_param_refs_type"
-    t.bigint "with_param_refs_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
-    t.index ["with_param_refs_type", "with_param_refs_id"], name: "index_parameter_refs_on_with_param_refs"
+    t.index ["source_id"], name: "index_parameter_references_on_source_id"
+    t.index ["target_id"], name: "index_parameter_references_on_target_id"
   end
 
   create_table "parameters", force: :cascade do |t|
@@ -266,6 +231,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
+    t.index ["with_parameters_type", "with_parameters_id", "name"], name: "index_with_parameters_name", unique: true
     t.index ["with_parameters_type", "with_parameters_id"], name: "index_parameters_on_with_parameters"
   end
 
@@ -424,7 +390,6 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
   add_foreign_key "packages", "ingest_workflows"
-  add_foreign_key "parameter_delegations", "parameter_refs"
   add_foreign_key "parameter_references", "parameters", column: "source_id"
   add_foreign_key "parameter_references", "parameters", column: "target_id"
   add_foreign_key "representations", "access_rights"

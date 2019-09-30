@@ -118,37 +118,31 @@ class DbSetup < ActiveRecord::Migration[5.2]
     # Inputs and configurations
     # #########################
 
-    create_table :parameter_defs do |t|
+    create_table :parameters do |t|
       t.string :name, null: false
-      t.string :data_type, null: false
+      t.boolean :export, null: false, default: true
+      t.string :data_type
       t.string :constraint
       t.string :default
       t.string :description
       t.text :help
 
-      t.references :with_param_defs, polymorphic: true, index: {name: :index_parameter_defs_on_with_param_defs}
+      t.references :with_parameters, polymorphic: true, index: {name: :index_parameters_on_with_parameters}
+      t.index [:with_parameters_type, :with_parameters_id, :name], name: :index_with_parameters_name,unique: true
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
     end
 
-    create_table :parameter_refs do |t|
-      t.string :name, null: false
-      t.boolean :export, null: false
-      t.string :constraint
-      t.string :default
-      t.string :description
-      t.text :help
+    create_table :parameter_references do |t|
+      t.references :source, foreign_key: {to_table: :parameters, null: false}
+      t.references :target, foreign_key: {to_table: :parameters, null: false}
 
-      t.references :with_param_refs, polymorphic: true, index: {name: :index_parameter_refs_on_with_param_refs}
+      t.index [:source_id, :target_id], unique: true
+      t.index [:target_id, :source_id], unique: true
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
-    end
-
-    create_table :parameter_delegations do |t|
-      t.references :parameter_ref, foreign_key: true, null: false, index: true
-      t.references :delegate, polymorphic: true, null: false, index: true
     end
 
     # Converters

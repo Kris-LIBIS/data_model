@@ -18,7 +18,7 @@ module Teneo::DataModel
     validates :name, presence: true
     validate :safe_name
 
-    include WithParameterRefs
+    include WithParameters
 
     def parameter_children
       stage_workflows

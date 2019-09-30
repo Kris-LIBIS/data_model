@@ -6,7 +6,7 @@ module Teneo::DataModel
   class StorageType < Base
     self.table_name = 'storage_types'
 
-    include WithParameterDefs
+    include WithParameters
 
     def self.name_method
       :protocol

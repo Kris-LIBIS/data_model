@@ -7,9 +7,9 @@
         sort: true
   parameters:
     location:
-      delegation: ['DirCollector#location']
+      targets: ['DirCollector#location']
     selection:
-      delegation: ['DirCollector#selection']
+      targets: ['DirCollector#selection']
 - name: 'format only'
   description: 'Only format identification'
   stage: 'PreProcess'
@@ -17,7 +17,7 @@
     - task: 'FormatIdentifier'
   parameters:
     location:
-      delegation: ['FormatIdentifier#folder']
+      targets: ['FormatIdentifier#folder']
 - name: 'checksum + format'
   description: 'MD5 checksum test and format identification'
   stage: 'PreProcess'
@@ -28,9 +28,9 @@
     - task: 'FormatIdentifier'
   parameters:
     location:
-      delegation: ['FormatIdentifier#folder']
+      targets: ['FormatIdentifier#folder']
     checksum_file:
-      delegation: ['ChecksumTester#checksum_file']
+      targets: ['ChecksumTester#checksum_file']
       default: 'md5sums.txt'
 - name: 'viruscheck + format identification'
   description: 'Virus check and Format identification'
@@ -40,7 +40,7 @@
     - task: 'FormatIdentifier'
   parameters:
     location:
-      delegation: ['VirusChecker#location', 'FormatIdentifier#folder']
+      targets: ['VirusChecker#location', 'FormatIdentifier#folder']
 - name: 'group + metadata + collection'
   description: 'Group files into IEs, get metadata and create collections'
   stage: 'PreIngest'
@@ -52,21 +52,21 @@
     - task: 'CollectionCreator'
   parameters:
     group_regex:
-      delegation: ['FileGrouper#group_regex']
+      targets: ['FileGrouper#group_regex']
     collection_label:
-      delegation: ['FileGrouper#collection_label']
+      targets: ['FileGrouper#collection_label']
     group_name:
-      delegation: ['FileGrouper#group_name']
+      targets: ['FileGrouper#group_name']
     group_label:
-      delegation: ['FileGrouper#group_label']
+      targets: ['FileGrouper#group_label']
     file_label:
-      delegation: ['FileGrouper#file_label']
+      targets: ['FileGrouper#file_label']
     field:
-      delegation: ['MetadataCollector#field']
+      targets: ['MetadataCollector#field']
     term:
-      delegation: ['MetadataCollector#term']
+      targets: ['MetadataCollector#term']
     collection:
-      delegation: ['CollectionCreator#root_collection']
+      targets: ['CollectionCreator#root_collection']
 - name: 'METS ingest'
   description: 'Create METS file and submit to the repository'
   stage: 'Ingest'
@@ -76,22 +76,21 @@
     - task: 'SubmissionChecker'
   parameters:
     retry_count:
-      delegation: ['SubmissionChecker#retry_count']
+      targets: ['SubmissionChecker#retry_count']
       default: 120
     retry_interval:
-      delegation: ['SubmissionChecker#retry_interval']
+      targets: ['SubmissionChecker#retry_interval']
       default: 30
 - name: 'CSV export'
   description: 'Create CSV file with report of ingested IEs'
   stage: 'PostIngest'
   tasks:
     - task: 'Exporter'
+      values:
+        export_format: 'csv'
   parameters:
-    export_format:
-      delegation: ['Exporter#export_dir']
-      default: 'csv'
     export_dir:
-      delegation: ['Exporter#export_dir']
+      targets: ['Exporter#export_dir']
     export_key:
-      delegation: ['Exporter#export_key']
+      targets: ['Exporter#export_key']
       default: 'item.name'

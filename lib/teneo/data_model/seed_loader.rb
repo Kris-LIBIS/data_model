@@ -28,10 +28,10 @@ module Teneo
         load_data :organization
         load_data :user
         load_data :ingest_agreement
-        load_data :ingest_model
         load_data :task
         load_data :stage_workflow
         load_data :ingest_workflow
+        load_data :ingest_model
         load_data :package
       end
 

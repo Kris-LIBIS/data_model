@@ -35,6 +35,8 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
+  spec.required_ruby_version = '~> 2.6'
+
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
@@ -43,13 +45,13 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'tty-spinner'
   spec.add_development_dependency 'pry'
 
-  spec.add_runtime_dependency 'activerecord', '~> 5.2'
-  spec.add_runtime_dependency 'activesupport', '~> 5.2'
-  spec.add_runtime_dependency 'reform', '~> 2.2.4'
-  # spec.add_runtime_dependency 'trailblazer', '~> 2.1.0.rc1'
-  spec.add_runtime_dependency 'trailblazer', '~> 2.0'
-  spec.add_runtime_dependency 'dry-validation', '~> 0.13'
-  spec.add_runtime_dependency 'symbolized'
+  spec.add_runtime_dependency 'activerecord', '> 5.2'
+  spec.add_runtime_dependency 'activesupport', '> 5.2'
+  # spec.add_runtime_dependency 'reform', '~> 2.2.4'
+  # # spec.add_runtime_dependency 'trailblazer', '~> 2.1.0.rc1'
+  # spec.add_runtime_dependency 'trailblazer', '~> 2.0'
+  # spec.add_runtime_dependency 'dry-validation', '~> 0.13'
+  # spec.add_runtime_dependency 'symbolized'
   spec.add_runtime_dependency 'acts_as_list'
   spec.add_runtime_dependency 'order_as_specified'
   spec.add_runtime_dependency 'globalid'

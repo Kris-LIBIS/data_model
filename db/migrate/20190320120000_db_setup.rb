@@ -347,7 +347,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
       # with_values
 
       t.references :ingest_workflow, null: false, foreign_key: true
-      t.references :ingest_model, foreign_key: true
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0

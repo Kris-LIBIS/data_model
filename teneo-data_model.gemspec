@@ -56,5 +56,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'order_as_specified'
   spec.add_runtime_dependency 'globalid'
 
-  spec.add_runtime_dependency 'pg'
+  spec.add_runtime_dependency 'pg', '< 2.0'
+  spec.add_runtime_dependency 'active_record_extended', '~> 1.3'
+
 end

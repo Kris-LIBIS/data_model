@@ -5,6 +5,8 @@ module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
   class Item < Base
+    include Libis::Workflow::WorkItem
+
     self.table_name = 'items'
 
     belongs_to :package

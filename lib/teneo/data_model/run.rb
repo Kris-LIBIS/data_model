@@ -5,6 +5,8 @@ module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
   class Run < Base
+    include Libis::Workflow::Run
+
     self.table_name = 'runs'
 
   end

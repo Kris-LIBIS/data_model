@@ -370,6 +370,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :name, null: false
       t.string :label
       t.json :properties
+      t.json :options
 
       t.references :parent, foreign_key: {to_table: :items, on_delete: :cascade}
       t.references :package, foreign_key: {on_delete: :cascade}

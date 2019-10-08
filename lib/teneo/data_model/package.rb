@@ -5,6 +5,8 @@ module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
   class Package < Base
+    include Libis::Workflow::Job
+
     self.table_name = 'packages'
 
     belongs_to :ingest_workflow

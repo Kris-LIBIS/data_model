@@ -59,4 +59,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'pg', '< 2.0'
   spec.add_runtime_dependency 'active_record_extended', '~> 1.3'
 
+  spec.add_runtime_dependency 'libis-workflow', '~> 3.0'
+
 end

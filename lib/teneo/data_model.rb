@@ -21,6 +21,8 @@ module Teneo
     autoload :StageTask, 'teneo/data_model/stage_task'
     autoload :Package, 'teneo/data_model/package'
     autoload :Item, 'teneo/data_model/item'
+    autoload :FileItem, 'teneo/data_model/file_item'
+    autoload :DirItem, 'teneo/data_model/dir_item'
     autoload :StatusLog, 'teneo/data_model/status_log'
     autoload :Format, 'teneo/data_model/format'
     autoload :AccessRight, 'teneo/data_model/access_right'

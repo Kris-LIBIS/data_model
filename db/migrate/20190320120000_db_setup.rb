@@ -357,7 +357,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.boolean :log_to_file, default: false
       t.string :log_level, default: 'INFO'
       t.string :log_filename
-      t.json :config
+      t.string :name, null: false
+      t.json :options, default: {}
+      t.json :properties, default: {}
 
       t.references :package, foreign_key: {on_delete: :cascade}
 
@@ -369,8 +371,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :type, null: false
       t.string :name, null: false
       t.string :label
-      t.json :properties
-      t.json :options
+      t.json :options, default: {}
+      t.json :properties, default: {}
 
       t.references :parent, foreign_key: {to_table: :items, on_delete: :cascade}
       t.references :package, foreign_key: {on_delete: :cascade}

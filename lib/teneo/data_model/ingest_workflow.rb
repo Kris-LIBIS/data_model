@@ -43,6 +43,17 @@ module Teneo::DataModel
       end.params_from_hash(params)
     end
 
+    def tasks_info
+      stage_workflows.each_with_object([]) do |workflow, result|
+        result << {
+            name: workflow.stage,
+            long_name: workflow.name,
+            description: workflow.description,
+            tasks: workflow.tasks_info
+        }
+      end
+    end
+
   end
 
 end

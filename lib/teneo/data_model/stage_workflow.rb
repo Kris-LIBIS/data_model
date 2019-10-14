@@ -39,6 +39,16 @@ module Teneo::DataModel
       end.params_from_hash(params)
     end
 
+    def tasks_info
+      tasks.each_with_object([]) do |task, result|
+        result << {
+            class: task.class_name,
+            name: task.name,
+            parameters: task.parameters_hash
+        }
+      end
+    end
+
   end
 
 end

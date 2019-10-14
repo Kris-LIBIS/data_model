@@ -51,7 +51,7 @@ Gem::Specification.new do |spec|
   # # spec.add_runtime_dependency 'trailblazer', '~> 2.1.0.rc1'
   # spec.add_runtime_dependency 'trailblazer', '~> 2.0'
   # spec.add_runtime_dependency 'dry-validation', '~> 0.13'
-  # spec.add_runtime_dependency 'symbolized'
+  spec.add_runtime_dependency 'symbolized'
   spec.add_runtime_dependency 'acts_as_list'
   spec.add_runtime_dependency 'order_as_specified'
   spec.add_runtime_dependency 'globalid'
@@ -59,6 +59,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'pg', '< 2.0'
   spec.add_runtime_dependency 'active_record_extended', '~> 1.3'
 
-  spec.add_runtime_dependency 'libis-workflow', '~> 3.0'
+  spec.add_runtime_dependency 'libis-workflow', '~> 3.0.beta'
 
 end

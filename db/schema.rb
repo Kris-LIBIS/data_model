@@ -157,7 +157,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "type", null: false
     t.string "name", null: false
     t.string "label"
-    t.json "properties"
+    t.json "options", default: {}
+    t.json "properties", default: {}
     t.bigint "parent_id"
     t.bigint "package_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -290,7 +291,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.boolean "log_to_file", default: false
     t.string "log_level", default: "INFO"
     t.string "log_filename"
-    t.json "config"
+    t.string "name", null: false
+    t.json "options", default: {}
+    t.json "properties", default: {}
     t.bigint "package_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false

@@ -47,10 +47,10 @@ namespace :db do
   end
 
   desc 'Reset the database'
-  task :reset => [:drop, :create, :migrate, :schema, :seed]
+  task :reset => [:drop, :create, :migrate, :schema]
 
   desc 'Recreate the database'
-  task :recreate => [:drop, :create, :migrate, :schema]
+  task :recreate => [:drop, :create, :migrate, :schema, :seed]
 
   desc 'Create a db/schema.rb file that is portable against any DB supported by AR'
   task :schema do

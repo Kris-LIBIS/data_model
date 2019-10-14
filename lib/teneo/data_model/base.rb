@@ -4,7 +4,6 @@ require 'active_support/core_ext/hash/keys'
 require 'active_support/core_ext/object/with_options'
 require 'acts_as_list'
 require 'global_id'
-require 'libis/workflow'
 
 module Teneo
   module DataModel

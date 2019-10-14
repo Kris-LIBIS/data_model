@@ -325,8 +325,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   end
 
   create_table "status_logs", force: :cascade do |t|
-    t.string "task"
     t.string "status"
+    t.string "task"
     t.integer "progess"
     t.integer "max"
     t.bigint "item_id"

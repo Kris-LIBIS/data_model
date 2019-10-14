@@ -8,8 +8,6 @@ module Teneo
     autoload :ConversionTask, 'teneo/data_model/conversion_task'
     autoload :ConversionWorkflow, 'teneo/data_model/conversion_workflow'
     autoload :Converter, 'teneo/data_model/converter'
-    autoload :DirItem, 'teneo/data_model/dir_item'
-    autoload :FileItem, 'teneo/data_model/file_item'
     autoload :Format, 'teneo/data_model/format'
     autoload :IngestAgreement, 'teneo/data_model/ingest_agreement'
     autoload :IngestModel, 'teneo/data_model/ingest_model'

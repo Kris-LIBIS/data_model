@@ -292,6 +292,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "log_level", default: "INFO"
     t.string "log_filename"
     t.string "name", null: false
+    t.json "config", default: {}
     t.json "options", default: {}
     t.json "properties", default: {}
     t.bigint "package_id"

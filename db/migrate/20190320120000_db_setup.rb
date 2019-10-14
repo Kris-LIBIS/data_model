@@ -358,6 +358,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :log_level, default: 'INFO'
       t.string :log_filename
       t.string :name, null: false
+      t.json :config, default: {}
       t.json :options, default: {}
       t.json :properties, default: {}
 
@@ -382,8 +383,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
     end
 
     create_table :status_logs do |t|
-      t.string :task
       t.string :status
+      t.string :task
       t.integer :progess
       t.integer :max
 

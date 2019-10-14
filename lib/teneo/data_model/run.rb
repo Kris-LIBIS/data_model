@@ -1,21 +1,20 @@
 # frozen_string_literal: true
 require_relative 'base'
+require_relative 'serializers/hash_serializer'
 
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
   class Run < Base
 
-    include Libis::Workflow::Run
-
     self.table_name = 'runs'
 
     belongs_to :package
     has_many :status_logs
 
-    def job
-      package
-    end
+    serialize :config, Serializers::HashSerializer
+    serialize :options, Serializers::HashSerializer
+    serialize :properties, Serializers::HashSerializer
 
   end
 

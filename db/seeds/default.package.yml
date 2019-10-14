@@ -2,5 +2,5 @@
   name: 'IA2package1'
   values:
     location: '/upload/org2/package1'
-    selection: '^\.(JPG|jpg|PDF|pdf|TIF|tif)$'
+    selection: '\.(JPG|jpg|PDF|pdf|TIF|tif)$'
     collection: 'Org2/IA2'

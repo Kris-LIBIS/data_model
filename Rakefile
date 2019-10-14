@@ -49,6 +49,9 @@ namespace :db do
   desc 'Reset the database'
   task :reset => [:drop, :create, :migrate, :schema, :seed]
 
+  desc 'Recreate the database'
+  task :recreate => [:drop, :create, :migrate, :schema]
+
   desc 'Create a db/schema.rb file that is portable against any DB supported by AR'
   task :schema do
     ActiveRecord::Base.establish_connection(db_config)

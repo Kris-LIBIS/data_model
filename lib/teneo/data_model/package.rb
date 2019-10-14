@@ -1,12 +1,11 @@
 # frozen_string_literal: true
+
 require_relative 'base'
 
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
   class Package < Base
-
-    include Libis::Workflow::Job
 
     self.table_name = 'packages'
 
@@ -31,32 +30,9 @@ module Teneo::DataModel
       ingest_workflow = record_finder Teneo::DataModel::IngestWorkflow, query
       hash[:ingest_workflow_id] = ingest_workflow.id
 
-      params = params_from_values(hash.delete(:values))
+      params = params_from_values(ingest_workflow.name, hash.delete(:values))
 
       super(hash, id_tags).params_from_hash(params)
-    end
-
-    def tasks
-      ingest_workflow.tasks_info
-    end
-
-    def make_run
-      run = Run.new(name: run_name, package: self)
-      runs << run
-      run.save
-      run
-    end
-
-    def last_run
-      runs.order_by(created_at: :desc).first
-    end
-
-    def <<(item)
-      item.package = self
-    end
-
-    def item_list
-      items.to_a
     end
 
   end

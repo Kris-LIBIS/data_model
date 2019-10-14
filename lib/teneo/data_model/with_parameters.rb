@@ -53,6 +53,12 @@ module Teneo
         {}
       end
 
+      def parameters_list
+        parameters_hash(recursive: true, algo: :collapse).values.each_with_object({}) do |h, result|
+          h[:references].each { |ref| result[ref] = h[:default] }
+        end
+      end
+
       def child_parameters(export_only: false, unmapped_only: false)
         parameter_children.map(&:parameters).map(&:all).flatten.reject do |p|
           (export_only && !p.export) || (unmapped_only && p.sources.exists?(with_parameters: self))
@@ -75,9 +81,9 @@ module Teneo
         child_parameters_hash(reference).first
       end
 
-      def parameter_values(include_export = false)
+      def parameter_values(include_export = false, include_private = true)
         parameters.each_with_object({}) do |param, result|
-          next unless include_export || (param.respond_to?(:export) && !param.export)
+          next unless param.export ? include_export : include_private
           result[param.name] = param.default
         end
       end

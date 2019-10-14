@@ -8,8 +8,6 @@ module Teneo::DataModel
   # noinspection RailsParamDefResolve
   class Item < Base
 
-    include Libis::Workflow::WorkItem
-
     self.table_name = 'items'
 
     belongs_to :package
@@ -20,18 +18,6 @@ module Teneo::DataModel
 
     serialize :options, Serializers::HashSerializer
     serialize :properties, Serializers::HashSerializer
-
-    def job
-      package
-    end
-
-    def <<(item)
-      item.parent = self
-    end
-
-    def item_list
-      items.to_a
-    end
 
   end
 

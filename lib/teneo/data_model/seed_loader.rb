@@ -8,9 +8,10 @@ module Teneo
     class SeedLoader
       attr_reader :base_dir, :prompt
 
-      def initialize(base_dir)
+      def initialize(base_dir, tty: true)
         @base_dir = base_dir
-        @prompt = TTY::Prompt.new
+        @tty = tty
+        @prompt = tty ? TTY::Prompt.new : nil
         load
       end
 
@@ -37,31 +38,38 @@ module Teneo
 
       def load_data(klass_name)
         klass = "Teneo::DataModel::#{klass_name.to_s.classify}".constantize
-        spinner = TTY::Spinner::new("[:spinner] Loading #{klass_name}(s) :file :name", interval: 4)
-        spinner.auto_spin
-        spinner.update(file: '...', name: '')
-        spinner.start
-        Dir.children(base_dir).select {|f| f =~ /\.#{klass_name}\.yml$/}.sort.each do |filename|
-          spinner.update(file: "from '#{filename}'")
+        spinner = if @tty
+                    TTY::Spinner::new("[:spinner] Loading #{klass_name}(s) :file :name", interval: 4)
+                  else
+                    puts "Loading #{klass_name}(s)"
+                    nil
+                  end
+        spinner&.auto_spin
+        spinner&.update(file: '...', name: '')
+        spinner&.start
+        Dir.children(base_dir).select { |f| f =~ /\.#{klass_name}\.yml$/ }.sort.each do |filename|
+
+          spinner&.update(file: "from '#{filename}'") || puts(" - #{filename}")
           path = File.join(base_dir, filename)
           data = YAML.load_file(path)
           case data
           when Array
             data.each do |x|
               x.deep_symbolize_keys!
-              (n = x[:name] || x[x.keys.first]) && spinner.update(name: "object '#{n}'")
+              (n = x[:name] || x[x.keys.first]) && spinner&.update(name: "object '#{n}'") || puts("   . #{n}")
+
               klass.from_hash(x)
-              spinner.update(name: '')
+              spinner&.update(name: '')
             end
           when Hash
             klass.from_hash(data.deep_symbolize_keys)
           else
-            prompt.error "Illegal file content: 'path' - either Array or Hash expected."
+            prompt&.error "Illegal file content: 'path' - either Array or Hash expected."
           end
-          spinner.update(file: '...')
+          spinner&.update(file: '...')
         end
-        spinner.update(file: '- Done', name: '!')
-        spinner.success
+        spinner&.update(file: '- Done', name: '!') || puts(' - Done!')
+        spinner&.success
       end
 
     end

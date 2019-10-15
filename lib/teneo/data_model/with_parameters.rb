@@ -12,6 +12,19 @@ module Teneo
         self.has_many :parameters, as: :with_parameters, class_name: 'Teneo::DataModel::Parameter'
       end
 
+      def configure_parameters(hash)
+        child_params = child_parameters(export_only: true)
+        hash.each do |key, value|
+          param = Parameter.find_or_initialize_by(name: key, with_parameters: self)
+          param.default = value.to_s
+          param.save
+          child_params.each do |p|
+            next unless p.name == key
+            ParameterReference.create(source: param, target: p)
+          end
+        end
+      end
+
       def parameter_children
         []
       end
@@ -112,7 +125,7 @@ module Teneo
           values.each_with_object(Hash.new { |h, k| h[k] = {} }) do |(name, value), result|
             reference = "#{target_host}##{name}"
             ref_name = "#{target_host}##{name}"
-            result[ref_name] = {name: ref_name, targets: [reference], default: value, export: false}
+            result[ref_name] = { name: ref_name, targets: [reference], default: value, export: false }
           end
         end
 

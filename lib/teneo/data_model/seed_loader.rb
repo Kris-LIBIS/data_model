@@ -6,16 +6,49 @@ module Teneo
   module DataModel
 
     class SeedLoader
-      attr_reader :base_dir, :prompt
+      attr_reader :base_dir, :prompt, :tty, :quiet
 
-      def initialize(base_dir, tty: true)
+      def initialize(base_dir, tty: true, quiet: false)
         @base_dir = base_dir
         @tty = tty
-        @prompt = tty ? TTY::Prompt.new : nil
+        @quiet = quiet
+        @prompt = if quiet
+                    NoPrompt.new
+                  elsif tty
+                    TTY::Prompt.new
+                  else
+                    StdoutPrompt.new('')
+                  end
         load
       end
 
       private
+
+      class NoPrompt
+
+        def initialize(*args)
+        end
+
+        def method_missing(name, *args)
+        end
+
+      end
+
+      class StdoutPrompt < NoPrompt
+
+        def initialize(mask, *args)
+          @mask = mask
+        end
+
+        def update(opts = {})
+          puts @mask + opts.values.join(' ')
+        end
+
+        def error(msg)
+          puts "ERROR: #{msg}"
+        end
+
+      end
 
       def load
         load_data :format
@@ -38,38 +71,37 @@ module Teneo
 
       def load_data(klass_name)
         klass = "Teneo::DataModel::#{klass_name.to_s.classify}".constantize
-        spinner = if @tty
+        spinner = if quiet
+                    NoPrompt.new
+                  elsif tty
                     TTY::Spinner::new("[:spinner] Loading #{klass_name}(s) :file :name", interval: 4)
                   else
-                    puts "Loading #{klass_name}(s)"
-                    nil
+                    StdoutPrompt.new("Loading #{klass_name}(s) ")
                   end
-        spinner&.auto_spin
-        spinner&.update(file: '...', name: '')
-        spinner&.start
+        spinner.auto_spin
+        spinner.update(file: '...', name: '')
+        spinner.start
         Dir.children(base_dir).select { |f| f =~ /\.#{klass_name}\.yml$/ }.sort.each do |filename|
-
-          spinner&.update(file: "from '#{filename}'") || puts(" - #{filename}")
+          spinner.update(file: "from '#{filename}'", name: '')
           path = File.join(base_dir, filename)
           data = YAML.load_file(path)
           case data
           when Array
             data.each do |x|
               x.deep_symbolize_keys!
-              (n = x[:name] || x[x.keys.first]) && spinner&.update(name: "object '#{n}'") || puts("   . #{n}")
-
+              (n = x[:name] || x[x.keys.first]) && spinner.update(name: "object '#{n}'")
               klass.from_hash(x)
-              spinner&.update(name: '')
+              # spinner.update(name: '')
             end
           when Hash
             klass.from_hash(data.deep_symbolize_keys)
           else
-            prompt&.error "Illegal file content: 'path' - either Array or Hash expected."
+            prompt.error "Illegal file content: 'path' - either Array or Hash expected."
           end
-          spinner&.update(file: '...')
+          # spinner.update(file: '...')
         end
-        spinner&.update(file: '- Done', name: '!') || puts(' - Done!')
-        spinner&.success
+        spinner.update(file: '- Done', name: '!')
+        spinner.success
       end
 
     end

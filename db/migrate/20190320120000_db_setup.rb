@@ -370,26 +370,24 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :items do |t|
       t.string :type, null: false
-      # t.integer :position
+      t.references :parent, polymorphic: true
+      t.integer :position
       t.string :name, null: false
       t.string :label
       t.json :options, default: '{}'
       t.json :properties, default: '{}'
 
-      t.references :parent, foreign_key: {to_table: :items, on_delete: :cascade}
-      t.references :package, foreign_key: {on_delete: :cascade}
-
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      # t.index [:parent_id, :package_id, :position], unique: true
+      t.index [:parent_id, :position], unique: true
     end
 
     create_table :status_logs do |t|
       t.string :status
       t.string :task
-      t.integer :progress
-      t.integer :max
+      t.integer :progress, default: 0
+      t.integer :max, default: 0
 
       t.references :item, foreign_key: {on_delete: :cascade}
       t.references :run, foreign_key: true, null: false

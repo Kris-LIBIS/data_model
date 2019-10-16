@@ -155,17 +155,18 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "items", force: :cascade do |t|
     t.string "type", null: false
+    t.integer "position"
     t.string "name", null: false
     t.string "label"
     t.json "options", default: "{}"
     t.json "properties", default: "{}"
+    t.string "parent_type"
     t.bigint "parent_id"
-    t.bigint "package_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
-    t.index ["package_id"], name: "index_items_on_package_id"
-    t.index ["parent_id"], name: "index_items_on_parent_id"
+    t.index ["parent_id", "position"], name: "index_items_on_parent_id_and_position", unique: true
+    t.index ["parent_type", "parent_id"], name: "index_items_on_parent_type_and_parent_id"
   end
 
   create_table "material_flows", force: :cascade do |t|
@@ -327,8 +328,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "status_logs", force: :cascade do |t|
     t.string "status"
     t.string "task"
-    t.integer "progress"
-    t.integer "max"
+    t.integer "progress", default: 0
+    t.integer "max", default: 0
     t.bigint "item_id"
     t.bigint "run_id", null: false
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -391,8 +392,6 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "ingest_stages", "ingest_workflows"
   add_foreign_key "ingest_stages", "stage_workflows"
   add_foreign_key "ingest_workflows", "ingest_agreements"
-  add_foreign_key "items", "items", column: "parent_id", on_delete: :cascade
-  add_foreign_key "items", "packages", on_delete: :cascade
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
   add_foreign_key "packages", "ingest_workflows"

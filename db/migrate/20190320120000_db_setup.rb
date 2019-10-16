@@ -358,9 +358,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :log_level, default: 'INFO'
       t.string :log_filename
       t.string :name, null: false
-      t.json :config, default: {}
-      t.json :options, default: {}
-      t.json :properties, default: {}
+      t.json :config, default: '{}'
+      t.json :options, default: '{}'
+      t.json :properties, default: '{}'
 
       t.references :package, foreign_key: {on_delete: :cascade}
 
@@ -370,22 +370,25 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :items do |t|
       t.string :type, null: false
+      # t.integer :position
       t.string :name, null: false
       t.string :label
-      t.json :options, default: {}
-      t.json :properties, default: {}
+      t.json :options, default: '{}'
+      t.json :properties, default: '{}'
 
       t.references :parent, foreign_key: {to_table: :items, on_delete: :cascade}
       t.references :package, foreign_key: {on_delete: :cascade}
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
+
+      # t.index [:parent_id, :package_id, :position], unique: true
     end
 
     create_table :status_logs do |t|
       t.string :status
       t.string :task
-      t.integer :progess
+      t.integer :progress
       t.integer :max
 
       t.references :item, foreign_key: {on_delete: :cascade}

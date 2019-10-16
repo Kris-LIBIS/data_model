@@ -16,6 +16,9 @@ module Teneo::DataModel
     belongs_to :parent, inverse_of: :items, class_name: self.name
     has_many :items, inverse_of: :parent, foreign_key: :parent_id
 
+    # noinspection RubyExpressionInStringInspection
+    # acts_as_list scope: 'parent_id = #{parent_id} AND package_id = #{package_id}', add_new_at: :bottom
+
     serialize :options, Serializers::HashSerializer
     serialize :properties, Serializers::HashSerializer
 

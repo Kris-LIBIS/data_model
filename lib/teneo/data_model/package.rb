@@ -11,8 +11,8 @@ module Teneo::DataModel
 
     belongs_to :ingest_workflow
 
-    has_many :items, inverse_of: :package
-    has_many :runs, inverse_of: :package
+    has_many :items, -> { order(position: :asc) }, inverse_of: :package
+    has_many :runs, -> { order(created_at: :asc) }, inverse_of: :package
 
     has_many :parameter_values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
 

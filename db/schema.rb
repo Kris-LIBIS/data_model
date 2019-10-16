@@ -157,8 +157,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "type", null: false
     t.string "name", null: false
     t.string "label"
-    t.json "options", default: {}
-    t.json "properties", default: {}
+    t.json "options", default: "{}"
+    t.json "properties", default: "{}"
     t.bigint "parent_id"
     t.bigint "package_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -292,9 +292,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "log_level", default: "INFO"
     t.string "log_filename"
     t.string "name", null: false
-    t.json "config", default: {}
-    t.json "options", default: {}
-    t.json "properties", default: {}
+    t.json "config", default: "{}"
+    t.json "options", default: "{}"
+    t.json "properties", default: "{}"
     t.bigint "package_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -327,7 +327,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   create_table "status_logs", force: :cascade do |t|
     t.string "status"
     t.string "task"
-    t.integer "progess"
+    t.integer "progress"
     t.integer "max"
     t.bigint "item_id"
     t.bigint "run_id", null: false

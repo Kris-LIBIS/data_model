@@ -9,7 +9,7 @@ module Teneo::DataModel
 
     belongs_to :ingest_agreement, inverse_of: :ingest_workflows
 
-    has_many :packages
+    has_many :packages, -> { order(created_at: :asc) }
     has_many :ingest_stages, -> { order_as_specified(stage: Teneo::DataModel::IngestStage::STAGE_LIST) }
     has_many :stage_workflows, through: :ingest_stages
 

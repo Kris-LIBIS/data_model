@@ -12,17 +12,22 @@ module Teneo
         self.has_many :parameters, as: :with_parameters, class_name: 'Teneo::DataModel::Parameter'
       end
 
-      def configure_parameters(hash)
-        child_params = child_parameters(export_only: true)
-        hash.each do |key, value|
-          param = Parameter.find_or_initialize_by(name: key, with_parameters: self)
-          param.default = value.to_s
-          param.save
-          child_params.each do |p|
-            next unless p.name == key
-            ParameterReference.create(source: param, target: p)
-          end
+      def add_parameter(name:, targets: [], **opts)
+        param = Parameter.find_or_initialize_by(name: name, with_parameters: self)
+        param.update(
+            opts.slice(
+                *(param.attribute_names.map(&:to_sym) -
+                    %i'id created_at updated_at lock_version with_parameters_id with_parameters_type'
+                )
+            )
+        )
+        param.save!
+        child_parameters(export_only: true).each do |p|
+          next unless targets.include?(p.reference_name)
+          targets.delete(p.reference_name)
+          ParameterReference.create(source: param, target: p)
         end
+        raise RuntimeError, "Parameter #{name} added, but could not find targets #{targets}." unless targets.empty?
       end
 
       def parameter_children

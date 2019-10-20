@@ -394,6 +394,13 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
     end
 
+    create_table :metadata_records do |t|
+      t.string :format, null: false
+      t.jsonb :data
+
+      t.references :item, foreign_key: true, null: false
+    end
+
     # Formats database
     # ################
 

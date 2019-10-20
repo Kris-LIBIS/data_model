@@ -10,10 +10,11 @@ module Teneo::DataModel
 
     self.table_name = 'items'
 
-    has_many :status_logs
+    has_many :status_logs, inverse_of: :item, dependent: :nullify
+    has_one :metadata_record, inverse_of: :item, dependent: :destroy
 
     belongs_to :parent, polymorphic: true
-    has_many :items, -> { order(position: :asc) }, as: :parent, class_name: 'Teneo::DataModel::Item'
+    has_many :items, -> { order(position: :asc) }, as: :parent, class_name: 'Teneo::DataModel::Item', dependent: :destroy
 
     acts_as_list scope: :parent, add_new_at: :bottom
 

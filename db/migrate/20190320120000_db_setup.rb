@@ -380,17 +380,16 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      t.index [:parent_id, :position], unique: true
+      t.index [:parent_type, :parent_id, :position], unique: true
     end
 
     create_table :status_logs do |t|
       t.string :status
+      t.references :item, foreign_key: true
+      t.references :run, foreign_key: true, null: false
       t.string :task
       t.integer :progress, default: 0
       t.integer :max, default: 0
-
-      t.references :item, foreign_key: {on_delete: :cascade}
-      t.references :run, foreign_key: true, null: false
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
     end

@@ -15,6 +15,7 @@ module Teneo
     autoload :IngestWorkflow, 'teneo/data_model/ingest_workflow'
     autoload :Item, 'teneo/data_model/item'
     autoload :MaterialFlow, 'teneo/data_model/material_flow'
+    autoload :MessageLog, 'teneo/data_model/message_log'
     autoload :Membership, 'teneo/data_model/membership'
     autoload :Organization, 'teneo/data_model/organization'
     autoload :Package, 'teneo/data_model/package'

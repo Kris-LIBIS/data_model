@@ -358,9 +358,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :log_level, default: 'INFO'
       t.string :log_filename
       t.string :name, null: false
-      t.json :config, default: '{}'
-      t.json :options, default: '{}'
-      t.json :properties, default: '{}'
+      t.jsonb :config, default: '{}'
+      t.jsonb :options, default: '{}'
+      t.jsonb :properties, default: '{}'
 
       t.references :package, foreign_key: {on_delete: :cascade}
 
@@ -374,13 +374,20 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.integer :position
       t.string :name, null: false
       t.string :label
-      t.json :options, default: '{}'
-      t.json :properties, default: '{}'
+      t.jsonb :options, default: '{}'
+      t.jsonb :properties, default: '{}'
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:parent_type, :parent_id, :position], unique: true
+    end
+
+    create_table :metadata_records do |t|
+      t.string :format, null: false
+      t.jsonb :data
+
+      t.references :item, foreign_key: true, null: false
     end
 
     create_table :status_logs do |t|
@@ -394,11 +401,18 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
     end
 
-    create_table :metadata_records do |t|
-      t.string :format, null: false
+    create_table :message_logs do |t|
+      t.string :severity
+      t.references :item, foreign_key: true
+      t.references :run, foreign_key: true, null: false
+      t.string :task
+      t.string :message
       t.jsonb :data
 
-      t.references :item, foreign_key: true, null: false
+      t.datetime :created_at, null: false, default: -> {'CURRENT_TIMESTAMP'}
+
+      t.index [:run, :severity]
+      t.index [:item, :severity]
     end
 
     # Formats database

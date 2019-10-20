@@ -155,17 +155,17 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "items", force: :cascade do |t|
     t.string "type", null: false
+    t.string "parent_type"
+    t.bigint "parent_id"
     t.integer "position"
     t.string "name", null: false
     t.string "label"
     t.json "options", default: "{}"
     t.json "properties", default: "{}"
-    t.string "parent_type"
-    t.bigint "parent_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
-    t.index ["parent_id", "position"], name: "index_items_on_parent_id_and_position", unique: true
+    t.index ["parent_type", "parent_id", "position"], name: "index_items_on_parent_type_and_parent_id_and_position", unique: true
     t.index ["parent_type", "parent_id"], name: "index_items_on_parent_type_and_parent_id"
   end
 
@@ -327,11 +327,11 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
 
   create_table "status_logs", force: :cascade do |t|
     t.string "status"
+    t.bigint "item_id"
+    t.bigint "run_id", null: false
     t.string "task"
     t.integer "progress", default: 0
     t.integer "max", default: 0
-    t.bigint "item_id"
-    t.bigint "run_id", null: false
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["item_id"], name: "index_status_logs_on_item_id"
@@ -404,7 +404,7 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "runs", "packages", on_delete: :cascade
   add_foreign_key "stage_tasks", "stage_workflows"
   add_foreign_key "stage_tasks", "tasks"
-  add_foreign_key "status_logs", "items", on_delete: :cascade
+  add_foreign_key "status_logs", "items"
   add_foreign_key "status_logs", "runs"
   add_foreign_key "storages", "organizations"
   add_foreign_key "storages", "storage_types"

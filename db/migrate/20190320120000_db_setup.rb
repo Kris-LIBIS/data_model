@@ -411,8 +411,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.datetime :created_at, null: false, default: -> {'CURRENT_TIMESTAMP'}
 
-      t.index [:run, :severity]
-      t.index [:item, :severity]
+      t.index [:run_id, :severity]
+      t.index [:item_id, :severity]
     end
 
     # Formats database

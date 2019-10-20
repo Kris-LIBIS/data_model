@@ -160,8 +160,8 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.integer "position"
     t.string "name", null: false
     t.string "label"
-    t.json "options", default: "{}"
-    t.json "properties", default: "{}"
+    t.jsonb "options", default: "{}"
+    t.jsonb "properties", default: "{}"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "lock_version", default: 0, null: false
@@ -188,6 +188,27 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.index ["organization_id"], name: "index_memberships_on_organization_id"
     t.index ["user_id", "organization_id", "role"], name: "index_memberships_on_user_id_and_organization_id_and_role", unique: true
     t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
+  create_table "message_logs", force: :cascade do |t|
+    t.string "severity"
+    t.bigint "item_id"
+    t.bigint "run_id", null: false
+    t.string "task"
+    t.string "message"
+    t.jsonb "data"
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.index ["item_id", "severity"], name: "index_message_logs_on_item_id_and_severity"
+    t.index ["item_id"], name: "index_message_logs_on_item_id"
+    t.index ["run_id", "severity"], name: "index_message_logs_on_run_id_and_severity"
+    t.index ["run_id"], name: "index_message_logs_on_run_id"
+  end
+
+  create_table "metadata_records", force: :cascade do |t|
+    t.string "format", null: false
+    t.jsonb "data"
+    t.bigint "item_id", null: false
+    t.index ["item_id"], name: "index_metadata_records_on_item_id"
   end
 
   create_table "organizations", force: :cascade do |t|
@@ -293,9 +314,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
     t.string "log_level", default: "INFO"
     t.string "log_filename"
     t.string "name", null: false
-    t.json "config", default: "{}"
-    t.json "options", default: "{}"
-    t.json "properties", default: "{}"
+    t.jsonb "config", default: "{}"
+    t.jsonb "options", default: "{}"
+    t.jsonb "properties", default: "{}"
     t.bigint "package_id"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -394,6 +415,9 @@ ActiveRecord::Schema.define(version: 2019_03_20_120000) do
   add_foreign_key "ingest_workflows", "ingest_agreements"
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
+  add_foreign_key "message_logs", "items"
+  add_foreign_key "message_logs", "runs"
+  add_foreign_key "metadata_records", "items"
   add_foreign_key "packages", "ingest_workflows"
   add_foreign_key "parameter_references", "parameters", column: "source_id"
   add_foreign_key "parameter_references", "parameters", column: "target_id"

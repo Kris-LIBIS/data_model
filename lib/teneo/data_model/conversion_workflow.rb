@@ -10,7 +10,7 @@ module Teneo::DataModel
     belongs_to :representation
     acts_as_list scope: :representation, add_new_at: :bottom
 
-    has_many :conversion_tasks, -> { order(position: :asc) }, inverse_of: :conversion_workflow
+    has_many :conversion_tasks, -> { order(position: :asc) }, inverse_of: :conversion_workflow, dependent: :destroy
     has_many :conversions, through: :conversion_tasks
 
     array_field :input_formats

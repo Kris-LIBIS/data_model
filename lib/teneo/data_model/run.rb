@@ -10,7 +10,7 @@ module Teneo::DataModel
     self.table_name = 'runs'
 
     belongs_to :package
-    has_many :status_logs
+    has_many :status_logs, dependent: :destroy
 
     serialize :config, Serializers::HashSerializer
     serialize :options, Serializers::HashSerializer

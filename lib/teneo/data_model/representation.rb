@@ -14,9 +14,9 @@ module Teneo::DataModel
     belongs_to :access_right, optional: true
 
     belongs_to :from, class_name: 'Representation', inverse_of: :dependencies, optional: true
-    has_many :dependencies, class_name: 'Representation', foreign_key: :from_id, inverse_of: :from
+    has_many :dependencies, class_name: 'Representation', foreign_key: :from_id, inverse_of: :from, dependent: :nullify
 
-    has_many :conversion_workflows, -> { order(position: :asc) }, inverse_of: :representation
+    has_many :conversion_workflows, -> { order(position: :asc) }, inverse_of: :representation, dependent: :destroy
 
     def name
       label

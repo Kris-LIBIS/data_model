@@ -11,10 +11,10 @@ module Teneo::DataModel
 
     belongs_to :ingest_workflow
 
-    has_many :items, -> { order(position: :asc) }, as: :parent, class_name: 'Teneo::DataModel::Item'
-    has_many :runs, -> { order(id: :asc) }, inverse_of: :package
+    has_many :items, -> { order(position: :asc) }, as: :parent, class_name: 'Teneo::DataModel::Item', dependent: :destroy
+    has_many :runs, -> { order(id: :asc) }, inverse_of: :package, dependent: :destroy
 
-    has_many :parameter_values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue'
+    has_many :parameter_values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue', dependent: :destroy
 
     validate :safe_name
 

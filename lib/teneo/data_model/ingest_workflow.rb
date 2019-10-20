@@ -9,11 +9,11 @@ module Teneo::DataModel
 
     belongs_to :ingest_agreement, inverse_of: :ingest_workflows
 
-    has_many :packages, -> { order(id: :asc) }
-    has_many :ingest_stages, -> { order_as_specified(stage: Teneo::DataModel::IngestStage::STAGE_LIST) }
-    has_many :stage_workflows, through: :ingest_stages
+    has_many :packages, -> { order(id: :asc) }, dependent: :destroy
+    has_many :ingest_stages, -> { order_as_specified(stage: Teneo::DataModel::IngestStage::STAGE_LIST) }, dependent: :destroy
+    has_many :stage_workflows, through: :ingest_stages, dependent: :destroy
 
-    has_many :parameter_refs, as: :with_param_refs, class_name: 'Teneo::DataModel::ParameterRef'
+    has_many :parameter_refs, as: :with_param_refs, class_name: 'Teneo::DataModel::ParameterRef', dependent: :destroy
 
     validates :name, presence: true
     validate :safe_name

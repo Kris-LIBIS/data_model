@@ -9,10 +9,10 @@ module Teneo::DataModel
 
     STAGE_LIST = Teneo::DataModel::Task::STAGE_LIST
 
-    has_many :stage_tasks, -> { order(position: :asc) }, inverse_of: :stage_workflow
+    has_many :stage_tasks, -> { order(position: :asc) }, inverse_of: :stage_workflow, dependent: :destroy
     has_many :tasks, through: :stage_tasks
 
-    has_many :ingest_stages, inverse_of: :stage_workfow
+    has_many :ingest_stages, inverse_of: :stage_workfow, dependent: :nullify
     has_many :ingest_workflows, through: :ingest_stages
 
     validates :name, presence: true

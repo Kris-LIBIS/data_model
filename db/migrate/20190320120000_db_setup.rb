@@ -257,6 +257,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.integer :position, null: false
       t.string :label, null: false
       t.boolean :optional, default: false
+      t.boolean :keep_structure, default: true
 
       t.references :access_right, foreign_key: true
       t.references :representation_info, foreign_key: true, null: false
@@ -275,6 +276,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.integer :position, null: false
       t.string :name
       t.string :description
+      t.boolean :copy_files, default: false
       t.string :input_formats, array: true
       t.string :input_filename_regex
 

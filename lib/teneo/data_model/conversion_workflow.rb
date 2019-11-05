@@ -27,13 +27,14 @@ module Teneo::DataModel
       tasks = hash.delete(:tasks) || []
 
       super(hash, id_tags).tap do |item|
-        item.conversion_tasks.clear
+        old = item.conversion_tasks.map(&:id)
         if tasks
           tasks.each do |task|
             task[:conversion_workflow_id] = item.id
             item.conversion_tasks << Teneo::DataModel::ConversionTask.from_hash(task)
           end
         end
+        (old - item.conversion_tasks.map(&:id)).each { |id| item.conversion_tasks.find(id)&.destroy! }
       end
     end
 

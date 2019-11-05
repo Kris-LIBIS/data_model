@@ -16,7 +16,7 @@ module Teneo::DataModel
     has_many :ingest_workflows, through: :ingest_stages
 
     validates :name, presence: true
-    validates :stage, presence: true, inclusion: {in: STAGE_LIST}
+    validates :stage, presence: true, inclusion: { in: STAGE_LIST }
 
     include WithParameters
 
@@ -29,13 +29,14 @@ module Teneo::DataModel
       tasks = hash.delete(:tasks) || []
 
       super(hash, id_tags).tap do |item|
-        item.stage_tasks.clear
+        old = item.stage_tasks.map(&:id)
         tasks.each_with_index do |task, i|
           params.merge!(params_from_values(task[:task], task.delete(:values)))
           task[:stage_workflow_id] = item.id
           task[:position] = i + 1
           item.stage_tasks << Teneo::DataModel::StageTask.from_hash(task)
         end
+        (old - item.stage_tasks.map(&:id)).each { |id| item.stage_tasks.find(id)&.destroy! }
       end.params_from_hash(params)
     end
 

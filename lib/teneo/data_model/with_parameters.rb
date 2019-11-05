@@ -108,7 +108,7 @@ module Teneo
 
       def params_from_hash(params)
         return unless params
-        parameters.clear
+        old_params = parameters.map(&:id)
         params.each do |name, definition|
           definition[:name] = name
           definition[:with_parameters_type] = self.class.name
@@ -118,6 +118,10 @@ module Teneo
           parameter = Teneo::DataModel::Parameter.from_hash(definition)
           parameters << parameter
           parameter.target_list = targets
+        end
+        obsolete_params = old_params - parameters.map(&:id)
+        obsolete_params.each do |id|
+          parameters.find(id)&.destroy!
         end
         save!
         self

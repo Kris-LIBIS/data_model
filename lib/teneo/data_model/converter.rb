@@ -7,7 +7,7 @@ module Teneo::DataModel
   class Converter < Base
     self.table_name = 'converters'
 
-    CATEGORY_LIST = %w'converter assembler splitter'
+    CATEGORY_LIST = %w'selecter converter assembler splitter'
 
     has_many :conversion_tasks
 

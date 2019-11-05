@@ -24,7 +24,7 @@ module Teneo::DataModel
 
     def self.from_hash(hash, id_tags = [:ingest_model_id, :label])
       model_name = hash.delete(:ingest_model)
-      query = model_name ? {name: model_name} : {id: hash[:ingest_model_id]}
+      query = model_name ? { name: model_name } : { id: hash[:ingest_model_id] }
       ingest_model = record_finder Teneo::DataModel::IngestModel, query
       hash[:ingest_model_id] = ingest_model.id
 
@@ -43,11 +43,12 @@ module Teneo::DataModel
       end
 
       if conversion_workflows
-        item.conversion_workflows.clear
+        old = item.conversion_workflows.map(&:id)
         conversion_workflows.each do |conversion_workflow|
           item.conversion_workflows <<
               Teneo::DataModel::ConversionWorkflow.from_hash(conversion_workflow.merge(representation_id: item.id))
         end
+        (old - item.conversion_workflows.map(&:id)).each { |id| item.conversion_workflows.find(id)&.destroy! }
         item.save!
       end
 

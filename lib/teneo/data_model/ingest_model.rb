@@ -22,7 +22,7 @@ module Teneo::DataModel
     belongs_to :retention_policy
     belongs_to :access_right
 
-    validates :name, uniqueness: {scope: :ingest_agreement_id}
+    validates :name, uniqueness: { scope: :ingest_agreement_id }
     validates :access_right_id, :retention_policy_id, presence: true
     validate :template_reference
 
@@ -33,7 +33,7 @@ module Teneo::DataModel
 
     def self.from_hash(hash, id_tags = [:ingest_agreement_id, :name])
       agreement_name = hash.delete(:ingest_agreement)
-      query = agreement_name ? {name: agreement_name} : {id: hash[:ingest_agreement_id]}
+      query = agreement_name ? { name: agreement_name } : { id: hash[:ingest_agreement_id] }
       ingest_agreement = record_finder Teneo::DataModel::IngestAgreement, query
       hash[:ingest_agreement_id] = ingest_agreement.id
 
@@ -44,12 +44,13 @@ module Teneo::DataModel
         item.retention_policy = record_finder Teneo::DataModel::RetentionPolicy, name: h.delete(:retention_policy)
       end.tap do |item|
         if representations
-          item.representations.clear
+          old = item.representations.map(&:id)
           representations.each_with_index do |representation, i|
             representation[:ingest_model_id] = item.id
             representation[:position] = i + 1
             Teneo::DataModel::Representation.from_hash(representation)
           end
+          (old - item.representations.map(&:id)).each { |id| item.representations.find(id)&.destroy! }
           item.save!
         end
       end

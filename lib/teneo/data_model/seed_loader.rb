@@ -22,7 +22,7 @@ module Teneo
         load
       end
 
-      private
+      protected
 
       class NoPrompt
 
@@ -61,6 +61,7 @@ module Teneo
         load_data :storage_type
         load_data :organization
         load_data :user
+        load_data :membership
         load_data :ingest_agreement
         load_data :task
         load_data :stage_workflow
@@ -69,19 +70,25 @@ module Teneo
         load_data :package
       end
 
+      def create_spinner(klass_name)
+        if quiet
+          NoPrompt.new
+        elsif tty
+          TTY::Spinner::new("[:spinner] Loading #{klass_name}(s) :file :name", interval: 4)
+        else
+          StdoutPrompt.new("Loading #{klass_name}(s) ")
+        end
+      end
+
       def load_data(klass_name)
         klass = "Teneo::DataModel::#{klass_name.to_s.classify}".constantize
-        spinner = if quiet
-                    NoPrompt.new
-                  elsif tty
-                    TTY::Spinner::new("[:spinner] Loading #{klass_name}(s) :file :name", interval: 4)
-                  else
-                    StdoutPrompt.new("Loading #{klass_name}(s) ")
-                  end
+        file_list = Dir.children(base_dir).select { |f| f =~ /\.#{klass_name}\.yml$/ }.sort
+        return unless file_list.size > 0
+        spinner = create_spinner(klass_name)
         spinner.auto_spin
         spinner.update(file: '...', name: '')
         spinner.start
-        Dir.children(base_dir).select { |f| f =~ /\.#{klass_name}\.yml$/ }.sort.each do |filename|
+        file_list.each do |filename|
           spinner.update(file: "from '#{filename}'", name: '')
           path = File.join(base_dir, filename)
           data = YAML.load_file(path)

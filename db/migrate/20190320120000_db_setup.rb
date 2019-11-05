@@ -149,13 +149,13 @@ class DbSetup < ActiveRecord::Migration[5.2]
     # ##########
 
     create_table :converters do |t|
+      t.string :category, null: false, default: 'converter'
       t.string :name
-      t.string :description
       t.string :class_name
-      t.string :script_name
+      t.string :description
+      t.string :help
       t.string :input_formats, array: true
       t.string :output_formats, array: true
-      t.string :category, null: false, default: 'converter'
       # with_parameter_defs
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
@@ -277,6 +277,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :name
       t.string :description
       t.boolean :copy_files, default: false
+      t.boolean :copy_structure, default: true
       t.string :input_formats, array: true
       t.string :input_filename_regex
 
@@ -368,6 +369,9 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
+
+      t.index :options, using: :gin
+      t.index :properties, using: :gin
     end
 
     create_table :items do |t|
@@ -383,6 +387,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:parent_type, :parent_id, :position], unique: true
+      t.index :options, using: :gin
+      t.index :properties, using: :gin
     end
 
     create_table :metadata_records do |t|

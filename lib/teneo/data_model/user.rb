@@ -33,23 +33,15 @@ module Teneo
       # @param [Hash] hash
       def self.from_hash(hash)
         roles = hash.delete(:roles)
-        item = super(hash, [:email])
-        item.memberships.clear
-        if roles
+        super(hash, [:email]).tap do |item|
+          old = item.memberships.map(&:id)
           roles.each do |role|
-            organization_name = role[:organization]
-            org = Teneo::DataModel::Organization.find_by(name: organization_name)
-            puts "Could not find organization '#{organization_name}'" unless org
-            role_code = role[:role]
-            if Teneo::DataModel::Membership::ROLE_LIST.include? role_code
-              item.add_role(role_code, org) if org
-            else
-              puts "Invalid role '#{role_code}'"
-            end
+            role[:user_id] = item.id
+            item.memberships << Teneo::DataModel::Membership.from_hash(role)
           end
+          (old - item.memberships.map(&:id)).each { |id| item.memberships.find(id)&.destroy! }
           item.save!
         end
-        item
       end
 
       # sanitize email and username

@@ -25,10 +25,11 @@ module Teneo
         storages = hash.delete(:storages)
         item = super(hash, [:name, :inst_code])
         if storages
-          item.storages.clear
+          old = item.storages.map(&:id)
           storages.each do |name, data|
             item.storages << Teneo::DataModel::Storage.from_hash(data.merge(name: name, organization_id: item.id))
           end
+          (old - item.storages.map(&:id)).each { |id| item.storages.find(id)&.destroy! }
           item.save!
         end
         item

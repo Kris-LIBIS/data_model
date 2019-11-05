@@ -33,7 +33,7 @@ module Teneo::DataModel
 
     def self.from_hash(hash, id_tags = [:organization_id, :name])
       org_name = hash.delete(:organization)
-      query = org_name ? {name: org_name} : {id: hash[:organization_id]}
+      query = org_name ? { name: org_name } : { id: hash[:organization_id] }
       organization = record_finder Teneo::DataModel::Organization, query
       hash[:organization_id] = organization.id
       ingest_models = hash.delete(:ingest_models)
@@ -43,21 +43,23 @@ module Teneo::DataModel
           item.producer = record_finder Teneo::DataModel::Producer, inst_code: organization.inst_code, name: producer
         end
         if (material_flow = h.delete(:material_flow))
-          item.material_flow =record_finder Teneo::DataModel::MaterialFlow, inst_code: organization.inst_code, name: material_flow
+          item.material_flow = record_finder Teneo::DataModel::MaterialFlow, inst_code: organization.inst_code, name: material_flow
         end
       end
       if ingest_models
-        item.ingest_models.clear
+        old = item.ingest_models.map(&:id)
         ingest_models.each do |ingest_model|
           item.ingest_models << Teneo::DataModel::IngestModel.from_hash(ingest_model.merge(ingest_agreement_id: item.id))
         end
+        (old - item.ingest_models.map(&:id)).each { |id| item.ingest_models.find(id)&.destroy! }
         item.save!
       end
       if ingest_workflows
-        item.ingest_workflows.clear
+        old = item.ingest_workflows.map(&:id)
         ingest_workflows.each do |ingest_workflow|
           item.ingest_workflows << Teneo::DataModel::IngestWorkflow.from_hash(ingest_workflow.merge(ingest_agreement_id: item.id))
         end
+        (old - item.ingest_workflows.map(&:id)).each { |id| item.ingest_workflows.find(id)&.destroy! }
         item.save!
       end
       item

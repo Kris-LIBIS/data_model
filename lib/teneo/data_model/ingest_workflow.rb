@@ -26,7 +26,7 @@ module Teneo::DataModel
 
     def self.from_hash(hash, id_tags = [:ingest_agreement_id, :name])
       agreement_name = hash.delete(:ingest_agreement)
-      query = agreement_name ? {name: agreement_name} : {id: hash[:ingest_agreement_id]}
+      query = agreement_name ? { name: agreement_name } : { id: hash[:ingest_agreement_id] }
       ingest_agreement = record_finder Teneo::DataModel::IngestAgreement, query
       hash[:ingest_agreement_id] = ingest_agreement.id
 
@@ -34,12 +34,13 @@ module Teneo::DataModel
       stages = hash.delete(:stages) || []
 
       super(hash, id_tags).tap do |item|
-        item.ingest_stages.clear
+        old = item.ingest_stages.map(&:id)
         stages.each do |stage|
           params.merge!(params_from_values(stage[:workflow], stage.delete(:values)))
           stage[:ingest_workflow_id] = item.id
           item.ingest_stages << Teneo::DataModel::IngestStage.from_hash(stage)
         end
+        (old - item.ingest_stages.map(&:id)).each { |id| item.ingest_stages.find(id).destroy! }
       end.params_from_hash(params)
     end
 

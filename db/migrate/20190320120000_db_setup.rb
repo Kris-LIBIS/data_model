@@ -152,6 +152,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :category, null: false, default: 'converter'
       t.string :name
       t.string :class_name
+      t.string :script_name
       t.string :description
       t.string :help
       t.string :input_formats, array: true
@@ -197,7 +198,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      t.index [:stage_workflow_id, :position], unique: true
+      t.index [:stage_workflow_id, :position]#, unique: true
     end
 
 
@@ -254,7 +255,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     end
 
     create_table :representations do |t|
-      t.integer :position, null: false
+      t.integer :position
       t.string :label, null: false
       t.boolean :optional, default: false
       t.boolean :keep_structure, default: true
@@ -268,12 +269,12 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      t.index [:ingest_model_id, :position], unique: true
+      t.index [:ingest_model_id, :position]#, unique: true
       t.index [:ingest_model_id, :label], unique: true
     end
 
     create_table :conversion_workflows do |t|
-      t.integer :position, null: false
+      t.integer :position
       t.string :name
       t.string :description
       t.boolean :copy_files, default: false
@@ -287,12 +288,12 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:representation_id, :name], unique: true
-      t.index [:representation_id, :position], unique: true
+      t.index [:representation_id, :position]#, unique: true
 
     end
 
     create_table :conversion_tasks do |t|
-      t.integer :position, null: false
+      t.integer :position
       t.string :name, null: false
       t.string :description
       t.string :output_format
@@ -305,7 +306,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.column :lock_version, :integer, null: false, default: 0
 
       t.index [:conversion_workflow_id, :name], unique: true
-      t.index [:conversion_workflow_id, :position], unique: true
+      t.index [:conversion_workflow_id, :position]#, unique: true
 
     end
 
@@ -386,14 +387,14 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
 
-      t.index [:parent_type, :parent_id, :position], unique: true
+      t.index [:parent_type, :parent_id, :position]#, unique: true
       t.index :options, using: :gin
       t.index :properties, using: :gin
     end
 
     create_table :metadata_records do |t|
       t.string :format, null: false
-      t.jsonb :data
+      t.xml :data
 
       t.references :item, foreign_key: true, null: false
     end
@@ -430,13 +431,13 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :name, null: false, index: {unique: true}
       t.string :category, null: false
       t.string :description
-      t.string :mime_types, array: true, null: false
+      t.string :mimetypes, array: true, null: false
       t.string :puids, array: true
       t.string :extensions, array: true, null: false
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
 
-      t.index :mime_types, using: :gin
+      t.index :mimetypes, using: :gin
       t.index :puids, using: :gin
       t.index :extensions, using: :gin
     end

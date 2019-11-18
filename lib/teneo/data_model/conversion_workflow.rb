@@ -1,16 +1,16 @@
 # frozen_string_literal: true
-require_relative 'base'
+require_relative 'base_sorted'
 
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
-  class ConversionWorkflow < Base
+  class ConversionWorkflow < BaseSorted
     self.table_name = 'conversion_workflows'
+    ranks :position, with_same: :representation_id
 
     belongs_to :representation
-    acts_as_list scope: :representation, add_new_at: :bottom
 
-    has_many :conversion_tasks, -> { order(position: :asc) }, inverse_of: :conversion_workflow, dependent: :destroy
+    has_many :conversion_tasks, -> { rank(:position) }, inverse_of: :conversion_workflow, dependent: :destroy
     has_many :converters, through: :conversion_tasks
 
     array_field :input_formats

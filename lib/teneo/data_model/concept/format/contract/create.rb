@@ -9,7 +9,7 @@ module Teneo::DataModel::Format::Contract
     property :name
     property :category
     property :description
-    property :mime_types
+    property :mimetypes
     property :puids
     property :extensions
 
@@ -17,7 +17,7 @@ module Teneo::DataModel::Format::Contract
       required(:name).filled(:str?) {unique?(:name)}
       required(:category).filled(:str?, included_in?: %w'IMAGE AUDIO VIDEO TEXT TABULAR PRESENTATION ARCHIVE EMAIL OTHER')
       optional(:description).maybe(:str?, :filled?)
-      required(:mime_types).filled {array_of? String}
+      required(:mimetypes).filled {array_of? String}
       optional(:puids).maybe(:filled?) {array_of? String}
       required(:extensions).filled {array_of? String}
     end

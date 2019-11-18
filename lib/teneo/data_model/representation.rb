@@ -1,14 +1,14 @@
 # frozen_string_literal: true
-require_relative 'base'
+require_relative 'base_sorted'
 
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
-  class Representation < Base
+  class Representation < BaseSorted
     self.table_name = 'representations'
+    ranks :position, with_same: :ingest_model_id
 
     belongs_to :ingest_model
-    acts_as_list scope: :ingest_model, add_new_at: :bottom
 
     belongs_to :representation_info
     belongs_to :access_right, optional: true
@@ -16,7 +16,7 @@ module Teneo::DataModel
     belongs_to :from, class_name: 'Representation', inverse_of: :dependencies, optional: true
     has_many :dependencies, class_name: 'Representation', foreign_key: :from_id, inverse_of: :from, dependent: :nullify
 
-    has_many :conversion_workflows, -> { order(position: :asc) }, inverse_of: :representation, dependent: :destroy
+    has_many :conversion_workflows, -> { rank(:position) }, inverse_of: :representation, dependent: :destroy
 
     def name
       label

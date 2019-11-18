@@ -1,5 +1,6 @@
 require "teneo/data_model/version"
 require 'yaml'
+require 'active_record_extended'
 
 module Teneo
   module DataModel
@@ -16,6 +17,7 @@ module Teneo
     autoload :Item, 'teneo/data_model/item'
     autoload :MaterialFlow, 'teneo/data_model/material_flow'
     autoload :MessageLog, 'teneo/data_model/message_log'
+    autoload :MetadataRecord, 'teneo/data_model/metadata_record'
     autoload :Membership, 'teneo/data_model/membership'
     autoload :Organization, 'teneo/data_model/organization'
     autoload :Package, 'teneo/data_model/package'

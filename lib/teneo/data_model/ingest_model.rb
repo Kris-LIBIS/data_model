@@ -9,7 +9,7 @@ module Teneo::DataModel
 
     belongs_to :ingest_agreement, inverse_of: :ingest_models
 
-    has_many :representations, -> { order(position: :asc) }, dependent: :destroy
+    has_many :representations, -> { rank(:position) }, dependent: :destroy
 
     # self-reference #template
     has_many :derivatives, class_name: Teneo::DataModel::IngestModel.name, dependent: :destroy,
@@ -47,7 +47,7 @@ module Teneo::DataModel
           old = item.representations.map(&:id)
           representations.each_with_index do |representation, i|
             representation[:ingest_model_id] = item.id
-            representation[:position] = i + 1
+            # representation[:position_position] = i + 1
             Teneo::DataModel::Representation.from_hash(representation)
           end
           (old - item.representations.map(&:id)).each { |id| item.representations.find(id)&.destroy! }

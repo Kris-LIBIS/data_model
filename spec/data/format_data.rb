@@ -59,24 +59,24 @@ module FormatData
               errors: {category: ['must be one of: IMAGE, AUDIO, VIDEO, TEXT, TABULAR, PRESENTATION, ARCHIVE, EMAIL, OTHER']}
           },
           'no mimetypes' => {
-              params: ITEMS[:tiff].deep_reject {|k| k == :mime_types},
+              params: ITEMS[:tiff].deep_reject {|k| k == :mimetypes},
               failure: true,
-              errors: {mime_types: ['must be filled', 'must be an array of String']}
+              errors: {mimetypes: ['must be filled', 'must be an array of String']}
           },
           'empty mimetypes' => {
-              params: ITEMS[:tiff].deep_merge(data: {mime_types: []}),
+              params: ITEMS[:tiff].deep_merge(data: {mimetypes: []}),
               failure: true,
-              errors: {mime_types: ['must be filled', 'must be an array of String']}
+              errors: {mimetypes: ['must be filled', 'must be an array of String']}
           },
           'wrong mimetypes' => {
-              params: ITEMS[:tiff].deep_merge(data: {mime_types: :tiff}),
+              params: ITEMS[:tiff].deep_merge(data: {mimetypes: :tiff}),
               failure: true,
-              errors: {mime_types: ['must be an array of String']}
+              errors: {mimetypes: ['must be an array of String']}
           },
           'bad mimetypes' => {
-              params: ITEMS[:tiff].deep_merge(data: {mime_types: [:tiff]}),
+              params: ITEMS[:tiff].deep_merge(data: {mimetypes: [:tiff]}),
               failure: true,
-              errors: {mime_types: ['must be an array of String']}
+              errors: {mimetypes: ['must be an array of String']}
           },
           'empty puids' => {
               params: ITEMS[:tiff].deep_merge(data: {puids: []}),
@@ -120,7 +120,7 @@ module FormatData
               params: ITEMS[:tiff].deep_merge(
                   data: {
                       description: 'Tagged Image File Format (TIFF)',
-                      mime_types: %w'image/tiff image/x-tiff image/tif image/x-tif application/tiff application/x-tiff application/tif application/x-tif',
+                      mimetypes: %w'image/tiff image/x-tiff image/tif image/x-tif application/tiff application/x-tiff application/tif application/x-tif',
                       puids: %w'fmt/353 fmt/154 fmt/153 fmt/156 fmt/155 fmt/152 fmt/202 x-fmt/387 x-fmt/388 x-fmt/399',
                       extensions: %w'tif TIF tiff tifx dng nef'
                   }
@@ -170,27 +170,27 @@ module FormatData
           },
           'no mimetypes' => {
               id: -> (ctx, spec) {spec[:tiff].id},
-              params: {mime_types: nil},
+              params: {mimetypes: nil},
               failure: true,
-              errors: {mime_types: ['must be filled', 'must be an array of String']}
+              errors: {mimetypes: ['must be filled', 'must be an array of String']}
           },
           'empty mimetypes' => {
               id: -> (ctx, spec) {spec[:tiff].id},
-              params: {mime_types: []},
+              params: {mimetypes: []},
               failure: true,
-              errors: {mime_types: ['must be filled', 'must be an array of String']}
+              errors: {mimetypes: ['must be filled', 'must be an array of String']}
           },
           'wrong mimetypes' => {
               id: -> (ctx, spec) {spec[:tiff].id},
-              params: {mime_types: :tiff},
+              params: {mimetypes: :tiff},
               failure: true,
-              errors: {mime_types: ['must be an array of String']}
+              errors: {mimetypes: ['must be an array of String']}
           },
           'bad mimetypes' => {
               id: -> (ctx, spec) {spec[:tiff].id},
-              params: {mime_types: [:tiff]},
+              params: {mimetypes: [:tiff]},
               failure: true,
-              errors: {mime_types: ['must be an array of String']}
+              errors: {mimetypes: ['must be an array of String']}
           }
       },
       delete: {

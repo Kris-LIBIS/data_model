@@ -10,8 +10,6 @@ module Teneo::DataModel
 
     belongs_to :item
 
-    serialize :data, Serializers::HashSerializer
-
   end
 
 end

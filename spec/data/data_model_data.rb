@@ -53,17 +53,17 @@ module DataModelData
 
       tiff: {
           class: Teneo::DataModel::Format,
-          data: {name: 'TIFF', category: 'IMAGE', mime_types: %w'image/tiff', extensions: %w'tif'}
+          data: {name: 'TIFF', category: 'IMAGE', mimetypes: %w'image/tiff', extensions: %w'tif'}
       },
       jpeg: {
           class: Teneo::DataModel::Format,
-          data: {name: 'JPEG', category: 'IMAGE', mime_types: %w'image/jpeg', extensions: %w'jpg'}
+          data: {name: 'JPEG', category: 'IMAGE', mimetypes: %w'image/jpeg', extensions: %w'jpg'}
       },
       word: {
           class: Teneo::DataModel::Format,
           data: {
               name: 'WORD', category: 'TEXT', description: 'Microsoft Word Document (DOC)',
-              mime_types: %w'application/msword application/vnd.msword application/vnd.ms-word',
+              mimetypes: %w'application/msword application/vnd.msword application/vnd.ms-word',
               extensions: %w'doc wbk',
               puids: %w'fmt/609 fmt/39 x-fmt/273'
           }

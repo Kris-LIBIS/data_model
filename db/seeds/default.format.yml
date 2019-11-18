@@ -1,7 +1,7 @@
 - category: 'IMAGE'
   name: 'JP2'
   description: 'Joint Photographic Experts Group 2000 (JPEG 2000)'
-  mime_types:
+  mimetypes:
     - 'image/jp2'
   puids:
     - 'fmt/463'
@@ -10,7 +10,7 @@
 - category: 'IMAGE'
   name: 'JPG'
   description: 'Joint Photographic Experts Group (JPEG)'
-  mime_types:
+  mimetypes:
     - 'image/jpeg'
     - 'image/jpg'
   puids:
@@ -24,7 +24,7 @@
 - category: 'IMAGE'
   name: 'PNG'
   description: 'Portable Network Graphics (PNG)'
-  mime_types:
+  mimetypes:
     - 'image/png'
     - 'application/png'
   puids:
@@ -36,7 +36,7 @@
 - category: 'AUDIO'
   name: 'MP3'
   description: 'MPEG-1 or MPEG-2 Audio Layer III (MP3)'
-  mime_types:
+  mimetypes:
     - 'audio/mpeg'
   puids:
     - 'fmt/134'
@@ -45,7 +45,7 @@
 - category: 'AUDIO'
   name: 'FLAC'
   description: 'Free Lossless Audio Codec (FLAC)'
-  mime_types:
+  mimetypes:
     - 'audio/flac'
   puids:
     - 'fmt/279'
@@ -54,7 +54,7 @@
 - category: 'VIDEO'
   name: 'MP4'
   description: 'Moving Picture Experts Group (MPEG-4)'
-  mime_types:
+  mimetypes:
     - 'video/mp4'
     - 'application/mp4'
   puids:
@@ -66,7 +66,7 @@
 - category: 'VIDEO'
   name: 'WEBM'
   description: 'Webm'
-  mime_types:
+  mimetypes:
     - 'video/webm'
   puids:
     - 'fmt/573'
@@ -75,7 +75,7 @@
 - category: 'VIDEO'
   name: 'AVI'
   description: 'Audio Video Interleave (AVI)'
-  mime_types:
+  mimetypes:
     - 'video/x-msvideo'
   puids:
     - 'fmt/5'
@@ -84,14 +84,14 @@
 - category: 'TEXT'
   name: 'TXT'
   description: 'Unformatted text'
-  mime_types:
+  mimetypes:
     - 'text/plain'
   extensions:
     - 'txt'
 - category: 'TEXT'
   name: 'RTF'
   description: 'Rich Text Format (RTF)'
-  mime_types:
+  mimetypes:
     - 'application/rtf text/rtf'
   puids:
     - 'fmt/45'
@@ -100,7 +100,7 @@
 - category: 'TEXT'
   name: 'HTML'
   description: 'HyperText Markup Language (HTML)'
-  mime_types:
+  mimetypes:
     - 'text/html'
   extensions:
     - 'html'
@@ -108,7 +108,7 @@
 - category: 'TEXT'
   name: 'XML'
   description: 'Extensible Markup Language (XML)'
-  mime_types:
+  mimetypes:
     - 'text/xml'
     - 'application/xml'
     - 'application/x-xml'
@@ -119,7 +119,7 @@
 - category: 'TABULAR'
   name: 'MSXLS'
   description: 'Microsoft Excel Spreadsheet (XLS)'
-  mime_types:
+  mimetypes:
     - 'application/vnd.ms-excel'
     - 'application/msexcel'
   puids:
@@ -135,7 +135,7 @@
 - category: 'PRESENTATION'
   name: 'MSPPT'
   description: 'Microsoft Powerpoint Presentation (PPT)'
-  mime_types:
+  mimetypes:
     - 'application/vnd.ms-powerpoint'
     - 'application/mspowerpoint'
   extensions:
@@ -143,7 +143,7 @@
 - category: 'ARCHIVE'
   name: 'ZIP'
   description: 'ZIP Format'
-  mime_types:
+  mimetypes:
     - 'application/zip'
   puids:
     - 'x-fmt/263'
@@ -153,7 +153,7 @@
 - category: 'EMAIL'
   name: 'EML'
   description: 'Internet Message Format (EML)'
-  mime_types:
+  mimetypes:
     - 'message/rfc822'
   puids:
     - 'fmt/278'

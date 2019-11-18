@@ -1,17 +1,16 @@
 # frozen_string_literal: true
 require 'active_support/core_ext/object/with_options'
 
-require_relative 'base'
+require_relative 'base_sorted'
 
 module Teneo
   module DataModel
     # noinspection RailsParamDefResolve
-    class StageTask < Base
+    class StageTask < BaseSorted
       self.table_name = 'stage_tasks'
+      ranks :position, with_same: :stage_workflow_id
 
       belongs_to :stage_workflow
-      acts_as_list scope: :stage_workflow, add_new_at: :bottom
-
       belongs_to :task
 
       def name

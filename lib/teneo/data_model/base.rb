@@ -2,7 +2,6 @@
 require 'active_record'
 require 'active_support/core_ext/hash/keys'
 require 'active_support/core_ext/object/with_options'
-require 'acts_as_list'
 require 'global_id'
 
 module Teneo
@@ -27,6 +26,13 @@ module Teneo
           self.send("#{name}=", [])
           self.send("#{name}=", values.split(',')) unless values.blank?
         end
+      end
+
+      def self.update_or_create(args, attributes)
+        obj = self.find_or_create_by(args)
+        obj.update(attributes)
+        obj.save!
+        obj
       end
 
       def self.from_hash(hash, id_tags = [:name], &block)

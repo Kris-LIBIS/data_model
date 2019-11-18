@@ -11,6 +11,7 @@ module Teneo::DataModel
 
     belongs_to :package
     has_many :status_logs, dependent: :destroy
+    has_many :message_logs, inverse_of: :run, dependent: :destroy
 
     serialize :config, Serializers::HashSerializer
     serialize :options, Serializers::HashSerializer

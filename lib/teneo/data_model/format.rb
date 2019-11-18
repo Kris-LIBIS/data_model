@@ -17,12 +17,12 @@ module Teneo::DataModel
       result
     end
 
-    validates :name, :category, :mime_types, :extensions, presence: true
+    validates :name, :category, :mimetypes, :extensions, presence: true
     validates :name, uniqueness: true
     validates :category, inclusion: {in: CATEGORY_LIST}
 
     array_field :extensions
-    array_field :mime_types
+    array_field :mimetypes
     array_field :puids
 
   end

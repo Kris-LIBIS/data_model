@@ -8,6 +8,8 @@ module Teneo::DataModel
   class StatusLog < Base
     self.table_name = 'status_logs'
 
+    default_scope { order(created_at: :asc) }
+
     belongs_to :item
     belongs_to :run
 

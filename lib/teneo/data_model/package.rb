@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'base'
+require_relative 'serializers/hash_serializer'
 
 module Teneo::DataModel
 
@@ -17,6 +18,8 @@ module Teneo::DataModel
     has_many :parameter_values, as: :with_values, class_name: 'Teneo::DataModel::ParameterValue', dependent: :destroy
 
     validate :safe_name
+
+    serialize :options, Serializers::HashSerializer
 
     include WithParameters
 

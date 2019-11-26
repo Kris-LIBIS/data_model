@@ -3,6 +3,7 @@ require 'active_record'
 require 'active_support/core_ext/hash/keys'
 require 'active_support/core_ext/object/with_options'
 require 'global_id'
+require 'symbolized'
 
 module Teneo
   module DataModel
@@ -60,7 +61,7 @@ module Teneo
       def to_hash
         result = self.attributes.reject { |k, v| v.blank? || volatile_attributes.include?(k) }
         result = result.to_yaml
-        YAML.safe_load(result, symbolize_names: true, permitted_classes: [Time])
+        YAML.safe_load(result, symbolize_names: true, permitted_classes: [Time, Symbolized::SymbolizedHash, Symbol])
       end
 
       def to_s

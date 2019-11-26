@@ -347,7 +347,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.string :name, null: false
       t.string :stage
       t.string :status
-      t.string :base_dir
+      t.jsonb :options, default: '{}'
       # with_values
 
       t.references :ingest_workflow, null: false, foreign_key: true
@@ -367,6 +367,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.jsonb :properties, default: '{}'
 
       t.references :package, foreign_key: {on_delete: :cascade}
+      t.references :user, foreign_key: {on_delete: :nullify}
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
       t.column :lock_version, :integer, null: false, default: 0
@@ -408,6 +409,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
       t.integer :max, default: 0
 
       t.timestamps default: -> {'CURRENT_TIMESTAMP'}
+      t.index [:created_at, :run_id]
+      t.index [:created_at, :item_id]
     end
 
     create_table :message_logs do |t|
@@ -420,8 +423,8 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
       t.datetime :created_at, null: false, default: -> {'CURRENT_TIMESTAMP'}
 
-      t.index [:run_id, :severity]
-      t.index [:item_id, :severity]
+      t.index [:created_at, :run_id, :severity]
+      t.index [:created_at, :item_id, :severity]
     end
 
     # Formats database

@@ -10,6 +10,7 @@ module Teneo::DataModel
     self.table_name = 'runs'
 
     belongs_to :package
+    belongs_to :user, optional: true
     has_many :status_logs, dependent: :destroy
     has_many :message_logs, inverse_of: :run, dependent: :destroy
 

@@ -9,6 +9,8 @@ module Teneo::DataModel
   class MessageLog < Base
     self.table_name = 'message_logs'
 
+    default_scope { order(created_at: :asc) }
+
     belongs_to :item
     belongs_to :run
 

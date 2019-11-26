@@ -101,7 +101,9 @@ module Teneo
               # spinner.update(name: '')
             end
           when Hash
-            klass.from_hash(data.deep_symbolize_keys)
+            x = data.deep_symbolize_keys
+            (n = x[:name] || x[x.keys.first]) && spinner.update(name: "object '#{n}'")
+            klass.from_hash(x)
           else
             prompt.error "Illegal file content: 'path' - either Array or Hash expected."
           end

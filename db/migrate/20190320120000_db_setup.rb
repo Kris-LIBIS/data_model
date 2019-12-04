@@ -8,8 +8,6 @@ class DbSetup < ActiveRecord::Migration[5.2]
     # Users and Organizations
     # #######################
 
-    enable_extension 'pgcrypto' unless extension_enabled?('pgcrypto')
-
     create_table :users do |t|
       t.string :uuid, null: false, index: {unique: true}
       t.string :email, null: false, default: '', index: {unique: true}

@@ -1,5 +1,7 @@
 default: &default
   adapter: postgresql
+#  schema_search_path: teneo, teneo_password, public
+  schema_search_path: teneo
   encoding: unicode
   pool: 3
 
@@ -8,6 +10,9 @@ default: &default
 
   username: teneo
   password: teneo
+
+  dba_name: teneo_dba
+  dba_pass: teneo_dba
 
   migrations_paths:
     - "db/migrate"

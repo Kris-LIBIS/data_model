@@ -24,7 +24,7 @@ namespace :teneo do
     desc 'Create the database'
     task create: 'teneo:db:environment' do
       ActiveRecord::Base.establish_connection(@db_config_admin)
-      ActiveRecord::Base.connection.create_database(@db_config['database'], owner: @db_config['username'])
+      ActiveRecord::Base.connection.create_database(@db_config['database'], owner: @db_config_admin['username'])
       puts "Database #{@db_config['database']} created."
     end
 

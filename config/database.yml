@@ -1,7 +1,5 @@
 default: &default
   adapter: postgresql
-#  schema_search_path: teneo, teneo_password, public
-  schema_search_path: teneo
   encoding: unicode
   pool: 3
 

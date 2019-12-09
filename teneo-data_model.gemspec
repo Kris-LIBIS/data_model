@@ -56,6 +56,7 @@ Gem::Specification.new do |spec|
   # spec.add_runtime_dependency 'acts_as_list'
   spec.add_runtime_dependency 'order_as_specified'
   spec.add_runtime_dependency 'globalid'
+  spec.add_runtime_dependency 'dotenv', '~> 2.7'
 
   spec.add_runtime_dependency 'pg', '< 2.0'
   spec.add_runtime_dependency 'active_record_extended', '~> 1.3'

@@ -2,6 +2,9 @@ require "teneo/data_model/version"
 require 'yaml'
 require 'active_record_extended'
 
+#noinspection RubyResolve
+require 'teneo/data_model/rake/railtie' if defined?(Rails)
+
 module Teneo
   module DataModel
 
@@ -54,6 +57,9 @@ module Teneo
       db_config_admin = db_config.merge({'database' => 'postgres', 'schema_search_path' => 'public'})
       ActiveRecord::Base.establish_connection(db_config_admin)
     end
+
+    RAKEFILE = File.join(File.expand_path(__dir__), 'data_model', 'rake', 'Rakefile')
+
   end
 end
 

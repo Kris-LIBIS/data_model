@@ -22,14 +22,14 @@ namespace :teneo do
     end
 
     desc 'Create the database'
-    task create: :environment do
+    task create: 'teneo:db:environment' do
       ActiveRecord::Base.establish_connection(@db_config_admin)
       ActiveRecord::Base.connection.create_database(@db_config['database'], owner: @db_config['username'])
       puts "Database #{@db_config['database']} created."
     end
 
     desc 'Migrate the database'
-    task migrate: :environment do
+    task migrate: 'teneo:db:environment' do
       ActiveRecord::Base.establish_connection(@db_config)
       ActiveRecord::Base.connection.migration_context.migrate
       Rake::Task['teneo:db:schema'].invoke
@@ -37,14 +37,14 @@ namespace :teneo do
     end
 
     desc 'Kill open DB connections'
-    task kill_connections: :environment do
+    task kill_connections: 'teneo:db:environment' do
       db_name = @db_config['database']
       `psql -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='#{db_name}' AND pid <> pg_backend_pid();" -d '#{db_name}'`
       puts 'Database connections closed.'
     end
 
     desc 'Drop the database'
-    task drop: :kill_connections do
+    task drop: 'teneo:db:kill_connections' do
       ActiveRecord::Base.establish_connection(@db_config_admin)
       ActiveRecord::Base.connection.drop_database(@db_config['database'])
       puts "Database #{@db_config['database']} deleted."
@@ -53,10 +53,10 @@ namespace :teneo do
     end
 
     desc 'Reset the database'
-    task :reset => [:drop, :create, :migrate, :schema]
+    task :reset => %w(teneo:db:drop teneo:db:create teneo:db:migrate teneo:db:schema)
 
     desc 'Recreate the database'
-    task :recreate => [:drop, :create, :migrate, :schema, :seed]
+    task :recreate => %w(teneo:db:drop teneo:db:create teneo:db:migrate teneo:db:schema teneo:db:seed)
 
     desc 'Create a db/schema.rb file that is portable against any DB supported by AR'
     task :schema do
@@ -70,7 +70,7 @@ namespace :teneo do
     end
 
     desc 'Load the database seed files'
-    task seed: :environment do
+    task seed: 'teneo:db:environment' do
       ActiveRecord::Base.establish_connection(@db_config)
       # noinspection RubyResolve
       load File.join('db', 'seeds.rb')

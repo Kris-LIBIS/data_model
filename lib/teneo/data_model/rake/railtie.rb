@@ -6,7 +6,7 @@ module Teneo
   module DataModel
     #noinspection RubyResolve
     class Railtie < Rails::Railtie
-      railtie_name :teneo_datamodel
+      railtie_name :teneo
 
       rake_tasks do
         Dir.glob(File.join(File.expand_path(__dir__), '*.rake')).each { |f| load f }

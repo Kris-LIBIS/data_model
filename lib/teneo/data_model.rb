@@ -1,6 +1,7 @@
+# frozen_string_literal: true
 require "teneo/data_model/version"
 require 'yaml'
-require 'active_record_extended'
+require 'active_record_extended' unless RUBY_PLATFORM == 'java'
 
 #noinspection RubyResolve
 require 'teneo/data_model/rake/railtie' if defined?(Rails)

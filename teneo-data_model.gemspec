@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '~> 2.6'
+  spec.required_ruby_version = '~> 2.6' unless RUBY_PLATFORM == 'java'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'rake', '~> 10.0'
@@ -58,7 +58,11 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'globalid'
   spec.add_runtime_dependency 'dotenv', '~> 2.7'
 
-  spec.add_runtime_dependency 'pg', '< 2.0'
-  spec.add_runtime_dependency 'active_record_extended', '~> 1.3'
+  if RUBY_PLATFORM == 'java'
+    spec.add_runtime_dependency 'activerecord-jdbcpostgresql-adapter'
+  else
+    spec.add_runtime_dependency 'pg', '< 2.0'
+    spec.add_runtime_dependency 'active_record_extended', '~> 1.3'
+  end
 
 end

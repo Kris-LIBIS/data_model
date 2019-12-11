@@ -1,5 +1,6 @@
 require 'dotenv/tasks'
 require 'erb'
+require 'active_record'
 
 namespace :teneo do
   namespace :db do

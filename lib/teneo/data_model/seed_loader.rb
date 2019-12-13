@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require 'tty-prompt'
-require 'tty-spinner'
 
 module Teneo
   module DataModel
@@ -15,6 +13,7 @@ module Teneo
         @prompt = if quiet
                     NoPrompt.new
                   elsif tty
+                    require 'tty-prompt'
                     TTY::Prompt.new
                   else
                     StdoutPrompt.new('')
@@ -74,6 +73,7 @@ module Teneo
         if quiet
           NoPrompt.new
         elsif tty
+          require 'tty-spinner'
           TTY::Spinner::new("[:spinner] Loading #{klass_name}(s) :file :name", interval: 4)
         else
           StdoutPrompt.new("Loading #{klass_name}(s) ")

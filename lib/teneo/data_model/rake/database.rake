@@ -27,18 +27,18 @@ namespace :teneo do
     task create: 'teneo:db:environment' do
       ActiveRecord::Base.establish_connection(@db_config_admin)
       ActiveRecord::Base.connection.create_database(@db_config['database'], owner: @db_config_admin['username'])
-      puts "Database #{@db_config['database']} created."
     ensure
       ActiveRecord::Base.connection.close
+      puts "Database #{@db_config['database']} created."
     end
 
     desc 'Enable the extensions'
     task extensions: 'teneo:db:environment' do
       ActiveRecord::Base.establish_connection(@db_config_admin)
       ActiveRecord::Base.connection.migration_context.migrate
-      puts "Extensions enabled."
     ensure
       ActiveRecord::Base.connection.close
+      puts "Extensions enabled."
     end
 
     desc 'Migrate the database'
@@ -46,9 +46,9 @@ namespace :teneo do
       ActiveRecord::Base.establish_connection(@db_config)
       ActiveRecord::Base.connection.migration_context.migrate
       Rake::Task['teneo:db:schema'].invoke
-      puts "Database #{@db_config['database']} migrated."
     ensure
       ActiveRecord::Base.connection.close
+      puts "Database #{@db_config['database']} migrated."
     end
 
     desc 'Kill open DB connections'
@@ -83,9 +83,9 @@ namespace :teneo do
       File.open(filename, 'w:utf-8') do |file|
         ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
       end
-      puts "Database schema dumped in #{filename}."
     ensure
       ActiveRecord::Base.connection.close
+      puts "Database schema dumped in #{filename}."
     end
 
     desc 'Load the database seed files'

@@ -5,7 +5,6 @@ class Extensions < ActiveRecord::Migration[5.2]
   def up
 
     enable_extension('citext')
-    puts 'extension created'
 
   end
 

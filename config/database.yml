@@ -15,6 +15,9 @@ default: &default
   migrations_paths:
     - "db/migrate"
 
+  dba_migrations_paths:
+    - "db/migrate/dba"
+
 development:
   <<: *default
   database: teneo_data_model_dev

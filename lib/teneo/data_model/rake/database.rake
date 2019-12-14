@@ -18,6 +18,7 @@ namespace :teneo do
               'schema_search_path' => 'public',
               'username' => @db_config['dba_name'],
               'password' => @db_config['dba_pass'],
+              'migrations_paths' => @db_config['dba_migrations_paths']
           }
       )
     end
@@ -27,14 +28,27 @@ namespace :teneo do
       ActiveRecord::Base.establish_connection(@db_config_admin)
       ActiveRecord::Base.connection.create_database(@db_config['database'], owner: @db_config_admin['username'])
       puts "Database #{@db_config['database']} created."
+    ensure
+      ActiveRecord::Base.connection.close
+    end
+
+    desc 'Enable the extensions'
+    task extensions: 'teneo:db:environment' do
+      ActiveRecord::Base.establish_connection(@db_config_admin)
+      ActiveRecord::Base.connection.migration_context.migrate
+      puts "Extensions enabled."
+    ensure
+      ActiveRecord::Base.connection.close
     end
 
     desc 'Migrate the database'
-    task migrate: 'teneo:db:environment' do
+    task migrate: ['teneo:db:environment', 'teneo:db:extensions'] do
       ActiveRecord::Base.establish_connection(@db_config)
       ActiveRecord::Base.connection.migration_context.migrate
       Rake::Task['teneo:db:schema'].invoke
       puts "Database #{@db_config['database']} migrated."
+    ensure
+      ActiveRecord::Base.connection.close
     end
 
     desc 'Kill open DB connections'
@@ -51,6 +65,8 @@ namespace :teneo do
       puts "Database #{@db_config['database']} deleted."
     rescue ActiveRecord::NoDatabaseError
       puts "Database #{@db_config['database']} does not exist."
+    ensure
+      ActiveRecord::Base.connection.close
     end
 
     desc 'Reset the database'
@@ -68,6 +84,8 @@ namespace :teneo do
         ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
       end
       puts "Database schema dumped in #{filename}."
+    ensure
+      ActiveRecord::Base.connection.close
     end
 
     desc 'Load the database seed files'
@@ -75,6 +93,8 @@ namespace :teneo do
       ActiveRecord::Base.establish_connection(@db_config)
       # noinspection RubyResolve
       load File.join('db', 'seeds.rb')
+    ensure
+      ActiveRecord::Base.connection.close
     end
 
   end

@@ -10,7 +10,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :users do |t|
       t.string :uuid, null: false, index: {unique: true}
-      t.string :email, null: false, default: '', index: {unique: true}
+      t.column :email, :citext, null: false, default: '', index: {unique: true}
 
       t.string :first_name
       t.string :last_name

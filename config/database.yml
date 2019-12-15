@@ -13,10 +13,10 @@ default: &default
   dba_pass: teneo_dba
 
   migrations_paths:
-    - "db/migrate"
+    - 'db/migrate'
 
   dba_migrations_paths:
-    - "db/migrate/dba"
+    - 'db/dba_migrate'
 
 development:
   <<: *default

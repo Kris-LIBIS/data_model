@@ -50,6 +50,10 @@ module Teneo
       File.join(root, 'db', 'migrate')
     end
 
+    def self.dba_migrations_path
+      File.join(root, 'db', 'dba_migrate')
+    end
+
     def self.connect_db(environment = nil)
       environment ||= ENV['RUBY_ENV'] || "development"
       db_config_file  = File.join(root, 'config', 'database.yml')

@@ -12,11 +12,9 @@ default: &default
   dba_name: teneo_dba
   dba_pass: teneo_dba
 
-  migrations_paths:
-    - 'db/migrate'
+  migrations_paths: <%= Teneo::DataModel.migrations_path %>
 
-  dba_migrations_paths:
-    - 'db/dba_migrate'
+  dba_migrations_paths: <%= Teneo::DataModel.dba_migrations_path %>
 
 development:
   <<: *default

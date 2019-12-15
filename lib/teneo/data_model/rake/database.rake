@@ -80,7 +80,7 @@ namespace :teneo do
     end
 
     desc 'Migrate the database'
-    task migrate: ['teneo:db:environment', 'teneo:db:extensions'] do
+    task migrate: %w(teneo:db:environment teneo:db:extensions) do
       ActiveRecord::Base.establish_connection(@db_config)
       ActiveRecord::Base.connection.migration_context.migrate
       Rake::Task['teneo:db:schema'].invoke
@@ -90,10 +90,10 @@ namespace :teneo do
     end
 
     desc 'Reset the database'
-    task :reset => %w(teneo:db:drop teneo:db:create teneo:db:migrate teneo:db:schema)
+    task reset: %w(teneo:db:drop teneo:db:create teneo:db:migrate teneo:db:schema)
 
     desc 'Recreate the database'
-    task :recreate => %w(teneo:db:drop teneo:db:create teneo:db:migrate teneo:db:schema teneo:db:seed)
+    task recreate: %w(teneo:db:drop teneo:db:create teneo:db:migrate teneo:db:schema teneo:db:seed)
 
     desc 'Create a db/schema.rb file that is portable against any DB supported by AR'
     task :schema do

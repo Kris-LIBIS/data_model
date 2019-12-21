@@ -18,6 +18,8 @@ module Teneo::DataModel
       model.belongs_to :producer
     end
 
+    has_many :packages, through: :ingest_workflows
+
     accepts_nested_attributes_for :material_flow
     accepts_nested_attributes_for :producer
 

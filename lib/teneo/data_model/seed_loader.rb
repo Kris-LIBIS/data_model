@@ -80,8 +80,12 @@ module Teneo
         end
       end
 
+      def string_to_class(klass_name)
+        "Teneo::DataModel::#{klass_name.to_s.classify}".constantize
+      end
+
       def load_data(klass_name)
-        klass = "Teneo::DataModel::#{klass_name.to_s.classify}".constantize
+        klass = string_to_class(klass_name)
         file_list = Dir.children(base_dir).select { |f| f =~ /\.#{klass_name}\.yml$/ }.sort
         return unless file_list.size > 0
         spinner = create_spinner(klass_name)

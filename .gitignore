@@ -15,3 +15,4 @@ Gemfile.lock
 /log/
 /test*.rb
 .env
+/db/schema.rb

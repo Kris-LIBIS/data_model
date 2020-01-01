@@ -86,7 +86,14 @@ module Teneo
 
       def load_data(klass_name)
         klass = string_to_class(klass_name)
-        file_list = Dir.children(base_dir).select { |f| f =~ /\.#{klass_name}\.yml$/ }.sort
+        begin
+          file_list = Dir.children(base_dir).select { |f| f =~ /\.#{klass_name}\.yml$/ }.sort
+        rescue Errno::ENOENT
+          return
+        rescue StandardError => e
+          puts "WARNING: #{e.class.name} - #{e.message}"
+          return
+        end
         return unless file_list.size > 0
         spinner = create_spinner(klass_name)
         spinner.auto_spin

@@ -16,3 +16,5 @@ Gemfile.lock
 /test*.rb
 .env
 /db/schema.rb
+
+.rake_tasks~

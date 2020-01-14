@@ -148,11 +148,10 @@ module Teneo
           Ftps::File.new(path: safepath(path), driver: self)
         end
 
-        # Test if file or directory exists
+        # Test if directory exists
         # @param [String] path
         # @return [TrueClass, FalseClass]
-        def exist?(path)
-          return true if is_file?(path)
+        def dir_exist?(path)
           ftp_service do |conn|
             conn.chdir(abspath(path))
             conn.chdir('/')
@@ -160,6 +159,20 @@ module Teneo
           end
         rescue ::Net::FTPError
           return false
+        end
+
+        # Test if file exists
+        # @param [String] path
+        # @return [TrueClass, FalseClass]
+        def file_exist?(path)
+          is_file?(path)
+        end
+
+        # Test if file or directory exists
+        # @param [String] path
+        # @return [TrueClass, FalseClass]
+        def exist?(path)
+          file_exist?(path) || dir_exist?(path)
         end
 
         # Check if remote path is a file (or a directory)

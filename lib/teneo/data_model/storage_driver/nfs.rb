@@ -57,11 +57,25 @@ module Teneo
           Nfs::File.new(path: abspath(path), driver: self)
         end
 
+        # Test if file exists
+        # @param [String] path
+        # @return [TrueClass, FalseClass]
+        def file_exist?(path)
+          exist?(path) && is_file?(path)
+        end
+
+        # Test if directory exists
+        # @param [String] path
+        # @return [TrueClass, FalseClass]
+        def dir_exist?(path)
+          exist?(path) && !is_file?(path)
+        end
+
         # Test if file or directory exists
         # @param [String] path
         # @return [TrueClass, FalseClass]
         def exist?(path)
-          ::File.exist? abspath(path)
+          ::File.exist?(abspath(path))
         end
 
         # Check if remote path is a file (or a directory)

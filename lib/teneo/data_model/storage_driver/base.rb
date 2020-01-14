@@ -106,6 +106,11 @@ module Teneo
             false
           end
 
+          # @return [TrueClass, FalseClass]
+          def exist?
+            @driver.dir_exist?(driver_path)
+          end
+
           def entries(&block)
             if block_given?
               @driver.entries(driver_path, &block)
@@ -139,6 +144,11 @@ module Teneo
 
           def file?
             true
+          end
+
+          # @return [TrueClass, FalseClass]
+          def exist?
+            @driver.file_exist?(driver_path)
           end
 
           # @return [Teneo::DataModel::StorageDriver::Base::Dir]
@@ -286,6 +296,13 @@ module Teneo
           ::File.expand_path(::File::SEPARATOR + path, ::File::SEPARATOR)
         end
 
+        # Test if file or directory exists
+        # @param [String] path
+        # @return [TrueClass, FalseClass]
+        def exist?(path)
+          file_exist?(path) || dir_exist?(path)
+        end
+
         # Need to be overwritten
 
         # @param [String] path
@@ -308,7 +325,13 @@ module Teneo
 
         # @param [String] path
         # @return [TrueClass, FalseClass]
-        def exist?(path)
+        def file_exist?(path)
+          raise NotImplementedError, "Method needs implementation";
+        end
+
+        # @param [String] path
+        # @return [TrueClass, FalseClass]
+        def dir_exist?(path)
           raise NotImplementedError, "Method needs implementation";
         end
 

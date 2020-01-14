@@ -293,7 +293,7 @@ module Teneo
         # @param [String] path
         # @return [String]
         def safepath(path)
-          ::File.expand_path(::File::SEPARATOR + path, ::File::SEPARATOR)
+          ::File.expand_path(::File::SEPARATOR + path.gsub(/^#{Regexp.escape(::File::SEPARATOR)}+/, ''), ::File::SEPARATOR)
         end
 
         # Test if file or directory exists

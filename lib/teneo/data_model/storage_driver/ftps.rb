@@ -125,27 +125,18 @@ module Teneo
           connect
         end
 
+        # @param [String] path
+        # @return [String]
+        def entry_path(path)
+          safepath(path)
+        end
+
         # Create a directory
         # @param [String] path
         # @return [Teneo::DataModel::StorageDriver::Ftps::Dir, FalseClass]
         def mkdir(path)
           ftp_service { |conn| conn.mkdir(abspath(path)) }
           super
-        end
-
-        # Get a Dir object for a given path. Path is not required to exist
-        # @param [String] path
-        # @return [Teneo::DataModel::StorageDriver::Ftps::Dir]
-        def dir(path = nil)
-          path ||= ::File::SEPARATOR
-          Ftps::Dir.new(path: safepath(path), driver: self)
-        end
-
-        # Get a File object for a given path. Path is not required to exist
-        # @param [String] path
-        # @return [Teneo::DataModel::StorageDriver::Ftps::File]
-        def file(path)
-          Ftps::File.new(path: safepath(path), driver: self)
         end
 
         # Test if directory exists
@@ -234,7 +225,7 @@ module Teneo
 
         # get last modification time
         # @param [String] path
-        # @return [NilClass, Time] file modification time
+        # @return [Time] file modification time
         def mtime(path)
           ftp_service do |conn|
             conn.mtime(abspath(path))
@@ -246,19 +237,19 @@ module Teneo
         # rename a file or folder
         # @param [String] from_path
         # @param [String] to_path
-        # @return [NilClass, String] new relative name
+        # @return [String] new name
         def rename(from_path, to_path)
           ftp_service do |conn|
             conn.rename(abspath(from_path), abspath(to_path))
           end
-          safepath(to_path)
+          entry_path(to_path)
         rescue ::Net::FTPError
           nil
         end
 
         # get file size
         # @param [String] path
-        # @return [NilClass, Integer] file size
+        # @return [Integer] file size
         def size(path)
           ftp_service do |conn|
             conn.size(abspath(path))

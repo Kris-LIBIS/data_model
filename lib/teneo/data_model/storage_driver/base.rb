@@ -198,8 +198,8 @@ module Teneo
             @driver.size(driver_path)
           end
 
-          # @return [Teneo::DataModel::StorageDriver::Base::File, FalseClass] the copied File, false otherwise
           # @param [String, Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir] target
+          # @return [String, Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir, FalseClass]
           def copy_to(target)
             case target
             when nil
@@ -248,6 +248,10 @@ module Teneo
           "#{self.class.name.split('::').last}-#{root.hash.to_s(36)}"
         end
 
+        def entry_path(path)
+          safepath(path)
+        end
+
         # Get directory listing
         # @param [String] path
         # @return [Array[<Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir>]
@@ -264,10 +268,31 @@ module Teneo
 
         # Get a File or Dir object for a given path. Path should exist.
         # @param [String] path
-        # @return [nil, Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir]
+        # @return [Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir]
         def entry(path)
           return nil unless self.exist?(path)
-          self.is_file?(path) ? self.file(path) : self.dir(path)
+          #noinspection RubyYardReturnMatch
+          (self.class.name + '::' + (self.is_file?(path) ? 'File' : 'Dir')).
+              constantize.new(path: entry_path(path), driver: self)
+        end
+
+        # Get a File object for a given path. Path is not required to exist
+        # @param [String] path
+        # @return [Teneo::DataModel::StorageDriver::Base::File]
+        def file(path)
+          return self.dir(path) if file_exist?(path) && !is_file?(path)
+          #noinspection RubyYardReturnMatch
+          (self.class.name + '::File').constantize.new(path: entry_path(path), driver: self)
+        end
+
+        # Get a Dir object for a given path. Path is not required to exist
+        # @param [String] path
+        # @return [Teneo::DataModel::StorageDriver::Base::Dir]
+        def dir(path = nil)
+          path ||= ::File::SEPARATOR
+          return self.file(path) if file_exist?(path) && is_file?(path)
+          #noinspection RubyYardReturnMatch
+          (self.class.name + '::File').constantize.new(path: path, driver: self)
         end
 
         # @return [String]
@@ -309,18 +334,6 @@ module Teneo
         # @return [Teneo::DataModel::StorageDriver::Base::Dir,FalseClass]
         def mkdir(path)
           exist?(path) ? dir(path) : false
-        end
-
-        # @param [String] path
-        # @return [Teneo::DataModel::StorageDriver::Base::Dir]
-        def dir(path = nil)
-          raise NotImplementedError, "Method needs implementation";
-        end
-
-        # @param [String] path
-        # @return [Teneo::DataModel::StorageDriver::Base::File]
-        def file(path)
-          raise NotImplementedError, "Method needs implementation";
         end
 
         # @param [String] path

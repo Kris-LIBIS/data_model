@@ -23,7 +23,14 @@ module Teneo
         # Create NFS driver
         # @param [String] location the root folder for the file service
         def initialize(location:)
+          return RuntimeError, "Storage location '#{location}' does not exist" unless File.exist?(location)
           @root = location
+        end
+
+        # @param [String] path
+        # @return [String]
+        def entry_path(path)
+          abspath(path)
         end
 
         # Create a directory
@@ -32,29 +39,6 @@ module Teneo
         def mkdir(path)
           FileUtils.mkdir(abspath(path))
           exist?(path) ? dir(path) : false
-        end
-
-        # Get a File or Dir object for a given path. Path should exist.
-        # @param [String] path
-        # @return [nil, Teneo::DataModel::StorageDriver::Nfs::File, Teneo::DataModel::StorageDriver::Nfs::Dir]
-        def entry(path)
-          return nil unless exist?(path)
-          is_file?(path) ? file(path) : dir(path)
-        end
-
-        # Get a Dir object for a given path. Path is not required to exist
-        # @param [String] path
-        # @return [Teneo::DataModel::StorageDriver::Nfs::Dir]
-        def dir(path = nil)
-          path ||= ::File::SEPARATOR
-          Nfs::Dir.new(path: abspath(path), driver: self)
-        end
-
-        # Get a File object for a given path. Path is not required to exist
-        # @param [String] path
-        # @return [Teneo::DataModel::StorageDriver::Nfs::File]
-        def file(path)
-          Nfs::File.new(path: abspath(path), driver: self)
         end
 
         # Test if file exists
@@ -113,10 +97,10 @@ module Teneo
         # rename a file or folder
         # @param [String] from_path
         # @param [String] to_path
-        # @return [String] new driver path
+        # @return [String] new path
         def rename(from_path, to_path)
           ::File.rename(abspath(from_path), abspath(to_path))
-          abspath(to_path)
+          entry_path(to_path)
         end
 
         # get file size

@@ -47,28 +47,36 @@ module Teneo
             @localized = false
           end
 
+          # @return [String (frozen)]
           def driver_path
             @remote_path
           end
 
+          # @param [String] new_name
+          # @return [String] new driver path
           def rename(new_name)
             @remote_path = do_rename(new_name)
           end
 
+          # @param [String] new_dir
+          # @return [String] new driver path
           def move(new_dir)
             @remote_path = do_move(new_dir)
           end
 
+          # @return [String, Object]
           def read
             localize
             super
           end
 
+          # @param [String] data
           def write(data = nil)
             @dirty = true
             super
           end
 
+          # @param [String] data
           def append(data = nil)
             localize
             @dirty = true
@@ -166,33 +174,46 @@ module Teneo
         end
 
         # Download a file
-        # param [String] remote remote file path
-        # param [String] local local file path
+        # @param [String] remote remote file path
+        # @param [String] local local file path
+        # @return [FalseClass, TrueClass]
         def download(remote:, local:)
           ftp_service do |conn|
             conn.getbinaryfile(abspath(remote), local)
           end
+          true
+        rescue ::Net::FTPError
+          false
         end
 
         # Upload a file
-        # param [String] local local file path
-        # param [String] remote remote file path
+        # @param [String] local local file path
+        # @param [String] remote remote file path
+        # @return [FalseClass, TrueClass]
         def upload(local:, remote:)
           ftp_service do |conn|
             conn.putbinaryfile(local, abspath(remote))
           end
+          true
+        rescue ::Net::FTPError
+          false
         end
 
         # Delete a file
-        # param [String] path remote file or directory path
+        # @param [String] path remote file or directory path
+        # @return [FalseClass, TrueClass]
         def delete(path)
           ftp_service do |conn|
             is_file?(path) ? conn.delete(abspath(path)) : conn.rmdir(abspath(path))
           end
+          true
+        rescue ::Net::FTPError
+          false
         end
 
         # Delete a directory
-        # param [String] path remote directory
+        # @param [String] path remote directory
+        # @return [FalseClass, TrueClass]
         def del_tree(path)
           entries(path).map { |e| del_tree(e.driver_path) } unless is_file?(path)
           delete(path)
@@ -200,35 +221,44 @@ module Teneo
 
         # get last modification time
         # @param [String] path
-        # @return [Time] file modification time
+        # @return [NilClass, Time] file modification time
         def mtime(path)
           ftp_service do |conn|
             conn.mtime(abspath(path))
           end
+        rescue ::Net::FTPError
+          nil
         end
 
         # rename a file or folder
         # @param [String] from_path
         # @param [String] to_path
-        # @return [String] new relative name
+        # @return [NilClass, String] new relative name
         def rename(from_path, to_path)
           ftp_service do |conn|
             conn.rename(abspath(from_path), abspath(to_path))
           end
           safepath(to_path)
+        rescue ::Net::FTPError
+          nil
         end
 
         # get file size
         # @param [String] path
-        # @return [Integer] file size
+        # @return [NilClass, Integer] file size
         def size(path)
           ftp_service do |conn|
             conn.size(abspath(path))
           end
+        rescue ::Net::FTPError
+          nil
         end
 
         protected
 
+        # @param [String] path
+        # @param [Proc] block
+        # @return [Array<Teneo::DataModel::StorageDriver::Ftps::File, Teneo::DataModel::StorageDriver::Ftps::Dir>]
         def dir_children(path, &block)
           ftp_service do |conn|
             conn.nlst(abspath(path)).map do |e|
@@ -252,6 +282,7 @@ module Teneo
         end
 
         # Connect to FTP server
+        # @return [Net::FTP]
         def connect
           connection_params = {
               port: @port,
@@ -266,8 +297,10 @@ module Teneo
 
         # Disconnect from FTP server
         def disconnect
-          ftp_service.close
-        rescue
+          ftp_service do |conn|
+            conn.close
+          end
+        rescue ::Net::FTPError
           # do nothing
         end
 

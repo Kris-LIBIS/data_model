@@ -42,26 +42,32 @@ module Teneo
             @driver = driver
           end
 
+          # @return [String]
           def driver_path
             @driver.relpath(@path)
           end
 
+          # @return [String]
           def local_path
             @path
           end
 
+          # @return [TrueClass, FalseClass]
           def exist?
             @driver.exist?(driver_path)
           end
 
+          # @return [TrueClass, FalseClass]
           def local?
             @driver.class.local?
           end
 
+          # @return [String]
           def protocol
             @driver.class.protocol
           end
 
+          # @return [TrueClass, FalseClass]
           def delete
             @driver.delete(driver_path)
           end
@@ -135,16 +141,19 @@ module Teneo
             true
           end
 
+          # @return [Teneo::DataModel::StorageDriver::Base::Dir]
           def dir
             @driver.dir(::File.dirname(driver_path))
           end
 
+          # @return [Object]
           def touch
             return nil if exist?
             dir.touch
             write(nil)
           end
 
+          # @return [String, Object]
           def read
             return false unless exist?
             ::File.open(local_path, 'rb') do |f|
@@ -152,6 +161,7 @@ module Teneo
             end
           end
 
+          # @param [String] data
           def write(data = nil)
             dir.touch
             ::File.open(local_path, 'wb') do |f|
@@ -160,6 +170,7 @@ module Teneo
             close
           end
 
+          # @param [String] data
           def append(data = nil)
             dir.touch
             ::File.open(local_path, 'ab') do |f|
@@ -172,10 +183,13 @@ module Teneo
             # Do nothing
           end
 
+          # @return [Integer]
           def size
             @driver.size(driver_path)
           end
 
+          # @return [Teneo::DataModel::StorageDriver::Base::File, FalseClass] the copied File, false otherwise
+          # @param [String, Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir] target
           def copy_to(target)
             case target
             when nil
@@ -195,6 +209,8 @@ module Teneo
             target
           end
 
+          # @param [String, Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir] target
+          # @return [Teneo::DataModel::StorageDriver::Base::File, FalseClass] self if success, false otherwise
           def copy_from(target)
             case target
             when nil
@@ -217,13 +233,14 @@ module Teneo
 
         end
 
+        # @return [String (frozen)]
         def name
           "#{self.class.name.split('::').last}-#{root.hash.to_s(36)}"
         end
 
         # Get directory listing
         # @param [String] path
-        # @return [Array[<File, Dir>]
+        # @return [Array[<Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir>]
         def entries(path = nil)
           path ||= ::File::SEPARATOR
           dir_children(path) do |e|
@@ -237,20 +254,25 @@ module Teneo
 
         # Get a File or Dir object for a given path. Path should exist.
         # @param [String] path
-        # @return [nil, Teneo::DataModel::StorageDriver::Nfs::File, Teneo::DataModel::StorageDriver::Nfs::Dir]
+        # @return [nil, Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir]
         def entry(path)
           return nil unless self.exist?(path)
           self.is_file?(path) ? self.file(path) : self.dir(path)
         end
 
+        # @return [String]
         def root
           @root.freeze
         end
 
+        # @param [String] path
+        # @return [String]
         def abspath(path)
           ::File.join(@root, safepath(path))
         end
 
+        # @param [String] path
+        # @return [String]
         def relpath(path)
           p = ::File.join(::File::SEPARATOR, safepath(path))
           Pathname(p).relative_path_from(Pathname(@root)).to_s
@@ -258,54 +280,75 @@ module Teneo
           ::File::SEPARATOR
         end
 
+        # @param [String] path
+        # @return [String]
         def safepath(path)
           ::File.expand_path(::File::SEPARATOR + path, ::File::SEPARATOR)
         end
 
         # Need to be overwritten
 
+        # @param [String] path
+        # @return [Teneo::DataModel::StorageDriver::Base::Dir,FalseClass]
         def mkdir(path)
           exist?(path) ? dir(path) : false
         end
 
+        # @param [String] path
+        # @return [Teneo::DataModel::StorageDriver::Base::Dir]
         def dir(path = nil)
           raise NotImplementedError, "Method needs implementation";
         end
 
+        # @param [String] path
+        # @return [Teneo::DataModel::StorageDriver::Base::File]
         def file(path)
           raise NotImplementedError, "Method needs implementation";
         end
 
+        # @param [String] path
+        # @return [TrueClass, FalseClass]
         def exist?(path)
           raise NotImplementedError, "Method needs implementation";
         end
 
+        # @param [String] path
+        # @return [TrueClass, FalseClass]
         def is_file?(path)
           raise NotImplementedError, "Method needs implementation";
         end
 
+        # @param [String] path
         def delete(path)
           raise NotImplementedError, "Method needs implementation";
         end
 
+        # @param [String] path
         def del_tree(path)
           raise NotImplementedError, "Method needs implementation";
         end
 
-        def mtime
+        # @param [String] path
+        def mtime(path)
           raise NotImplementedError, "Method needs implementation";
         end
 
-        def rename(new_name)
+        # @param [String] from_name
+        # @param [String] to_name
+        def rename(from_name, to_name)
           raise NotImplementedError, "Method needs implementation";
         end
 
-        def size
+        # @param [String] path
+        def size(path)
           raise NotImplementedError, "Method needs implementation";
         end
 
         protected
 
+        # @param [String] path
+        # @param [Proc] block
+        # @return [Array<Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir>]
         def dir_children(path, &block)
           raise NotImplementedError, "Method needs implementation";
         end

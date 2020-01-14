@@ -99,7 +99,7 @@ module Teneo
         # rename a file or folder
         # @param [String] from_path
         # @param [String] to_path
-        # @return [String] new relative name
+        # @return [String] new driver path
         def rename(from_path, to_path)
           ::File.rename(abspath(from_path), abspath(to_path))
           abspath(to_path)
@@ -112,6 +112,8 @@ module Teneo
           ::File.new(abspath(path)).size
         end
 
+        # @param [String] from_path
+        # @param [String] to_path
         def symlink(from_path, to_path)
           ::File.symlink(abspath(from_path), abspath(to_path))
         end

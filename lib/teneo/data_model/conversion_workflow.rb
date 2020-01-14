@@ -18,6 +18,10 @@ module Teneo::DataModel
     validates :representation_id, presence: true
     validates :name, presence: true, uniqueness: {scope: :representation_id}
 
+    def organization
+      representation&.organization
+    end
+
     def self.from_hash(hash, id_tags = [:representation_id, :name])
       representation_label = hash.delete(:representation)
       query = representation_label ? {label: representation_label} : {id: hash[:representation_id]}

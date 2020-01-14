@@ -22,6 +22,10 @@ module Teneo::DataModel
       label
     end
 
+    def organization
+      ingest_model&.organization
+    end
+
     def self.from_hash(hash, id_tags = [:ingest_model_id, :label])
       model_name = hash.delete(:ingest_model)
       query = model_name ? { name: model_name } : { id: hash[:ingest_model_id] }

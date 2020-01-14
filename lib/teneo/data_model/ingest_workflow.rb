@@ -18,6 +18,10 @@ module Teneo::DataModel
     validates :name, presence: true
     validate :safe_name
 
+    def organization
+      ingest_agreement&.organization
+    end
+
     include WithParameters
 
     def parameter_children

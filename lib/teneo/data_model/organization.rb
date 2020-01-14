@@ -21,6 +21,10 @@ module Teneo
 
       validate :safe_name
 
+      def organization
+        self
+      end
+
       def self.from_hash(hash)
         storages = hash.delete(:storages)
         item = super(hash, [:name, :inst_code])

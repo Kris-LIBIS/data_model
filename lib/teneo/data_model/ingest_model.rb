@@ -26,6 +26,10 @@ module Teneo::DataModel
     validates :access_right_id, :retention_policy_id, presence: true
     validate :template_reference
 
+    def organization
+      ingest_agreement&.organization
+    end
+
     def template_reference
       return if template.nil?
       errors.add(:template_id, 'should be a template') unless template.ingest_agreement.nil?

@@ -20,6 +20,10 @@ module Teneo::DataModel
     serialize :options, Serializers::HashSerializer
     serialize :properties, Serializers::HashSerializer
 
+    def organization
+      parent&.organization
+    end
+
     def move_logs(new_item = nil)
       new_item ||= item.parent
       items.each { |item| item.move_logs(new_item) }

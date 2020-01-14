@@ -18,6 +18,10 @@ module Teneo::DataModel
     serialize :options, Serializers::HashSerializer
     serialize :properties, Serializers::HashSerializer
 
+    def organization
+      package&.organization
+    end
+
   end
 
 end

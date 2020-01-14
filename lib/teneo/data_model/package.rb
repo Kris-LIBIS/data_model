@@ -21,6 +21,10 @@ module Teneo::DataModel
 
     serialize :options, Serializers::HashSerializer
 
+    def organization
+      ingest_workflow&.organization
+    end
+
     include WithParameters
 
     def parameter_children

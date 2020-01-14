@@ -66,9 +66,14 @@ module Teneo
       end
 
       # @param [String] role
-      # @param [Organization] organization
+      # @param [Organization, IngestAgreement, IngestWorkflow, Package, Run] organization
       # @return [boolean]
       def is_authorized?(role, organization)
+        organization = organization.package if organization.is_a?(Run)
+        organization = organization.ingest_workflow if organization.is_a?(Package)
+        organization = organization.ingest_agreement if organization.is_a?(IngestWorkflow)
+        organization = organization.organization if organization.is_a?(IngestAgreement)
+        return false unless organization.is_a?(Organization)
         self.roles_for(organization).include?(role)
       end
 
@@ -76,7 +81,7 @@ module Teneo
       # @param [Organization] organization
       # @return [Membership]
       def add_role(role, organization)
-        self.memberships.build(organization: organization, role: role)
+        Membership.create(user: self, organization: organization, role: role)
       end
 
       # @param [String] role

@@ -25,6 +25,10 @@ module Teneo::DataModel
       stage
     end
 
+    def organization
+      ingest_workflow&.organization
+    end
+
     def self.from_hash(hash, id_tags = [:ingest_workflow_id, :stage])
       ingest_workflow = hash.delete(:ingest_workflow)
       query = ingest_workflow ? {name: ingest_workflow} : {id: hash[:ingest_workflow_id]}

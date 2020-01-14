@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 require_relative 'base'
+require_relative 'storage_resolver'
 
 module Teneo::DataModel
 
   # noinspection RailsParamDefResolve
   class IngestAgreement < Base
     self.table_name = 'ingest_agreements'
+
+    include StorageResolver
 
     with_options dependent: :destroy, inverse_of: :ingest_agreement do |model|
       model.has_many :ingest_models

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative 'base'
+require_relative 'storage_resolver'
 
 module Teneo::DataModel
 
@@ -17,6 +18,8 @@ module Teneo::DataModel
 
     validates :name, presence: true
     validate :safe_name
+
+    include StorageResolver
 
     def organization
       ingest_agreement&.organization

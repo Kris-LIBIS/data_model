@@ -2,6 +2,7 @@
 require 'active_support/core_ext/object/with_options'
 
 require_relative 'base'
+require_relative 'storage_resolver'
 
 module Teneo
   module DataModel
@@ -20,6 +21,8 @@ module Teneo
       accepts_nested_attributes_for :memberships, allow_destroy: true
 
       validate :safe_name
+
+      include StorageResolver
 
       def organization
         self

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 require_relative 'base'
+require_relative 'storage_resolver'
+
 require 'order_as_specified'
 
 module Teneo::DataModel
@@ -24,6 +26,8 @@ module Teneo::DataModel
     def name
       stage
     end
+
+    include StorageResolver
 
     def organization
       ingest_workflow&.organization

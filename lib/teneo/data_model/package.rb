@@ -2,6 +2,7 @@
 
 require_relative 'base'
 require_relative 'serializers/hash_serializer'
+require_relative 'storage_resolver'
 
 module Teneo::DataModel
 
@@ -20,6 +21,8 @@ module Teneo::DataModel
     validate :safe_name
 
     serialize :options, Serializers::HashSerializer
+
+    include StorageResolver
 
     def organization
       ingest_workflow&.organization

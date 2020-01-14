@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 require_relative 'base_sorted'
 require_relative 'serializers/hash_serializer'
+require_relative 'storage_resolver'
+
 require 'active_support/core_ext/hash/indifferent_access'
 
 module Teneo::DataModel
@@ -19,6 +21,8 @@ module Teneo::DataModel
 
     serialize :options, Serializers::HashSerializer
     serialize :properties, Serializers::HashSerializer
+
+    include StorageResolver
 
     def organization
       parent&.organization

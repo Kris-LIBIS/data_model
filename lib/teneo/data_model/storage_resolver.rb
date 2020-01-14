@@ -5,25 +5,25 @@ module Teneo
 
     module StorageResolver
 
-      def entry(path)
+      protected
+
+      def to_entry(path)
         storage, rel_path = parse_storage_path(path)
         return nil unless storage
         storage.service&.entry(rel_path)
       end
 
-      def dir(path)
+      def to_dir(path)
         storage, rel_path = parse_storage_path(path)
         return nil unless storage
         storage.service&.dir(rel_path)
       end
 
-      def file(path)
+      def to_file(path)
         storage, rel_path = parse_storage_path(path)
         return nil unless storage
         storage.service&.file(rel_path)
       end
-
-      protected
 
       def parse_storage_path(path)
         return nil unless path =~ /^\/\/([^:]+):(.*)/

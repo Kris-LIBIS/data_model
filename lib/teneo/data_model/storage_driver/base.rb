@@ -258,6 +258,10 @@ module Teneo
           ::File::SEPARATOR
         end
 
+        def safepath(path)
+          ::File.expand_path(::File::SEPARATOR + path, ::File::SEPARATOR)
+        end
+
         # Need to be overwritten
 
         def mkdir(path)
@@ -307,10 +311,6 @@ module Teneo
         end
 
         attr_accessor :path
-
-        def safepath(path)
-          ::File.absolute_path(Pathname(::File::SEPARATOR + path).relative_path_from(::File::SEPARATOR), ::File::SEPARATOR)
-        end
 
       end
 

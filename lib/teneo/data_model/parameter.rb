@@ -36,24 +36,24 @@ module Teneo::DataModel
       super(hash, id_tags)
     end
 
-    REFERENCE_REGEX = /^([^#]+)#?(.*)$/
+    REFERENCE_REGEX = /^(([^#]*)#)?(.*)$/
 
     def self.reference_search(reference)
       raise RuntimeError.new("Bad parameter reference: #{reference}") unless reference =~ REFERENCE_REGEX
-      Regexp.new "^#{Regexp.escape($1)}#(#{$2.empty? ? '.*' : Regexp.escape($2)})$"
+      Regexp.new "^#{Regexp.escape($2)}#(#{$3.empty? ? '.*' : Regexp.escape($3)})$"
     end
 
     def self.reference_split(reference)
       return [] unless reference =~ REFERENCE_REGEX
-      [$1, $2]
+      [$2, $3]
     end
 
     def self.reference_host(reference)
-      reference.gsub(REFERENCE_REGEX) { |_| $1 }
+      reference.gsub(REFERENCE_REGEX) { |_| $2 }
     end
 
     def self.reference_param(reference)
-      reference.gsub(REFERENCE_REGEX) { |_| $2 }
+      reference.gsub(REFERENCE_REGEX) { |_| $3 }
     end
 
     def reference_name

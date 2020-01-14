@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'method_source'
+require 'libis/tools/extend/hash'
+require 'libis/tools/extend/array'
+
 module Teneo
   module DataModel
 
@@ -50,6 +54,7 @@ module Teneo
       end
 
       def load
+        load_storage_types
         load_data :format
         load_data :access_right
         load_data :retention_policy
@@ -57,7 +62,6 @@ module Teneo
         load_data :producer
         load_data :material_flow
         load_data :converter
-        load_data :storage_type
         load_data :organization
         load_data :user
         load_data :membership
@@ -119,6 +123,44 @@ module Teneo
             prompt.error "Illegal file content: 'path' - either Array or Hash expected."
           end
           # spinner.update(file: '...')
+        end
+        spinner.update(file: '- Done', name: '!')
+        spinner.success
+      end
+
+      def load_storage_types
+        class_list = Teneo::DataModel::StorageDriver::Base.drivers
+        return unless class_list.size > 0
+        spinner = create_spinner('storage driver')
+        spinner.auto_spin
+        spinner.update(file: '...', name: '')
+        spinner.start
+        spinner.update(file: "from driver classes", name: '')
+        class_list.map do |driver|
+          spinner.update(name: "object '#{driver.protocol}'")
+          info = {
+              protocol: driver.protocol,
+              driver_class: driver.name,
+              description: driver.description
+          }
+          initializer = driver.instance_method(:initialize)
+          defaults = initializer.source.match(/^\s*def\s+initialize\s*\(\s*(.*)\s*\)/)[1].gsub("\n", '')
+          defaults = JSON.parse Hash[defaults.scan(/\s*(\w+):\s*([^,]+)(?:,|$)/)].to_s.
+              gsub('=>', ' : ').gsub(/\\\"|'/,'')
+          r = /^\s*#\s*@param\s+\[([^\]]*)\]\s+(\w+)\s+(.*)$/
+          info[:parameters] = initializer.comment.scan(r).map do |datatype, name, description|
+            {
+                name: name,
+                data_type: datatype,
+                default: defaults[name],
+                description: description
+            }
+          end.each_with_object({}) do |info, hash|
+            hash[info.delete(:name)] = info
+          end
+          info = info.recursive_cleanup
+          # ap info
+          Teneo::DataModel::StorageType.from_hash(info)
         end
         spinner.update(file: '- Done', name: '!')
         spinner.success

@@ -6,13 +6,23 @@ module Teneo::DataModel
   class Storage < Base
     self.table_name = 'storages'
 
+    PURPOSE_LIST = %w'upload download workspace'
+
     belongs_to :organization, inverse_of: :storages
     belongs_to :storage_type, inverse_of: :storages
+
+    validates :purpose, inclusion: { in: PURPOSE_LIST }
 
     include WithParameters
 
     def parameter_children
       [storage_type]
+    end
+
+    def service(reinitialize: false)
+      @service = nil if reinitialize
+      @service ||= storage_type.driver_class.
+          constantize.new(parameters_list.transform_keys { |key| Parameter.reference_param(key) })
     end
 
     def self.from_hash(hash, id_tags = [:name, :organization_id])

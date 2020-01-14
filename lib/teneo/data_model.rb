@@ -68,4 +68,6 @@ module Teneo
   end
 end
 
+require_relative 'data_model/storage_drivers'
+
 # require 'teneo/data_model/concept/autoload'

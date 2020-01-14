@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'teneo/data_model/storage_drivers'
+
 require_relative 'base'
 
 module Teneo::DataModel
@@ -16,7 +18,7 @@ module Teneo::DataModel
       protocol
     end
 
-    PROTOCOL_LIST = %w'NFS FTP SFTP GDRIVE'
+    PROTOCOL_LIST = Teneo::DataModel::StorageDriver::Base.protocols
 
     has_many :storages, inverse_of: :storage_type
 

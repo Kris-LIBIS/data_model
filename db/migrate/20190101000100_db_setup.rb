@@ -31,6 +31,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
     create_table :storage_types do |t|
       t.string :protocol, null: false, index: {unique: true}
       t.string :description
+      t.string :driver_class
       # with_parameters
 
       t.column :lock_version, :integer, null: false, default: 0
@@ -38,7 +39,7 @@ class DbSetup < ActiveRecord::Migration[5.2]
 
     create_table :storages do |t|
       t.string :name, null: false
-      t.boolean :is_upload, default: false
+      t.string :purpose, default: 'upload'
       # with_parameter_refs
 
       t.column :lock_version, :integer, null: false, default: 0

@@ -41,13 +41,27 @@ module Teneo
             ObjectSpace.define_finalizer(self, Cleaner.new(work_path))
             super path: work_path, driver: driver
             @remote_path = path
-            @dirty = false
-            @localized = false
           end
 
           # @return [String (frozen)]
           def driver_path
             @remote_path
+          end
+
+          # @param [TrueClass, FalseClass] force
+          # @return [TrueClass]
+          def localize(force = false)
+            return nil if @localized && !force
+            #noinspection RubyResolve
+            raise Errno::ENOENT unless exist?
+            FileUtils.mkpath(::File.dirname(@path))
+            @driver.download(remote: @remote_path, local: @path)
+            @localized = true
+          end
+
+          def save_remote
+            @driver.mkpath(::File.dirname(@remote_path))
+            @driver.upload(local: @path, remote: @remote_path)
           end
 
           # @param [String] new_name
@@ -62,54 +76,9 @@ module Teneo
             @remote_path = do_move(new_dir)
           end
 
-          def touch
-            super
-            save_remote
-          end
-
-          # @return [String, Object]
-          def read
-            localize
-            super
-          end
-
-          # @param [String] data
-          def write(data = nil)
-            @dirty = true
-            super
-          end
-
-          # @param [String] data
-          def append(data = nil)
-            localize
-            @dirty = true
-            super
-          end
-
-          def close
-            save_remote if @dirty
-          end
-
           protected
 
-          attr_reader :remote_path, :service
-
-          def localize
-            return nil if @localized
-            #noinspection RubyResolve
-            raise Errno::ENOENT unless exist?
-            FileUtils.mkpath(::File.dirname(@path))
-            @driver.download(remote: @remote_path, local: @path)
-            @localized = true
-          end
-
-          def save_remote
-            @driver.mkpath(::File.dirname(@remote_path))
-            @driver.upload(local: @path, remote: @remote_path)
-            @dirty = false
-            @localized = false
-            !@localized
-          end
+          attr_reader :remote_path
 
         end
 
@@ -258,7 +227,7 @@ module Teneo
         # @param [String] path remote directory
         # @return [FalseClass, TrueClass]
         def del_tree(path)
-          entries(path).map { |e| del_tree(e.driver_path) } unless is_file?(path)
+          entries(path).map { |e| del_tree(e) } unless is_file?(path)
           delete(path)
         end
 
@@ -294,14 +263,14 @@ module Teneo
             conn.size(abspath(path))
           end
         rescue ::Net::FTPError
-          nil
+          0
         end
 
         protected
 
         # @param [String] path
         # @param [Proc] block
-        # @return [Array<Teneo::DataModel::StorageDriver::Ftps::File, Teneo::DataModel::StorageDriver::Ftps::Dir>]
+        # @return [Array<String>]
         def dir_children(path, &block)
           ftp_service do |conn|
             conn.nlst(abspath(path)).map do |e|

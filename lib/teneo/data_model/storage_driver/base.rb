@@ -9,28 +9,38 @@ module Teneo
 
       class Base
 
+        # @return [Array<Teneo::DataModel::StorageDriver::Base>]
         def self.drivers
           @drivers ||= ObjectSpace.each_object(Class).select { |klass| klass < self }
         end
 
+        # @return [Array<String>]
         def self.protocols
           drivers.map { |klass| klass.protocol }
         end
 
+        # @param [String] protocol
+        # @return [Teneo::DataModel::StorageDriver::Base]
         def self.driver(protocol)
           drivers.find { |d| d.protocol == protocol }
         end
 
+        # @param [String] value
+        # @return [String]
         def self.protocol(value = nil)
           @protocol = value unless value.nil?
           @protocol
         end
 
+        # @param [String] value
+        # @return [String]
         def self.description(value = nil)
           @description = value unless value.nil?
           @description || ''
         end
 
+        # @param [TrueClass, FalseClass] value
+        # @return [TrueClass, FalseClass]
         def self.local?(value = nil)
           @local = value unless value.nil?
           @local
@@ -38,9 +48,16 @@ module Teneo
 
         class Entry
 
+          # @param [String] path
+          # @param [Teneo::DataModel::StorageDriver::Base] driver
           def initialize(path:, driver:)
             @path = path
             @driver = driver
+          end
+
+          # @return [Teneo::DataModel::StorageDriver::Base]
+          def driver
+            @driver
           end
 
           # @return [String]
@@ -73,24 +90,38 @@ module Teneo
             @driver.delete(driver_path)
           end
 
+          # @return [DateTime]
           def mtime
             @driver.mtime(driver_path)
           end
 
+          # @return [Integer]
+          def size
+            @driver.size(driver_path)
+          end
+
+          # @param [String] new_name
+          # @return [String]
           def rename(new_name)
             @path = do_rename(new_name)
           end
 
+          # @param [String] new_name
+          # @return [String]
           def do_rename(new_name)
             new_path = ::File.join(::File.dirname(driver_path), ::File.basename(new_name))
             @driver.rename(driver_path, new_path)
           end
           protected :do_rename
 
+          # @param [String] new_dir
+          # @return [String]
           def move(new_dir)
             @path = do_move(new_dir)
           end
 
+          # @param [String] new_dir
+          # @return [String]
           def do_move(new_dir)
             new_path = ::File.join(new_dir, ::File.basename(driver_path))
             new_path = ::File.join(::File.dirname(driver_path), new_path) unless Pathname.new(new_dir).absolute?
@@ -103,6 +134,7 @@ module Teneo
 
         class Dir < Teneo::DataModel::StorageDriver::Base::Entry
 
+          # @return [FalseClass]
           def file?
             false
           end
@@ -112,20 +144,28 @@ module Teneo
             @driver.dir_exist?(driver_path)
           end
 
+          # @param [Proc] block
+          # @return [Array<String>]
           def entries(&block)
-            if block_given?
-              @driver.entries(driver_path, &block)
-            else
-              @driver.entries(driver_path)
-            end
+            @driver.entries(driver_path, &block)
           end
 
+          # @param [Proc] block
+          # @return [Array<Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir>]
+          def obj_entries(&block)
+            @driver.obj_entries(driver_path, &block)
+          end
+
+          # @param [String (frozen)] path
+          # @return [Teneo::DataModel::StorageDriver::Base::Dir]
           def dir(path = '..')
             return self if is_root?
             path = ::File.join(driver_path, path)
             @driver.dir(path)
           end
 
+          # @param [String] path
+          # @return [Teneo::DataModel::StorageDriver::Base::File]
           def file(path)
             @driver.file(::File.join(driver_path, path))
           end
@@ -135,6 +175,7 @@ module Teneo
             @driver.mkdir(driver_path) unless exist?
           end
 
+          # @return [TrueClass, FalseClass]
           def is_root?
             ::File::SEPARATOR == driver_path
           end
@@ -143,6 +184,12 @@ module Teneo
 
         class File < Teneo::DataModel::StorageDriver::Base::Entry
 
+          def initialize(path:, driver:)
+            super
+            @localized = false
+          end
+
+          # @return [TrueClass]
           def file?
             true
           end
@@ -150,6 +197,16 @@ module Teneo
           # @return [TrueClass, FalseClass]
           def exist?
             @driver.file_exist?(driver_path)
+          end
+
+          # @param [TrueClass, FalseClass] force
+          # @return [TrueClass]
+          def localize(force = false)
+            # do nothing
+          end
+
+          def save_remote
+            # do nothing
           end
 
           # @return [Teneo::DataModel::StorageDriver::Base::Dir]
@@ -162,10 +219,12 @@ module Teneo
             return nil if exist?
             FileUtils.mkpath(::File.dirname(local_path))
             FileUtils.touch(local_path)
+            save_remote
           end
 
           # @return [String, Object]
           def read
+            localize
             return false unless exist?
             ::File.open(local_path, 'rb') do |f|
               block_given? ? yield(f) : f.read
@@ -178,25 +237,17 @@ module Teneo
             ::File.open(local_path, 'wb') do |f|
               block_given? ? yield(f) : f.write(data)
             end
-            close
+            save_remote
           end
 
           # @param [String] data
           def append(data = nil)
+            localize
             FileUtils.mkpath(::File.dirname(local_path))
             ::File.open(local_path, 'ab') do |f|
               block_given? ? yield(f) : f.write(data)
             end
-            close
-          end
-
-          def close
-            # Do nothing
-          end
-
-          # @return [Integer]
-          def size
-            @driver.size(driver_path)
+            save_remote
           end
 
           # @param [String, Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir] target
@@ -207,16 +258,16 @@ module Teneo
               return false
             when String
               FileUtils.cp local_path, target
+              return target
             when Teneo::DataModel::Base::File
               FileUtils.cp local_path, target.local_path
-              target.close
             when Teneo::DataModel::Base::Dir
               target = target.file(::File.basename(local_path))
               FileUtils.cp local_path, target.local_path
-              target.close
             else
               raise RuntimeError, "target class not supported: #{target.klass}"
             end
+            target.save_remote
             target
           end
 
@@ -228,17 +279,15 @@ module Teneo
               return false
             when String
               FileUtils.cp target, local_path
-              close
             when Teneo::DataModel::Base::File
               FileUtils.cp target.local_path, local_path
-              close
             when Teneo::DataModel::Base::Dir
               target = target.file(File.basename(local_path))
               FileUtils.cp target.local_path, local_path
-              close
             else
               raise RuntimeError, "target class not supported: #{target.klass}"
             end
+            save_remote
             self
           end
 
@@ -255,14 +304,30 @@ module Teneo
 
         # Get directory listing
         # @param [String] path
-        # @return [Array[<Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir>]
+        # @return [Array<String>]
         def entries(path = nil)
           path ||= ::File::SEPARATOR
           dir_children(path) do |e|
             if block_given?
               yield e
             else
-              self.entry e
+              e
+            end
+          end.cleanup
+        end
+
+        # Get directory listing
+        # @param [String] path
+        # @return [Array<Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir>]
+        def obj_entries(path = nil)
+          path ||= ::File::SEPARATOR
+          #noinspection RubyYardReturnMatch
+          dir_children(path) do |e|
+            e = entry(e)
+            if block_given?
+              yield e
+            else
+              e
             end
           end.cleanup
         end
@@ -383,6 +448,7 @@ module Teneo
         end
 
         # @param [String] path
+        # @return [Integer]
         def size(path)
           raise NotImplementedError, "Method needs implementation";
         end
@@ -391,7 +457,7 @@ module Teneo
 
         # @param [String] path
         # @param [Proc] block
-        # @return [Array<Teneo::DataModel::StorageDriver::Base::File, Teneo::DataModel::StorageDriver::Base::Dir>]
+        # @return [Array<String>]
         def dir_children(path, &block)
           raise NotImplementedError, "Method needs implementation";
         end

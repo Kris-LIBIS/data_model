@@ -23,7 +23,7 @@ module Teneo
         # Create NFS driver
         # @param [String] location the root folder for the file service
         def initialize(location:)
-          return RuntimeError, "Storage location '#{location}' does not exist" unless File.exist?(location)
+          return RuntimeError, "Storage location '#{location}' does not exist" unless ::File.exist?(location)
           @root = location
         end
 

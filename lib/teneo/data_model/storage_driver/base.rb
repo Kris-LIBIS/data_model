@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'pathname'
 require 'fileutils'
+require 'zlib'
 
 module Teneo
   module DataModel
@@ -159,8 +160,8 @@ module Teneo
           # @return [Object]
           def touch
             return nil if exist?
-            dir.touch
-            write(nil)
+            FileUtils.mkpath(::File.dirname(local_path))
+            FileUtils.touch(local_path)
           end
 
           # @return [String, Object]
@@ -173,7 +174,7 @@ module Teneo
 
           # @param [String] data
           def write(data = nil)
-            dir.touch
+            FileUtils.mkpath(::File.dirname(local_path))
             ::File.open(local_path, 'wb') do |f|
               block_given? ? yield(f) : f.write(data)
             end
@@ -182,7 +183,7 @@ module Teneo
 
           # @param [String] data
           def append(data = nil)
-            dir.touch
+            FileUtils.mkpath(::File.dirname(local_path))
             ::File.open(local_path, 'ab') do |f|
               block_given? ? yield(f) : f.write(data)
             end
@@ -245,7 +246,7 @@ module Teneo
 
         # @return [String (frozen)]
         def name
-          "#{self.class.name.split('::').last}-#{root.hash.to_s(36)}"
+          "#{self.class.name.split('::').last}-#{Zlib::crc32(root).to_s(36)}"
         end
 
         def entry_path(path)
@@ -292,7 +293,7 @@ module Teneo
           path ||= ::File::SEPARATOR
           return self.file(path) if file_exist?(path) && is_file?(path)
           #noinspection RubyYardReturnMatch
-          (self.class.name + '::File').constantize.new(path: path, driver: self)
+          (self.class.name + '::Dir').constantize.new(path: entry_path(path), driver: self)
         end
 
         # @return [String]
@@ -333,6 +334,12 @@ module Teneo
         # @param [String] path
         # @return [Teneo::DataModel::StorageDriver::Base::Dir,FalseClass]
         def mkdir(path)
+          exist?(path) ? dir(path) : false
+        end
+
+        # @param [String] path
+        # @return [Teneo::DataModel::StorageDriver::Base::Dir,FalseClass]
+        def mkpath(path)
           exist?(path) ? dir(path) : false
         end
 

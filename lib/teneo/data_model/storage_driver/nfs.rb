@@ -41,6 +41,14 @@ module Teneo
           exist?(path) ? dir(path) : false
         end
 
+        # Create a directory tree
+        # @param [String] path
+        # @return [Teneo::DataModel::StorageDriver::Nfs::Dir, FalseClass]
+        def mkpath(path)
+          FileUtils.mkpath(abspath(path))
+          exist?(path) ? dir(path) : false
+        end
+
         # Test if file exists
         # @param [String] path
         # @return [TrueClass, FalseClass]

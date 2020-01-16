@@ -37,11 +37,9 @@ module Teneo
           end
 
           def initialize(path:, driver:)
-            ext = ::File.extname(path)
-            name = ::File.basename(path, ext)
-            temp_path = ::Dir::Tmpname.create(["#{driver.name}-#{name}", ext]) {}
-            ObjectSpace.define_finalizer(self, Cleaner.new(temp_path))
-            super path: temp_path, driver: driver
+            work_path = ::File.join(driver.work_dir, path)
+            ObjectSpace.define_finalizer(self, Cleaner.new(work_path))
+            super path: work_path, driver: driver
             @remote_path = path
             @dirty = false
             @localized = false
@@ -62,6 +60,11 @@ module Teneo
           # @return [String] new driver path
           def move(new_dir)
             @remote_path = do_move(new_dir)
+          end
+
+          def touch
+            super
+            save_remote
           end
 
           # @return [String, Object]
@@ -95,11 +98,13 @@ module Teneo
             return nil if @localized
             #noinspection RubyResolve
             raise Errno::ENOENT unless exist?
+            FileUtils.mkpath(::File.dirname(@path))
             @driver.download(remote: @remote_path, local: @path)
             @localized = true
           end
 
           def save_remote
+            @driver.mkpath(::File.dirname(@remote_path))
             @driver.upload(local: @path, remote: @remote_path)
             @dirty = false
             @localized = false
@@ -125,6 +130,20 @@ module Teneo
           connect
         end
 
+        # A unique name for this storage driver instance
+        # @return [String (frozen)]
+        def name
+          "#{self.class.name.split('::').last}-#{Zlib::crc32("#{@host}#{@root}").to_s(36)}"
+        end
+
+        # The working dir where local copies of remote files are stored
+        # @param [String] value new path, not changed if nil or omitted
+        # @return [String] the workdir
+        def work_dir(value = nil)
+          @workdir = value unless value.nil?
+          @workdir || ::File.join(::Dir.tmpdir, name)
+        end
+
         # @param [String] path
         # @return [String]
         def entry_path(path)
@@ -135,7 +154,27 @@ module Teneo
         # @param [String] path
         # @return [Teneo::DataModel::StorageDriver::Ftps::Dir, FalseClass]
         def mkdir(path)
-          ftp_service { |conn| conn.mkdir(abspath(path)) }
+          unless dir_exist?(path)
+            ftp_service do |conn|
+              conn.mkdir(abspath(path))
+            end
+          end
+          super
+        end
+
+        # Create a directory tree
+        # @param [String] path
+        # @return [Teneo::DataModel::StorageDriver::Ftps::Dir, FalseClass]
+        def mkpath(path)
+          unless dir_exist?(path)
+            unless ::File::SEPARATOR == path
+              parent_dir = ::File.dirname(path)
+              mkpath(parent_dir)
+            end
+            ftp_service do |conn|
+              conn.mkdir(abspath(path))
+            end
+          end
           super
         end
 

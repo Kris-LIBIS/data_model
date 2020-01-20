@@ -55,14 +55,25 @@ module Teneo
         org.storages.find_by(name: name)
       end
 
-      # convert storage purpose to storage driver
-      # @param [String] purpose
-      # @return [Teneo::DataModel::StorageDraiver::Base]
-      def storage_from_purpose(purpose)
+      # convert absolute path to storage path
+      # @param [String] path
+      # @return [String]
+      def to_storage_path(path)
         return nil unless self.respond_to :organization
         org = self.organization
         return nil unless org
-        org.storages.find_by(purpose: purpose)
+        match = {storage: nil, work_dir: nil, path: nil}
+        org.storages.each do |storage|
+          work_dir = storage.service.work_dir
+          if path =~ /^#{Regexp.escape(work_dir)}(.*)$/
+            next if match[:work_dir] && match[:work_dir].length > work_dir.length
+            match[:storage] = storage
+            match[:work_dir] = work_dir
+            match[:path] = $1
+          end
+        end
+        return nil unless match
+        "//#{match[:storage].name}:#{match[:path]}"
       end
 
     end

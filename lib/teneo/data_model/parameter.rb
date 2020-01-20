@@ -57,7 +57,7 @@ module Teneo::DataModel
     end
 
     def reference_name
-      name =~ /#/ ? name : "#{with_parameters.name}##{name}"
+      "#{with_parameters.name}##{name}"
     end
 
     def <<(param)
@@ -93,6 +93,7 @@ module Teneo::DataModel
         target_param = target_host.parameters.find_by!(name: param)
         reference(target_param)
       rescue ActiveRecord::RecordNotFound
+        #noinspection RubyScope
         raise RuntimeError,
               "Parameter #{param} not found in #{target_host.class} '#{target_host.name}' for #{name}"
       end
@@ -100,20 +101,48 @@ module Teneo::DataModel
     end
 
     def target_candidates(unmapped: true)
-      (targets.all + with_parameters.child_parameters(export_only: true, unmapped_only: unmapped)).uniq
+      (targets.all + with_parameters.child_parameters(export_only: true, mapped: !unmapped)).uniq
     end
 
-    def to_hash
-      # noinspection RubyResolve
-      super.tap do |h|
+    # Get a Hash with the parameter data
+    # The effect of the recursive parameter:
+    #  - false (default) : only the information for the parameters of the current item is exported
+    #  - not false : missing parameters information (e.g. data type) will be collected from referenced parameters
+    #  - :collapse : deeply nested references will be added to the :references array with their reference name
+    #  - :tree : child parameter references will be added to the :targets array as a recursive hash
+    # @param [FalseClass, Symbol] recursive option that will be passed to Parameter#to_hash
+    def to_hash(recursive = false)
+      result = super().tap do |h|
         h[:with_parameters] = [[with_parameters_type, with_parameters_id]]
         h[:export] ||= false
         h[:references] = targets.map(&:reference_name)
+        h[:reference_name] = reference_name
       end
+      if recursive
+        targets.each do |target|
+          target_hash = target.to_hash(recursive)
+          (h[:targets] ||= []) << target_hash if recursive == :tree
+          v[:references] += target_hash[:references] if recursive == :collapse
+          result.reverse_merge!(target_hash)
+        end
+      end
+      result
     end
 
     def value
       default.nil? ? targets.map { |d| d.value }.compact.first : default
+    end
+
+    def mapped(to_obj = nil)
+      if to_obj
+        sources.exists?(with_parameters: to_obj)
+      else
+        !sources.empty?
+      end
+    end
+
+    def unmapped(to_obj = nil)
+      !mapped(to_obj)
     end
 
     protected

@@ -298,6 +298,11 @@ module Teneo
           "#{self.class.name.split('::').last}-#{Zlib::crc32(root).to_s(36)}"
         end
 
+        # @return [String]
+        def work_dir
+          @root
+        end
+
         def entry_path(path)
           safepath(path)
         end

@@ -112,21 +112,20 @@ module Teneo::DataModel
     #  - :tree : child parameter references will be added to the :targets array as a recursive hash
     # @param [FalseClass, Symbol] recursive option that will be passed to Parameter#to_hash
     def to_hash(recursive = false)
-      result = super().tap do |h|
+      super().tap do |h|
         h[:with_parameters] = [[with_parameters_type, with_parameters_id]]
         h[:export] ||= false
         h[:references] = targets.map(&:reference_name)
         h[:reference_name] = reference_name
-      end
-      if recursive
-        targets.each do |target|
-          target_hash = target.to_hash(recursive)
-          (h[:targets] ||= []) << target_hash if recursive == :tree
-          v[:references] += target_hash[:references] if recursive == :collapse
-          result.reverse_merge!(target_hash)
+        if recursive
+          targets.each do |target|
+            target_hash = target.to_hash(recursive)
+            (h[:targets] ||= []) << target_hash if recursive == :tree
+            h[:references] += target_hash[:references] if recursive == :collapse
+            h.reverse_merge!(target_hash)
+          end
         end
       end
-      result
     end
 
     def value

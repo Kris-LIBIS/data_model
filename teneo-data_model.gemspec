@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-lib = File.expand_path('lib', __dir__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'teneo/data_model/version'
-
 Gem::Specification.new do |spec|
   spec.name          = 'teneo-data_model'
-  spec.version       = ::Teneo::DataModel::VERSION
+  spec.version       = '0.2.4'
   spec.authors       = ['Kris Dekeyser']
   spec.email         = ['kris.dekeyser@libis.be']
 
